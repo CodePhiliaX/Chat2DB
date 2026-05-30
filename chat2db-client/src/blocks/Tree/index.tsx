@@ -360,23 +360,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     const _treeNodeData = _props?.treeNodeData || props.data;
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
 
-    console.log('[Chat2DB][Tree.loadData] called', {
-      refresh: _props?.refresh || false,
-      pageNo: _props?.pageNo || 1,
-      nodeUuid: _treeNodeData.uuid,
-      nodeName: _treeNodeData.name,
-      nodeType: _treeNodeData.treeNodeType,
-      pretendNodeType: _treeNodeData.pretendNodeType,
-      fromNodeUuid: props.data.uuid,
-      fromNodeName: props.data.name,
-    });
-
     if (_props?.refresh) {
-      console.log('[Chat2DB][Tree.loadData] refresh requested', {
-        nodeUuid: _treeNodeData.uuid,
-        nodeName: _treeNodeData.name,
-        nodeType: _treeNodeData.treeNodeType,
-      });
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -405,13 +389,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       }, { signal })
       .then((res: any) => {
         if (signal?.aborted) return;
-        console.log('[Chat2DB][Tree.loadData] getChildren success', {
-          refresh: _props?.refresh || false,
-          nodeUuid: _treeNodeData.uuid,
-          nodeName: _treeNodeData.name,
-          hasDataProperty: !!res?.data,
-          resultLength: Array.isArray(res) ? res.length : res?.data?.length,
-        });
         const filteredRes = filterDeletedNode(res, _props?.deletedNodeName);
         if (filteredRes.length || filteredRes.data) {
           if (filteredRes.data) {
@@ -450,12 +427,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       })
       .catch((error) => {
         if (signal?.aborted || error?.name === 'AbortError') return;
-        console.log('[Chat2DB][Tree.loadData] getChildren failed', {
-          refresh: _props?.refresh || false,
-          nodeUuid: _treeNodeData.uuid,
-          nodeName: _treeNodeData.name,
-          error,
-        });
         setIsLoading(false);
       });
   }
@@ -486,13 +457,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     for (let i = 0; i < _treeData?.length; i++) {
       if (_treeData[i].uuid === uuid) {
         result = _treeData[i];
-        console.log('[Chat2DB][Tree.insertData] target found', {
-          uuid,
-          nodeName: result.name,
-          nodeType: result.treeNodeType,
-          dataLength: Array.isArray(data) ? data.length : data?.length,
-          clearChildren: !data,
-        });
         if (data) {
           data.map((item: any) => {
             item.parentNode = result;

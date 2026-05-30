@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import usePollRequestService, { ServiceStatus } from '@/hooks/usePollRequestService';
 import i18n, { isEn } from '@/i18n';
-import { Button, ConfigProvider, Spin, Tooltip } from 'antd';
+import { App, Button, ConfigProvider, Spin, Tooltip } from 'antd';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import service from '@/service/misc';
@@ -99,15 +99,17 @@ const GlobalLayout = () => {
 
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
-      <div className={styles.app}>
-        {/* Open screen animation  */}
-        {(serviceStatus === ServiceStatus.PENDING || curUser === null) && <OpenScreenAnimation />}
-        <AppTitleBar className={styles.appTitleBar} />
-        <div className={styles.appBody}>
-          <Outlet />
+      <App>
+        <div className={styles.app}>
+          {/* Open screen animation  */}
+          {(serviceStatus === ServiceStatus.PENDING || curUser === null) && <OpenScreenAnimation />}
+          <AppTitleBar className={styles.appTitleBar} />
+          <div className={styles.appBody}>
+            <Outlet />
+          </div>
         </div>
-      </div>
-      <GlobalComponent />
+        <GlobalComponent />
+      </App>
     </ConfigProvider>
   );
 };

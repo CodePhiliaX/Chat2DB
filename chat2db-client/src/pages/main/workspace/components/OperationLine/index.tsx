@@ -77,23 +77,25 @@ const OperationLine = (props: IProps) => {
             size={14}
           />
           <Tooltip title={i18n('schemaDiff.title')}>
-            <Iconfont
-              onClick={() => {
-                addWorkspaceTab({
-                  id: uuid(),
-                  type: WorkspaceTabType.SchemaDiff,
-                  title: i18n('schemaDiff.title'),
-                  uniqueData: {
-                    dataSourceId: currentConnectionDetails?.id,
-                    databaseType: currentConnectionDetails?.type,
-                  },
-                });
-              }}
-              code="&#xe6f3;"
-              box
-              boxSize={20}
-              size={14}
-            />
+            <span>
+              <Iconfont
+                onClick={() => {
+                  addWorkspaceTab({
+                    id: uuid(),
+                    type: WorkspaceTabType.SchemaDiff,
+                    title: i18n('schemaDiff.title'),
+                    uniqueData: {
+                      dataSourceId: currentConnectionDetails?.id,
+                      databaseType: currentConnectionDetails?.type,
+                    },
+                  });
+                }}
+                code="&#xe6f3;"
+                box
+                boxSize={20}
+                size={14}
+              />
+            </span>
           </Tooltip>
           {/* {searchIng ? (
             <Iconfont

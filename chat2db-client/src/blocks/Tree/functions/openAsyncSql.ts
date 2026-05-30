@@ -26,7 +26,6 @@ export const openView = (props:{
           tableName: treeNodeData.name
         } as any)
         .then((res) => {
-          console.log('[openView] API response:', res);
           if (res && res.ddl) {
             resolve(res.ddl);
           } else {
@@ -47,7 +46,6 @@ export const openFunction = (props:{
   addWorkspaceTab: any;
   treeNodeData: any;
 }) => {
-  console.log('[openFunction] Called with treeNodeData:', props.treeNodeData);
   const { treeNodeData } = props;
   createConsole({
     name: treeNodeData.name,
@@ -68,7 +66,6 @@ export const openFunction = (props:{
           functionName: treeNodeData.name
         } as any)
         .then((res) => {
-          console.log('[openFunction] API response:', res);
           if (res && res.functionBody) {
             resolve(res.functionBody);
           } else {
@@ -109,7 +106,6 @@ export const openProcedure = (props:{
           procedureName: treeNodeData.name
         } as any)
         .then((res) => {
-          console.log('[openProcedure] API response:', res);
           if (res && res.procedureBody) {
             resolve(res.procedureBody);
           } else {
@@ -150,7 +146,6 @@ export const openTrigger = (props:{
           triggerName: treeNodeData.name
         } as any)
         .then((res) => {
-          console.log('[openTrigger] API response:', res);
           if (res && res.triggerBody) {
             resolve(res.triggerBody);
           } else {

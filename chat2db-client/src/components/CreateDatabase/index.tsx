@@ -138,13 +138,14 @@ const CreateDatabase = () => {
     setOpenCreateDatabaseModal(openCreateDatabaseModal);
   }, []);
 
-  return (!!relyOnParams && (
+  return (
     <Modal
       onCancel={() => {
         setOpen(false);
       }}
       title={config.title}
       destroyOnHidden
+      forceRender
       confirmLoading={confirmLoading}
       open={open}
       onOk={onOk}
@@ -154,7 +155,7 @@ const CreateDatabase = () => {
           <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
           </Form.Item>
-          {noCommentDatabase.includes(relyOnParams.databaseType) ? null : (
+          {relyOnParams && noCommentDatabase.includes(relyOnParams.databaseType) ? null : (
             <Form.Item label={i18n('common.label.comment')} name="comment">
               <Input autoComplete="off" />
             </Form.Item>
@@ -184,7 +185,7 @@ const CreateDatabase = () => {
         )}
       </div>
     </Modal>
-  ))
+  );
 
 };
 

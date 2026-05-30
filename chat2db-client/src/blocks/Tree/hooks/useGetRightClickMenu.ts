@@ -421,10 +421,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.deleteDatabase'),
         icon: '\ue6a7',
         handle: () => {
-          console.log('[Chat2DB][deleteDatabase] menu clicked', {
-            currentNode: treeNodeData,
-            parentNode: treeNodeData.parentNode,
-          });
           deleteDatabase(treeNodeData, loadData, refreshRootData);
         },
       },
@@ -810,7 +806,6 @@ export const getRightClickMenu = (props: IProps) => {
       icon: '\ue618',
       doubleClickTrigger: true,
       handle: () => {
-        console.log(treeNodeData.extraParams);
         const databaseName = compatibleDataBaseName(treeNodeData.name!, treeNodeData.extraParams!.databaseType,treeNodeData.extraParams?.schemaName);
         addWorkspaceTab({
           id: `${OperationColumn.OpenTable}-${treeNodeData.uuid}`,

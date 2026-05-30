@@ -74,32 +74,15 @@ export function monacoSqlAutocomplete(
         return returnCompletionItemsByVersion([], opts.monacoEditorVersion);
       }
 
-      // 生成补全 ID 用于分组日志
-      const completionId = `补全_${Date.now() % 10000}`;
-      console.group(`🔍 [SQL 补全] ${completionId}`);
-      console.log('解析结果:', {
-        success: parseResult.success,
-        hasError: !!parseResult.error,
-        cursorKeyPath: parseResult.cursorKeyPath?.length || 0,
-        nextMatchingsCount: parseResult.nextMatchings?.length || 0,
-      });
-      console.log('debugInfo:', parseResult.debugInfo);
-      console.log('cursorKeyPath 详情:', parseResult.cursorKeyPath);
-
       const cursorInfo = await reader.getCursorInfo(
         parseResult.ast,
         parseResult.cursorKeyPath,
       );
 
-      console.log('光标信息:', cursorInfo?.type || 'null');
-
       const parserSuggestion = opts.pipeKeywords(parseResult.nextMatchings);
-
-      console.log('关键字补全数量:', parserSuggestion.length);
 
       // 当 cursorInfo 为 null 但解析失败时，尝试从 SELECT 语句获取字段
       if (!cursorInfo && parseResult.ast && parseResult.error) {
-        console.log('🔄 解析失败，尝试从 SELECT 语句获取字段');
         const fallbackFields = await reader.getFieldsFromStatement(
           parseResult.ast,
           [],  // 空的 cursorKeyPath
@@ -107,17 +90,12 @@ export function monacoSqlAutocomplete(
         );
         
         if (fallbackFields && fallbackFields.length > 0) {
-          console.log('✅ 从 SELECT 语句获取到字段数量:', fallbackFields.length);
           const uniqueFallbackFields = _.uniqBy(fallbackFields, 'label');
           const functionNames = await opts.onSuggestFunctionName('');
           const result = uniqueFallbackFields.concat(functionNames).concat(parserSuggestion);
-          console.log('最终补全项总数:', result.length);
-          console.groupEnd();
           return returnCompletionItemsByVersion(result, opts.monacoEditorVersion);
         }
         
-        console.log('⚠️ 无法获取字段，返回关键字补全');
-        console.groupEnd();
         return returnCompletionItemsByVersion(
           parserSuggestion,
           opts.monacoEditorVersion,
@@ -125,54 +103,22 @@ export function monacoSqlAutocomplete(
       }
 
       if (!cursorInfo) {
-        console.log('⚠️ 无光标信息，返回关键字补全');
-        console.groupEnd();
         return returnCompletionItemsByVersion(
           parserSuggestion,
           opts.monacoEditorVersion,
         );
       }
 
-      console.log('光标类型:', cursorInfo.type);
-
       switch (cursorInfo.type) {
         case 'tableField':
-          console.log('📋 表字段补全模式');
           const cursorRootStatementFields = await reader.getFieldsFromStatement(
             parseResult.ast,
             parseResult.cursorKeyPath,
             opts.onSuggestTableFields,
           );
 
-          console.log('获取到字段数量:', cursorRootStatementFields.length);
-
-          // 打印所有字段的详细信息
-          console.log('所有字段详情:');
-          cursorRootStatementFields.forEach((f, idx) => {
-            console.log(`  [${idx}] label=${f.label}, groupPickerName=${f.groupPickerName}, detail=${f.detail}`);
-          });
-
-          // 打印重复字段的详细信息
-          const labelCounts = _.countBy(cursorRootStatementFields, 'label');
-          const duplicates = _.pickBy(labelCounts, (count, label) => count > 1);
-          if (Object.keys(duplicates).length > 0) {
-            console.log('⚠️ 发现重复字段:', duplicates);
-            // 打印重复字段的完整信息
-            Object.keys(duplicates).forEach(label => {
-              const dupFields = cursorRootStatementFields.filter(f => f.label === label);
-              console.log(`字段 "${label}" 的 ${dupFields.length} 个实例:`, dupFields.map(f => ({
-                label: f.label,
-                groupPickerName: f.groupPickerName,
-                tableInfo: f.tableInfo,
-              })));
-            });
-          } else {
-            console.log('✅ 没有发现重复字段');
-          }
-
           // 去重字段（避免重复）
           const uniqueFields = _.uniqBy(cursorRootStatementFields, 'label');
-          console.log('去重后字段数量:', uniqueFields.length);
 
           // group.fieldName
           const groups = _.groupBy(
@@ -181,8 +127,6 @@ export function monacoSqlAutocomplete(
             }),
             'groupPickerName',
           );
-
-          console.log('分组信息:', Object.keys(groups));
 
           const functionNames = await opts.onSuggestFunctionName(
             cursorInfo.token.value,
@@ -199,8 +143,6 @@ export function monacoSqlAutocomplete(
                 : [],
             );
 
-          console.log('最终补全项总数:', result.length);
-          console.groupEnd();
           return returnCompletionItemsByVersion(
             result,
             opts.monacoEditorVersion,
@@ -208,15 +150,12 @@ export function monacoSqlAutocomplete(
           
         case 'tableFieldAfterGroup':
           // 字段 . 后面的部分
-          console.log(`🔹 表名限定字段模式，分组: ${(cursorInfo as ICursorInfo<{ groupName: string }>).groupName}`);
           const cursorRootStatementFieldsAfter =
             await reader.getFieldsFromStatement(
               parseResult.ast,
               parseResult.cursorKeyPath as any,
               opts.onSuggestTableFields,
             );
-
-          console.log('过滤前字段数量:', cursorRootStatementFieldsAfter.length);
 
           // 去重并过滤
           const uniqueFieldsAfter = _.uniqBy(cursorRootStatementFieldsAfter, 'label');
@@ -232,53 +171,39 @@ export function monacoSqlAutocomplete(
               return field && field.label && field.label.trim() !== '' && field.insertText && field.insertText.trim() !== '';
             });
 
-          console.log('过滤后字段数量:', filteredFields.length);
-
           // 字段排在最前面，关键字排在后面
           const sortedFields = [
             ...filteredFields,  // 字段（sortText: B*）
             ...parserSuggestion.filter(item => item.insertText && item.insertText.trim() !== ''),  // SQL 关键字（sortText: W*）
           ];
 
-          console.log('最终补全项总数:', sortedFields.length);
-          console.groupEnd();
           return returnCompletionItemsByVersion(
             sortedFields,
             opts.monacoEditorVersion,
           );
           
         case 'joinTable':
-          console.log('🔗 JOIN 表名补全模式');
           const joinTableNames = await opts.onSuggestJoinTables(
             cursorInfo as ICursorInfo<IJoinTableInfo>,
           );
 
-          console.log('JOIN 表名数量:', joinTableNames.length);
-          console.groupEnd();
           return returnCompletionItemsByVersion(
             joinTableNames.concat(parserSuggestion),
             opts.monacoEditorVersion,
           );
 
         case 'tableName':
-          console.log('📚 表名补全模式');
           const tableNames = await opts.onSuggestTableNames(
             cursorInfo as ICursorInfo<ITableInfo>,
           );
 
-          console.log('表名数量:', tableNames.length);
-          console.groupEnd();
           return returnCompletionItemsByVersion(
             tableNames.concat(parserSuggestion),
             opts.monacoEditorVersion,
           );
         case 'functionName':
-          console.log('🔧 函数名补全模式');
-          console.groupEnd();
           return opts.onSuggestFunctionName(cursorInfo.token.value);
         default:
-          console.log('⚪ 默认模式，返回关键字补全');
-          console.groupEnd();
           return returnCompletionItemsByVersion(
             parserSuggestion,
             opts.monacoEditorVersion,

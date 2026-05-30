@@ -1,6 +1,6 @@
-import {useState, useEffect, useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ConsoleStatus } from '@/constants';
-import { message } from 'antd';
+import { App } from 'antd';
 import indexedDB from '@/indexedDB';
 import historyServer from '@/service/history';
 import i18n from '@/i18n';
@@ -18,6 +18,7 @@ interface IProps {
 
 export const useSaveEditorData = (props: IProps) => {
   const { isActive, source, editorRef, boundInfo, defaultValue } = props;
+  const { message } = App.useApp();
   const timerRef = useRef<any>();
     // 上一次同步的console数据
   const lastSyncConsole = useRef<any>(defaultValue);
@@ -124,5 +125,5 @@ export const useSaveEditorData = (props: IProps) => {
     }
   }, []);
 
-  return {saveConsole, saveStatus}
-}
+  return { saveConsole, saveStatus };
+};

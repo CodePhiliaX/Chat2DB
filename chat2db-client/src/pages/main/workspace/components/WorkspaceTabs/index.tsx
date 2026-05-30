@@ -106,11 +106,6 @@ const WorkspaceTabs = memo(() => {
       (tab) => !_workspaceTabItems.some((ct) => ct.id === tab.id),
     );
 
-    console.log('[WorkspaceTabs] consoleList changed, merging tabs:', {
-      consoleTabs: _workspaceTabItems.map((t) => ({ id: t.id, type: t.type, title: t.title })),
-      localTabs: localTabs.map((t) => ({ id: t.id, type: t.type, title: t.title })),
-    });
-
     setWorkspaceTabList([..._workspaceTabItems, ...localTabs]);
   }, [consoleList]);
 
@@ -177,10 +172,7 @@ const WorkspaceTabs = memo(() => {
 
   // 切换tab
   const onTabChange = (key: string | null) => {
-    console.log('[WorkspaceTabs] Active tab changed:', key);
     const tab = workspaceTabList?.find((item) => String(item.id) === String(key));
-    console.log('[WorkspaceTabs] Active tab details:', tab ? { id: tab.id, type: tab.type, title: tab.title } : null);
-    console.log('[WorkspaceTabs] Current workspaceTabList:', workspaceTabList?.map((t) => ({ id: t.id, type: t.type, title: t.title })));
 
     setActiveConsoleId(key);
 
@@ -348,48 +340,40 @@ const WorkspaceTabs = memo(() => {
       switch (item.type) {
         case WorkspaceTabType.FUNCTION:
           return () => {
-            console.log('[loadSQL] Calling getFunctionDetail with:', { dataSourceId: commonParams.dataSourceId, databaseName: commonParams.databaseName, schemaName: commonParams.schemaName, functionName: uniqueData.functionName || uniqueData.name });
             return sqlService.getFunctionDetail({
               ...commonParams,
               functionName: uniqueData.functionName || uniqueData.name,
             } as any).then((res) => {
-              console.log('[loadSQL] getFunctionDetail response:', res);
               return res.functionBody || '';
             });
           };
           
         case WorkspaceTabType.PROCEDURE:
           return () => {
-            console.log('[loadSQL] Calling getProcedureDetail with:', { dataSourceId: commonParams.dataSourceId, databaseName: commonParams.databaseName, schemaName: commonParams.schemaName, procedureName: uniqueData.procedureName || uniqueData.name });
             return sqlService.getProcedureDetail({
               ...commonParams,
               procedureName: uniqueData.procedureName || uniqueData.name,
             } as any).then((res) => {
-              console.log('[loadSQL] getProcedureDetail response:', res);
               return res.procedureBody || '';
             });
           };
           
         case WorkspaceTabType.TRIGGER:
           return () => {
-            console.log('[loadSQL] Calling getTriggerDetail with:', { dataSourceId: commonParams.dataSourceId, databaseName: commonParams.databaseName, schemaName: commonParams.schemaName, triggerName: uniqueData.triggerName || uniqueData.name });
             return sqlService.getTriggerDetail({
               ...commonParams,
               triggerName: uniqueData.triggerName || uniqueData.name,
             } as any).then((res) => {
-              console.log('[loadSQL] getTriggerDetail response:', res);
               return res.triggerBody || '';
             });
           };
           
         case WorkspaceTabType.VIEW:
           return () => {
-            console.log('[loadSQL] Calling getViewDetail with:', { dataSourceId: commonParams.dataSourceId, databaseName: commonParams.databaseName, schemaName: commonParams.schemaName, tableName: uniqueData.tableName || uniqueData.name });
             return sqlService.getViewDetail({
               ...commonParams,
               tableName: uniqueData.tableName || uniqueData.name,
             } as any).then((res) => {
-              console.log('[loadSQL] getViewDetail response:', res);
               return res.ddl || '';
             });
           };
@@ -400,7 +384,6 @@ const WorkspaceTabs = memo(() => {
     };
     
     const loadSQL = getLoadSQL();
-    console.log('[renderSQLExecute] item.type:', item.type, 'loadSQL exists:', !!loadSQL);
     
     return (
       <SQLExecute

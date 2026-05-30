@@ -27,13 +27,6 @@ export default memo<IProps>((props) => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const getTreeData = (refresh = false) => {
-    console.log('[Chat2DB][TableList.getTreeData] called', {
-      refresh,
-      dataSourceId: currentConnectionDetails?.id,
-      dataSourceName: currentConnectionDetails?.alias,
-      supportDatabase: currentConnectionDetails?.supportDatabase,
-    });
-
     if (!currentConnectionDetails?.id) {
       setTreeData([]);
       return;
@@ -60,10 +53,6 @@ export default memo<IProps>((props) => {
       }, { signal })
       .then((res) => {
         if (signal.aborted) return;
-        console.log('[Chat2DB][TableList.getTreeData] success', {
-          refresh,
-          resultLength: Array.isArray(res) ? res.length : undefined,
-        });
         setTreeData(res);
       })
       .catch(() => {

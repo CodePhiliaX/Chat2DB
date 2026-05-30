@@ -31,31 +31,15 @@ export const DeleteDatabaseModalContent = (params: {
       dataSourceId: treeNodeData.extraParams.dataSourceId,
       databaseName: treeNodeData.name,
     };
-    console.log('[Chat2DB][deleteDatabase] confirm delete', {
-      params: p,
-      currentNode: treeNodeData,
-      parentNode: treeNodeData.parentNode,
-    });
     mysqlService
       .deleteDatabase(p)
       .then(() => {
-        console.log('[Chat2DB][deleteDatabase] delete api success', {
-          deletedDatabase: treeNodeData.name,
-          hasParentNode: !!treeNodeData.parentNode,
-          parentNode: treeNodeData.parentNode,
-        });
         if (treeNodeData.parentNode) {
-          console.log('[Chat2DB][deleteDatabase] refresh parent tree node', {
-            parentUuid: treeNodeData.parentNode.uuid,
-            parentName: treeNodeData.parentNode.name,
-            parentType: treeNodeData.parentNode.treeNodeType,
-          });
           loadData({
             refresh: true,
             treeNodeData: treeNodeData.parentNode,
           });
         } else {
-          console.log('[Chat2DB][deleteDatabase] refresh root tree because parentNode is empty');
           refreshRootData?.(true);
         }
         openModal(false);
