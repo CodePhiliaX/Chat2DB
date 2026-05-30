@@ -49,6 +49,10 @@ export default defineConfig({
           component: 'main',
         },
         {
+          path: '/taskCenter',
+          component: 'main',
+        },
+        {
           path: '/',
           component: 'main',
         },

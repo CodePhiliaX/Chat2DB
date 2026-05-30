@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Table, Tag, Button, Progress, Tooltip, Empty, Popconfirm, message } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { ClearOutlined, DownloadOutlined, SyncOutlined } from '@ant-design/icons';
+import { Button, Empty, Popconfirm, Progress, Table, Tag, Tooltip, message } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
-import taskService, { ITask } from '@/service/task';
 import i18n from '@/i18n';
+import { getConnectionList, useConnectionStore } from '@/pages/main/store/connection';
+import taskService, { ITask } from '@/service/task';
 
 import styles from './index.less';
 
@@ -22,13 +24,19 @@ const typeMap: Record<string, string> = {
   EXECUTE_SQL: i18n('workspace.taskCenter.type.executeSql'),
   GENERATE_DATA: i18n('workspace.taskCenter.type.generateData'),
   DOWNLOAD_TABLE_STRUCTURE: i18n('workspace.taskCenter.type.exportSchema'),
+  TRANSFER_TABLE_DATA: i18n('workspace.taskCenter.type.transfer'),
 };
 
 const TaskCenter: React.FC = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(false);
   const [cleanupLoading, setCleanupLoading] = useState(false);
+  const connectionList = useConnectionStore((state) => state.connectionList);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+  const dataSourceNameMap = useMemo(() => {
+    return new Map((connectionList || []).map((connection) => [connection.id, connection.alias]));
+  }, [connectionList]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -50,6 +58,7 @@ const TaskCenter: React.FC = () => {
 
   useEffect(() => {
     fetchTasks();
+    getConnectionList();
     pollingRef.current = setInterval(fetchTasks, 3000);
     return () => {
       if (pollingRef.current) {
@@ -143,7 +152,8 @@ const TaskCenter: React.FC = () => {
       dataIndex: 'dataSourceId',
       key: 'dataSourceId',
       width: 100,
-      render: (id) => (id ? `#${id}` : '-'),
+      ellipsis: true,
+      render: (id) => (id ? dataSourceNameMap.get(id) || `#${id}` : '-'),
     },
     {
       title: i18n('workspace.taskCenter.download'),
