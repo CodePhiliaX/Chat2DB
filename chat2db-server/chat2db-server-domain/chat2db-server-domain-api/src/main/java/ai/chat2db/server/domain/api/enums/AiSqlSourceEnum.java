@@ -62,6 +62,11 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
      */
     FASTCHATAI("FAST CHAT AI"),
 
+    /**
+     * OLLAMA AI
+     */
+    OLLAMAAI("OLLAMA AI"),
+
     ;
 
     final String description;
@@ -89,6 +94,11 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
     @Override
     public String getCode() {
         return this.name();
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
     }
 
 }

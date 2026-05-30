@@ -98,6 +98,3 @@ export const setHoldingService = (holdingService: boolean) => {
   useSettingStore.setState({ holdingService });
 }
 
-
-
-

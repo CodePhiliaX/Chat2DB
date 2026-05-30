@@ -9,4 +9,7 @@ export interface IAiConfig {
   stream?: boolean;
   secretKey?:string;
   model?: string;
+  ollamaApiHost?: string;
+  ollamaModel?: string;
+  content?: string;
 }

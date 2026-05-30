@@ -15,6 +15,7 @@ const AITypeName = {
   [AIType.OPENAI]: 'Open AI',
   [AIType.AZUREAI]: 'Azure AI',
   [AIType.RESTAI]: i18n('setting.tab.custom'),
+  [AIType.OLLAMAAI]: i18n('setting.tab.aiType.ollama'),
 };
 
 const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
@@ -34,29 +35,33 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
   },
   [AIType.WENXINAI]: {
     apiKey: true,
-    apiHost: true,
+    apiHost: 'https://api.weixin.qq.com',
   },
   [AIType.TONGYIQIANWENAI]: {
     apiKey: true,
-    apiHost: true,
-    model: true,
+    apiHost: 'https://dashscope.aliyuncs.com/api/v1',
+    model: 'qwen-turbo',
   },
   [AIType.OPENAI]: {
     apiKey: true,
     apiHost: 'https://api.openai.com/',
-    httpProxyHost: true,
-    httpProxyPort: true,
+    httpProxyHost: '127.0.0.1',
+    httpProxyPort: '8080',
     // model: 'gpt-3.5-turbo',
   },
   [AIType.AZUREAI]: {
     apiKey: true,
-    apiHost: true,
-    model: true,
+    apiHost: 'https://your-resource.openai.azure.com',
+    model: 'gpt-35-turbo',
   },
   [AIType.RESTAI]: {
     apiKey: true,
-    apiHost: true,
-    model: true,
+    apiHost: 'https://api.openai.com/v1',
+    model: 'gpt-3.5-turbo',
+  },
+  [AIType.OLLAMAAI]: {
+    ollamaApiHost: 'http://localhost:11434',
+    ollamaModel: 'qwen2.5-coder',
   },
 };
 

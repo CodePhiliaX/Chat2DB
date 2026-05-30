@@ -7,6 +7,7 @@ export enum AIType {
   OPENAI = 'OPENAI',
   AZUREAI = 'AZUREAI',
   RESTAI = 'RESTAI',
+  OLLAMAAI = 'OLLAMAAI',
 }
 
 export interface IRemainingUse {
