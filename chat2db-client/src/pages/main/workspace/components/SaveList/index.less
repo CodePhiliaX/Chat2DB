@@ -15,6 +15,9 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--color-border);
+  .importFileInput {
+    display: none;
+  }
   .leftModuleTitleText {
     width: 100%;
     display: flex;
@@ -34,6 +37,7 @@
       margin-right: 10px;
     }
     .refreshIcon,
+    .importIcon,
     .searchIcon {
       cursor: pointer;
       height: 100%;
@@ -42,6 +46,9 @@
       &:hover {
         color: var(--color-primary);
       }
+    }
+    .importIcon {
+      margin-right: 10px;
     }
   }
   .leftModuleTitleSearch {
