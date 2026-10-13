@@ -43,3 +43,12 @@ mvn -B -f chat2db-community-server/pom.xml -pl ':chat2db-community-domain-core,:
 ```
 
 This feature's real-database evidence targets PostgreSQL16 and H2 JDBC contracts. Other engines, native installers and provider CI require their own execution evidence; they are not inferred from a successful package.
+
+Failed or cancelled ordinary SQL scripts discard their borrowed connection when JDBC auto-commit
+was enabled at entry. A script may open a server transaction while that JDBC flag stays true;
+returning the lease would expose an uncommitted transaction to later requests. Detachment occurs
+before close, close failures are suppressed on the original error, and a caller that already had
+auto-commit disabled keeps its transaction decision. Committed earlier chunks remain committed.
+Four real-H2 script regressions cover cancellation, execution failure, caller ownership and the
+committed prefix. The owning package runs958 tests/0 failures/0 errors/1 existing platform skip;
+the required feature suites and fresh PostgreSQL16 eight-case run have no skips.
