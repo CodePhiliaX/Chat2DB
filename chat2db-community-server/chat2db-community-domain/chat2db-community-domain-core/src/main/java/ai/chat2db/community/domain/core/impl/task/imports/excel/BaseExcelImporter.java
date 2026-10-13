@@ -54,7 +54,7 @@ public abstract class BaseExcelImporter extends BaseImporter {
         public NoModelDataListener(ImportTaskSpec spec, TaskExecutionContext taskContext,
                 List<TableColumn> columns) {
             this.taskContext = taskContext;
-            this.sqlExecutor = new ImportSqlExecutor(taskContext);
+            this.sqlExecutor = new ImportSqlExecutor(taskContext, false);
             this.rowSqlBuilder = new ImportRowSqlBuilder(spec, columns);
         }
 

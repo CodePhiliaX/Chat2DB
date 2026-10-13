@@ -21,10 +21,27 @@ public final class ImportSqlExecutor {
 
     private final TaskExecutionContext context;
 
+    private final boolean batchInserts;
+
+    private final SqlTransactionScope transactionScope = new SqlTransactionScope();
+
     private final AtomicInteger batchSequence = new AtomicInteger();
 
     public ImportSqlExecutor(TaskExecutionContext context) {
+        this(context, true);
+    }
+
+    public ImportSqlExecutor(TaskExecutionContext context, boolean batchInserts) {
         this.context = context;
+        this.batchInserts = batchInserts;
+    }
+
+    boolean managesOwnTransaction() {
+        return !transactionScope.isOpen();
+    }
+
+    void observeExecutedStatement(String sql) {
+        transactionScope.observe(sql);
     }
 
     public void executeBatch(List<String> sqls) {
@@ -41,7 +58,7 @@ public final class ImportSqlExecutor {
                     continue;
                 }
                 statementCount++;
-                if (sql.trim().toUpperCase().startsWith("INSERT")) {
+                if (batchInserts && sql.trim().toUpperCase().startsWith("INSERT")) {
                     inserts.add(sql);
                     continue;
                 }
@@ -109,13 +126,18 @@ public final class ImportSqlExecutor {
         return "import.sql.executionFailed";
     }
 
-    private void flushInserts(List<String> inserts) {
+    private void flushInserts(List<String> inserts) throws SQLException {
         if (inserts.isEmpty()) {
             return;
         }
         context.checkCancelled();
-        DefaultSQLExecutor.getInstance().executeBatchInsert(
-                Chat2DBContext.getConnection(), List.copyOf(inserts), context, context::checkCancelled);
+        if (managesOwnTransaction() && Chat2DBContext.getConnection().getAutoCommit()) {
+            DefaultSQLExecutor.getInstance().executeBatchInsert(
+                    Chat2DBContext.getConnection(), List.copyOf(inserts), context, context::checkCancelled);
+        } else {
+            DefaultSQLExecutor.getInstance().executeJdbcBatchInsert(
+                    Chat2DBContext.getConnection(), List.copyOf(inserts), context, context::checkCancelled);
+        }
         inserts.clear();
     }
 
@@ -124,5 +146,6 @@ public final class ImportSqlExecutor {
         DefaultSQLExecutor.getInstance().execute(
                 Chat2DBContext.getConnection(), sql, context, context::checkCancelled);
         context.checkCancelled();
+        observeExecutedStatement(sql);
     }
 }
