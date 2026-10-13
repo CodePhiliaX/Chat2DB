@@ -6,7 +6,7 @@ When a connection is in JDBC auto-commit mode and the script has not opened a tr
 
 When the caller has disabled JDBC auto-commit, the caller retains its commit/rollback decision. An SQL script that executes `BEGIN` or `START TRANSACTION` also owns its transaction, even if the driver still reports JDBC auto-commit. Insert batches do not commit behind that script. `ROLLBACK TO [SAVEPOINT]` keeps the enclosing transaction open, and `COMMIT/ROLLBACK AND CHAIN` keeps the next transaction under script control. PostgreSQL `END` and `ABORT` aliases are covered by the same boundary. See the [PostgreSQL 16 transaction documentation](https://www.postgresql.org/docs/16/sql-rollback.html) and [savepoint rollback documentation](https://www.postgresql.org/docs/16/sql-rollback-to.html).
 
-Ordinary CSV and Excel imports keep sequential execution so a row failure retains the already executed prefix. Their existing mode and format behavior is not changed into an atomic batch. Parallel insert paths continue to use the batch implementation.
+Ordinary CSV, Excel and JSON imports keep sequential execution so a row failure retains the already executed prefix. Their existing mode and format behavior is not changed into an atomic batch. Parallel insert paths continue to use the batch implementation.
 
 ## Verification
 
