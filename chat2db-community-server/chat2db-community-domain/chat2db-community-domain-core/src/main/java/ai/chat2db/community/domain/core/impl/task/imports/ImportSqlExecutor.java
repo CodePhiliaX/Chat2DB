@@ -12,6 +12,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -131,12 +132,24 @@ public final class ImportSqlExecutor {
             return;
         }
         context.checkCancelled();
-        if (managesOwnTransaction() && Chat2DBContext.getConnection().getAutoCommit()) {
+        Connection connection = Chat2DBContext.getConnection();
+        boolean ownsTransaction = false;
+        if (connection.getAutoCommit()) {
+            try {
+                ownsTransaction = !Chat2DBContext.getDbMetaData().hasOpenTransaction(connection, context)
+                        .orElse(transactionScope.isOpen());
+            } catch (SQLException failure) {
+                context.checkCancelled();
+                throw failure;
+            }
+            context.checkCancelled();
+        }
+        if (ownsTransaction) {
             DefaultSQLExecutor.getInstance().executeBatchInsert(
-                    Chat2DBContext.getConnection(), List.copyOf(inserts), context, context::checkCancelled);
+                    connection, List.copyOf(inserts), context, context::checkCancelled);
         } else {
             DefaultSQLExecutor.getInstance().executeJdbcBatchInsert(
-                    Chat2DBContext.getConnection(), List.copyOf(inserts), context, context::checkCancelled);
+                    connection, List.copyOf(inserts), context, context::checkCancelled);
         }
         inserts.clear();
     }

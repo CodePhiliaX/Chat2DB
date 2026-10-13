@@ -1767,6 +1767,7 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                 List<String> chunk = sqlCacheList.subList(start,
                         Math.min(sqlCacheList.size(), start + BATCH_INSERT_CHUNK_SIZE));
                 executeInsertChunk(connection, chunk, statementListener, cancellationChecker);
+                checkTaskCancellation(cancellationChecker);
                 if (manageTransaction) {
                     connection.commit();
                     chunkOpen = false;

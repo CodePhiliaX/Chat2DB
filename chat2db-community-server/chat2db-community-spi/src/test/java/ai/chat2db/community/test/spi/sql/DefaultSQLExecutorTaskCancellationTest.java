@@ -44,6 +44,31 @@ class DefaultSQLExecutorTaskCancellationTest {
     }
 
     @Test
+    void cancellationAfterSuccessfulExecutionBeforeCommitRollsBackTheChunk() throws Exception {
+        try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:cancel_before_commit")) {
+            createTable(connection);
+            AtomicBoolean cancelled = new AtomicBoolean();
+            ISqlExecutionStatementListener listener = new ISqlExecutionStatementListener() {
+                @Override
+                public void onStatementCreated(Statement statement) {
+                }
+
+                @Override
+                public void onStatementClosed(Statement statement) {
+                    cancelled.set(true);
+                }
+            };
+            assertThrows(CancellationException.class,
+                    () -> DefaultSQLExecutor.getInstance().executeBatchInsert(connection,
+                            List.of("INSERT INTO records VALUES (1)"), listener, () -> {
+                                if (cancelled.get()) throw new CancellationException("cancelled before commit");
+                            }));
+            assertEquals(0, countRows(connection), "a cancellation already observed before commit must roll back");
+            assertTrue(connection.getAutoCommit(), "the self-managed connection must be restored");
+        }
+    }
+
+    @Test
     void cancellationBetweenChunksStopsTheRemainingChunks() throws Exception {
         // 501 rows forces two chunks with the 500-statement chunk size.
         List<String> sqls = new java.util.ArrayList<>();
@@ -52,13 +77,20 @@ class DefaultSQLExecutorTaskCancellationTest {
         }
         try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:cancel_batch;DB_CLOSE_DELAY=-1")) {
             createTable(connection);
-            AtomicInteger checks = new AtomicInteger();
+            AtomicBoolean firstChunkCommitted = new AtomicBoolean();
+            Connection observedConnection = (Connection) Proxy.newProxyInstance(
+                    DefaultSQLExecutorTaskCancellationTest.class.getClassLoader(),
+                    new Class<?>[]{Connection.class}, (proxy, method, args) -> {
+                        Object result = method.invoke(connection, args);
+                        if ("commit".equals(method.getName())) firstChunkCommitted.set(true);
+                        return result;
+                    });
             CountingStatementListener listener = new CountingStatementListener();
 
             assertThrows(CancellationException.class,
-                    () -> DefaultSQLExecutor.getInstance().executeBatchInsert(connection, sqls,
+                    () -> DefaultSQLExecutor.getInstance().executeBatchInsert(observedConnection, sqls,
                             listener, () -> {
-                                if (checks.incrementAndGet() >= 3) {
+                                if (firstChunkCommitted.get()) {
                                     throw new CancellationException("cancelled between chunks");
                                 }
                             }));

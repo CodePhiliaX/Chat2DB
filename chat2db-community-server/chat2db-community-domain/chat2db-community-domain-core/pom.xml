@@ -89,5 +89,10 @@
             <artifactId>chat2db-community-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-community-sqlserver</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
