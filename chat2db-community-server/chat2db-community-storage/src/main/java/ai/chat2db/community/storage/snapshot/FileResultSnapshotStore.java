@@ -65,9 +65,10 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
     public static final long SNAPSHOT_MEMORY_BUDGET_BYTES = 32 * 1024 * 1024L;
 
     /**
-     * Upper bound of one snapshot directory.
+     * Upper bound of one snapshot directory. A page with many large values needs room for all of them, otherwise the
+     * cells that do not fit stay unreadable; a value that is written once is deleted with its snapshot or its TTL.
      */
-    public static final long SNAPSHOT_DISK_LIMIT_BYTES = 512 * 1024 * 1024L;
+    public static final long SNAPSHOT_DISK_LIMIT_BYTES = 1024 * 1024 * 1024L;
 
     /**
      * Upper bound of the whole snapshot directory; the oldest snapshots are dropped first.
