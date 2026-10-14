@@ -11,6 +11,12 @@ public enum SnapshotCellStorage {
     LAZY,
 
     /**
+     * The content stays in the database: the cell keeps the driver handle, and reads go through the live cursor kept
+     * open by {@link ResultCursorHold}.
+     */
+    CURSOR,
+
+    /**
      * The content is held by the snapshot as an in-memory value.
      */
     MEMORY,

@@ -1,5 +1,6 @@
 package ai.chat2db.community.domain.core.impl.db;
 
+import ai.chat2db.community.domain.api.model.result.snapshot.ResultCursorHold;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshot;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshotCell;
 import ai.chat2db.community.domain.api.model.result.snapshot.SnapshotCellStorage;
@@ -32,6 +33,11 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     private final Map<String, Map<Long, Object>> cells = new ConcurrentHashMap<>();
 
     private final Map<String, Instant> expiresAt = new ConcurrentHashMap<>();
+
+    /**
+     * Cursors the test leased values from, closed when the snapshot goes away.
+     */
+    private final Map<String, ResultCursorHold> cursorHolds = new ConcurrentHashMap<>();
 
     /**
      * Cells the test wants the capture to fail for, keyed as {@code row:column}.
@@ -72,12 +78,43 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
 
     @Override
     public ResultSnapshot register() {
+        return register(null);
+    }
+
+    @Override
+    public ResultSnapshot register(ResultCursorHold cursorHold) {
         String snapshotId = UUID.randomUUID().toString();
         ResultSnapshot snapshot = new ResultSnapshot(snapshotId, Instant.now(),
-                Instant.now().plusSeconds(1800));
+                Instant.now().plusSeconds(1800), cursorHold);
         cells.put(snapshotId, new ConcurrentHashMap<>());
         expiresAt.put(snapshotId, snapshot.getExpiresAt());
+        if (cursorHold != null) {
+            cursorHolds.put(snapshotId, cursorHold);
+        }
         return snapshot;
+    }
+
+    /**
+     * The fake has no cursor to keep, so it reads the handle once and serves the bytes like any other capture. Tests that
+     * assert the leased read path use the file store instead.
+     */
+    @Override
+    public ResultSnapshotCell lease(String snapshotId, int rowIndex, int columnIndex, Object handle) {
+        return capture(snapshotId, rowIndex, columnIndex, readHandle(handle));
+    }
+
+    private static byte[] readHandle(Object handle) {
+        try {
+            if (handle instanceof java.sql.Clob clob) {
+                return clob.getSubString(1L, (int) clob.length()).getBytes(StandardCharsets.UTF_8);
+            }
+            if (handle instanceof java.sql.Blob blob) {
+                return blob.getBytes(1L, (int) blob.length());
+            }
+        } catch (java.sql.SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        throw new IllegalArgumentException("a leased value must be a Clob or a Blob");
     }
 
     /**
@@ -177,6 +214,10 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     @Override
     public void release(String snapshotId) {
         cells.remove(snapshotId);
+        ResultCursorHold hold = cursorHolds.remove(snapshotId);
+        if (hold != null) {
+            hold.close();
+        }
         if (root == null || !Files.exists(root)) {
             return;
         }

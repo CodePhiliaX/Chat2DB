@@ -55,10 +55,32 @@ public class ResultSnapshot {
      */
     private volatile boolean releaseRequested;
 
+    /**
+     * Keeps the cursor of the execution that produced this snapshot's leased cells open, or {@code null} when the
+     * snapshot holds no cursor backed value.
+     */
+    private volatile ResultCursorHold cursorHold;
+
     public ResultSnapshot(String snapshotId, Instant createdAt, Instant expiresAt) {
+        this(snapshotId, createdAt, expiresAt, null);
+    }
+
+    public ResultSnapshot(String snapshotId, Instant createdAt, Instant expiresAt, ResultCursorHold cursorHold) {
         this.snapshotId = snapshotId;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
+        this.cursorHold = cursorHold;
+    }
+
+    /**
+     * Closes the cursor once, so a snapshot never keeps a connection after its content is gone.
+     */
+    public void closeCursorHold() {
+        ResultCursorHold hold = cursorHold;
+        cursorHold = null;
+        if (hold != null) {
+            hold.close();
+        }
     }
 
     public static long cellKey(int rowIndex, int columnIndex) {

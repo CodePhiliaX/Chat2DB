@@ -1,5 +1,6 @@
 package ai.chat2db.community.storage.snapshot;
 
+import ai.chat2db.community.domain.api.model.result.snapshot.ResultCursorHold;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshot;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshotCell;
 import ai.chat2db.community.domain.api.model.result.snapshot.SnapshotCellStorage;
@@ -17,12 +18,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -117,6 +120,12 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
     private final Map<String, ResultSnapshot> snapshots = new ConcurrentHashMap<>();
+
+    /**
+     * Text values that are read from a live cursor, one reader per leased cell, so a sequential read walks the cursor
+     * once instead of restarting from the beginning for every chunk.
+     */
+    private final Map<String, Map<Long, CursorTextReader>> cursorReaders = new ConcurrentHashMap<>();
 
     private final Path rootDirectory;
 
@@ -342,12 +351,46 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
 
     @Override
     public ResultSnapshot register() {
+        return register(null);
+    }
+
+    @Override
+    public ResultSnapshot register(ResultCursorHold cursorHold) {
         Instant now = Instant.now();
         String snapshotId = UUID.randomUUID().toString();
-        ResultSnapshot snapshot = new ResultSnapshot(snapshotId, now, now.plus(SNAPSHOT_TTL));
+        ResultSnapshot snapshot = new ResultSnapshot(snapshotId, now, now.plus(SNAPSHOT_TTL), cursorHold);
         snapshots.put(snapshotId, snapshot);
         writeIndex();
         return snapshot;
+    }
+
+    @Override
+    public ResultSnapshotCell lease(String snapshotId, int rowIndex, int columnIndex, Object handle) {
+        if (!(handle instanceof java.sql.Clob) && !(handle instanceof java.sql.Blob)) {
+            throw new BusinessException("largeCellValue.snapshotWriteFailed",
+                    new Object[]{"a leased value must be a Clob or a Blob"});
+        }
+        ResultSnapshot snapshot = requireSnapshot(snapshotId);
+        snapshot.touch();
+        ResultSnapshotCell cell = ResultSnapshotCell.builder()
+                .rowIndex(rowIndex)
+                .columnIndex(columnIndex)
+                .storage(SnapshotCellStorage.CURSOR)
+                .memoryValue(handle)
+                .build();
+        try {
+            if (handle instanceof java.sql.Clob clob) {
+                cell.setSizeChars(clob.length());
+                // The byte size of a text value is only known once it has been read, so it grows while the client reads
+                cell.setSizeBytes(0L);
+            } else {
+                cell.setSizeBytes(((java.sql.Blob) handle).length());
+            }
+        } catch (SQLException e) {
+            throw new BusinessException("largeCellValue.snapshotWriteFailed", new Object[]{"leased value"}, e);
+        }
+        snapshot.getCells().put(ResultSnapshot.cellKey(rowIndex, columnIndex), cell);
+        return cell;
     }
 
     @Override
@@ -370,11 +413,15 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         if (cell == null) {
             throw new BusinessException("largeCellValue.snapshotCellMissing");
         }
-        // A value that was only registered is encoded here, on its first read, and never on the query path
-        materialize(snapshot, cell);
         long effectiveOffset = Math.max(0L, offset);
         // Reserve room for one complete UTF-8 character so a caller can never stall on a zero progress chunk
         int effectiveLimit = Math.max(4, limit);
+        if (cell.getStorage() == SnapshotCellStorage.CURSOR) {
+            // The content never left the database, so it is read from the live cursor right here
+            return readCursorChunk(snapshot, cell, effectiveOffset, effectiveLimit);
+        }
+        // A value that was only registered is encoded here, on its first read, and never on the query path
+        materialize(snapshot, cell);
         byte[] bytes = readSlice(cell, effectiveOffset, effectiveLimit);
         long nextOffset = effectiveOffset + bytes.length;
         // EOF only means the content is exhausted: character alignment can make a chunk shorter than the limit
@@ -450,6 +497,9 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         }
         snapshot.getCells().clear();
         snapshot.getMemoryBytes().set(0L);
+        cursorReaders.remove(snapshotId);
+        // A leased snapshot owns the cursor it reads from, so releasing it gives the connection back
+        snapshot.closeCursorHold();
         deleteDirectory(snapshotDirectory(snapshotId));
         writeIndex();
     }
@@ -925,6 +975,134 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
     }
 
 
+
+    /**
+     * Reads a slice of a value that stayed in the database. Binary content is random access, text is produced by
+     * walking the character stream forward and encoding it once.
+     */
+    private SnapshotReadChunk readCursorChunk(ResultSnapshot snapshot, ResultSnapshotCell cell, long offset, int limit) {
+        Object handle = cell.getMemoryValue();
+        if (handle instanceof java.sql.Blob blob) {
+            byte[] binary = readCursorBlobSlice(cell, blob, offset, limit);
+            long nextBinaryOffset = offset + binary.length;
+            return SnapshotReadChunk.builder()
+                    .value(Base64.getEncoder().encodeToString(binary))
+                    .offset(offset)
+                    .nextOffset(nextBinaryOffset)
+                    .eof(binary.length == 0 || nextBinaryOffset >= cell.getSizeBytes())
+                    .sizeBytes(cell.getSizeBytes())
+                    .sizeChars(null)
+                    .build();
+        }
+        CursorTextReader reader = cursorReaders
+                .computeIfAbsent(snapshot.getSnapshotId(), key -> new ConcurrentHashMap<>())
+                .computeIfAbsent(ResultSnapshot.cellKey(cell.getRowIndex(), cell.getColumnIndex()),
+                        key -> new CursorTextReader((java.sql.Clob) handle));
+        byte[] text = reader.slice(offset, limit);
+        long nextOffset = offset + text.length;
+        // The byte size of a text value is only known once it has been read to the end, so it grows while it is read
+        cell.setSizeBytes(reader.knownSizeBytes());
+        return SnapshotReadChunk.builder()
+                .value(Base64.getEncoder().encodeToString(text))
+                .offset(offset)
+                .nextOffset(nextOffset)
+                .eof(reader.isComplete() && nextOffset >= reader.knownSizeBytes())
+                .sizeBytes(reader.knownSizeBytes())
+                .sizeChars(cell.getSizeChars())
+                .build();
+    }
+
+    private byte[] readCursorBlobSlice(ResultSnapshotCell cell, java.sql.Blob blob, long offset, int limit) {
+        long size = cell.getSizeBytes();
+        if (offset >= size) {
+            return new byte[0];
+        }
+        int wanted = (int) Math.min(limit, size - offset);
+        try {
+            return blob.getBytes(offset + 1, wanted);
+        } catch (SQLException e) {
+            throw new BusinessException("largeCellValue.snapshotReadFailed", new Object[]{"leased value"}, e);
+        }
+    }
+
+    /**
+     * Encodes a leased text value while the client reads it. The bytes already produced are kept, so a sequential read
+     * walks the cursor once; a value nobody opens is never transferred at all.
+     */
+    private static final class CursorTextReader {
+
+        private final java.sql.Clob clob;
+        private final ByteArrayOutputStream encoded = new ByteArrayOutputStream();
+        private Reader reader;
+        private char pendingHighSurrogate;
+        private boolean complete;
+
+        CursorTextReader(java.sql.Clob clob) {
+            this.clob = clob;
+        }
+
+        synchronized byte[] slice(long offset, int limit) {
+            fillTo(offset + limit);
+            byte[] produced = encoded.toByteArray();
+            int from = (int) Math.min(offset, produced.length);
+            int to = (int) Math.min(produced.length, from + limit);
+            // A slice always ends on a character boundary, so callers can concatenate the bytes and decode once
+            while (to > from && to < produced.length && (produced[to] & 0xC0) == 0x80) {
+                to--;
+            }
+            return java.util.Arrays.copyOfRange(produced, from, to);
+        }
+
+        synchronized boolean isComplete() {
+            return complete;
+        }
+
+        synchronized long knownSizeBytes() {
+            return encoded.size();
+        }
+
+        private void fillTo(long targetBytes) {
+            if (complete || encoded.size() >= targetBytes) {
+                return;
+            }
+            try {
+                if (reader == null) {
+                    reader = clob.getCharacterStream();
+                }
+                char[] buffer = new char[COPY_BUFFER_BYTES];
+                while (encoded.size() < targetBytes) {
+                    int read = reader.read(buffer);
+                    if (read < 0) {
+                        complete = true;
+                        return;
+                    }
+                    if (read > 0) {
+                        append(buffer, read);
+                    }
+                }
+            } catch (IOException | SQLException e) {
+                throw new BusinessException("largeCellValue.snapshotReadFailed", new Object[]{"leased value"}, e);
+            }
+        }
+
+        /**
+         * Encodes one chunk of characters, holding back a surrogate split across two reads so it is never turned into a
+         * replacement character.
+         */
+        private void append(char[] buffer, int length) {
+            String text = new String(buffer, 0, length);
+            if (pendingHighSurrogate != 0) {
+                text = pendingHighSurrogate + text;
+                pendingHighSurrogate = 0;
+            }
+            if (!text.isEmpty() && Character.isHighSurrogate(text.charAt(text.length() - 1))) {
+                pendingHighSurrogate = text.charAt(text.length() - 1);
+                text = text.substring(0, text.length() - 1);
+            }
+            byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+            encoded.write(bytes, 0, bytes.length);
+        }
+    }
 
     /**
      * Counts the UTF-8 bytes of a string without materializing them, so registering a large text value costs a scan

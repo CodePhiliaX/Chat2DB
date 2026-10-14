@@ -1,5 +1,6 @@
 package ai.chat2db.community.storage.snapshot;
 
+import ai.chat2db.community.domain.api.model.result.snapshot.ResultCursorHold;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshot;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshotCell;
 import ai.chat2db.community.domain.api.model.result.snapshot.SnapshotCellStorage;
@@ -830,10 +831,100 @@ class FileResultSnapshotStoreTest {
         }
     }
 
+    @Test
+    void aLeasedValueIsOnlyReadFromItsCursorWhenItIsAskedFor() throws IOException {
+        CountingClob clob = new CountingClob("a".repeat(8191) + "\uD83D\uDE00" + "中文结尾");
+        TestCursorHold hold = new TestCursorHold();
+        ResultSnapshot snapshot = store.register(hold);
+        ResultSnapshotCell cell = store.lease(snapshot.getSnapshotId(), 2, 3, clob);
+
+        assertEquals(0, clob.reads, "leasing a value must not read it");
+        assertEquals(0L, cell.getSizeBytes(), "the byte size of a leased text value is unknown until it is read");
+        assertEquals(SnapshotCellStorage.CURSOR, cell.getStorage());
+
+        String expected = "a".repeat(8191) + "\uD83D\uDE00" + "中文结尾";
+        long offset = 0L;
+        int chunks = 0;
+        ByteArrayOutputStream assembled = new ByteArrayOutputStream();
+        while (true) {
+            SnapshotReadChunk chunk = store.read(snapshot.getSnapshotId(), 2, 3, offset, 4096);
+            byte[] bytes = Base64.getDecoder().decode(chunk.getValue());
+            assertEquals(offset, chunk.getOffset(), "the chunk echoes the requested offset");
+            assertEquals(offset + bytes.length, chunk.getNextOffset(), "nextOffset must equal offset + bytes");
+            assembled.write(bytes, 0, bytes.length);
+            offset = chunk.getNextOffset();
+            chunks++;
+            if (chunk.isEof()) {
+                break;
+            }
+            assertTrue(chunks < 100, "the read loop must terminate");
+        }
+
+        assertEquals(expected, assembled.toString(StandardCharsets.UTF_8),
+                "a leased value must round trip through the cursor");
+        assertEquals((long) expected.getBytes(StandardCharsets.UTF_8).length, cell.getSizeBytes(),
+                "the exact byte size is known once the whole value has been read");
+        assertTrue(clob.reads > 0, "the value really comes from the cursor");
+        assertFalse(hold.closed, "the cursor stays open while the snapshot lives");
+        try (var entries = Files.list(store.getRootDirectory())) {
+            assertEquals(0L, entries.filter(Files::isDirectory).count(),
+                    "a leased value must never be written to disk");
+        }
+    }
+
+    @Test
+    void aLeasedBlobIsReadAtAnyOffset() {
+        byte[] content = new byte[5_000];
+        for (int index = 0; index < content.length; index++) {
+            content[index] = (byte) (index % 251);
+        }
+        ResultSnapshot snapshot = store.register(new TestCursorHold());
+        ResultSnapshotCell cell = store.lease(snapshot.getSnapshotId(), 0, 1, new ByteArrayBlob(content));
+        assertEquals(content.length, cell.getSizeBytes(), "a blob reports its exact size");
+
+        SnapshotReadChunk head = store.read(snapshot.getSnapshotId(), 0, 1, 0, 100);
+        assertArrayEquals(java.util.Arrays.copyOf(content, 100), Base64.getDecoder().decode(head.getValue()));
+        SnapshotReadChunk middle = store.read(snapshot.getSnapshotId(), 0, 1, 2_000, 50);
+        assertArrayEquals(java.util.Arrays.copyOfRange(content, 2_000, 2_050),
+                Base64.getDecoder().decode(middle.getValue()));
+        SnapshotReadChunk tail = store.read(snapshot.getSnapshotId(), 0, 1, content.length - 10L, 100);
+        assertArrayEquals(java.util.Arrays.copyOfRange(content, content.length - 10, content.length),
+                Base64.getDecoder().decode(tail.getValue()));
+        assertTrue(tail.isEof(), "the last window ends the value");
+        SnapshotReadChunk beyond = store.read(snapshot.getSnapshotId(), 0, 1, content.length + 5L, 100);
+        assertTrue(beyond.isEof(), "reading past the end is an empty final chunk");
+        assertEquals(0, Base64.getDecoder().decode(beyond.getValue()).length);
+    }
+
+    @Test
+    void releasingOrExpiringASnapshotClosesItsCursor() {
+        TestCursorHold released = new TestCursorHold();
+        ResultSnapshot first = store.register(released);
+        store.lease(first.getSnapshotId(), 0, 0, new StringClob("x".repeat(10)));
+        store.release(first.getSnapshotId());
+        assertTrue(released.closed, "releasing a snapshot must give its connection back");
+
+        TestCursorHold expired = new TestCursorHold();
+        ResultSnapshot second = store.register(expired);
+        store.lease(second.getSnapshotId(), 0, 0, new StringClob("y".repeat(10)));
+        second.setExpiresAt(Instant.now().minusSeconds(1));
+        store.evictExpired(Instant.now());
+        assertTrue(expired.closed, "an expired snapshot must give its connection back");
+        assertFalse(store.exists(second.getSnapshotId()));
+    }
+
+    @Test
+    void aLeasedValueRequiresAClobOrBlob() {
+        ResultSnapshot snapshot = store.register(new TestCursorHold());
+        BusinessException failure = assertThrows(BusinessException.class,
+                () -> store.lease(snapshot.getSnapshotId(), 0, 0, "not a handle"));
+        assertEquals("largeCellValue.snapshotWriteFailed", failure.getCode());
+    }
+
     /**
      * Minimal {@link java.sql.Clob} so the driver type path is covered without a database.
      */
-    private static final class StringClob implements java.sql.Clob {
+    private static class StringClob implements java.sql.Clob {
 
         private final String value;
 
@@ -903,6 +994,104 @@ class FileResultSnapshotStoreTest {
         @Override
         public java.io.Reader getCharacterStream(long pos, long length) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Records whether the store gave the cursor back.
+     */
+    private static final class TestCursorHold implements ResultCursorHold {
+
+        private boolean closed;
+
+        @Override
+        public void close() {
+            closed = true;
+        }
+    }
+
+    /**
+     * Counts how often the character stream was opened, so a test can prove a leased value is not read before it is
+     * asked for.
+     */
+    private static final class CountingClob extends StringClob {
+
+        private int reads;
+
+        private CountingClob(String value) {
+            super(value);
+        }
+
+        @Override
+        public java.io.Reader getCharacterStream() {
+            reads++;
+            return super.getCharacterStream();
+        }
+    }
+
+    /**
+     * Minimal {@link java.sql.Blob} with random access reads.
+     */
+    private static final class ByteArrayBlob implements java.sql.Blob {
+
+        private final byte[] content;
+
+        private ByteArrayBlob(byte[] content) {
+            this.content = content;
+        }
+
+        @Override
+        public long length() {
+            return content.length;
+        }
+
+        @Override
+        public byte[] getBytes(long pos, int length) {
+            return java.util.Arrays.copyOfRange(content, (int) pos - 1, (int) pos - 1 + length);
+        }
+
+        @Override
+        public java.io.InputStream getBinaryStream() {
+            return new java.io.ByteArrayInputStream(content);
+        }
+
+        @Override
+        public long position(byte[] pattern, long start) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long position(java.sql.Blob pattern, long start) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int setBytes(long pos, byte[] bytes) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int setBytes(long pos, byte[] bytes, int offset, int len) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.io.OutputStream setBinaryStream(long pos) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void truncate(long len) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void free() {
+        }
+
+        @Override
+        public java.io.InputStream getBinaryStream(long pos, long length) {
+            return new java.io.ByteArrayInputStream(getBytes(pos, (int) length));
         }
     }
 }
