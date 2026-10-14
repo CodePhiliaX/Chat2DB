@@ -10,6 +10,7 @@ import java.lang.reflect.Proxy;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -84,6 +85,41 @@ class JDBCDataValueLargeCellTest {
     }
 
     @Test
+    void keepsTheTextItReadSoTheCaptureDoesNotReadTheValueAgain() {
+        // The summary starts above one million characters, which is where the driver stream is consumed
+        String text = "长".repeat(1_100_000);
+        AtomicInteger streamOpens = new AtomicInteger();
+        JDBCDataValue value = new JDBCDataValue(characterStreamResultSet(text, streamOpens),
+                metaData("LONGTEXT", Types.LONGVARCHAR), 1, true);
+
+        String display = value.getCharsetString();
+        assertTrue(display.startsWith("[LONGTEXT]"), "a big value is shown as a summary: " + display);
+
+        ResultCell cell = value.buildResultCell(display);
+
+        assertEquals(text, cell.getRawValue(), "the capture must reuse the characters that were already read");
+        // The summary size is the size the driver reported, so the capture corrects it from the value it kept
+        assertTrue(cell.getSizeChars() > 0L, "a summary still reports a size: " + cell.getSizeChars());
+        assertEquals(1, streamOpens.get(), "the value must not be read a second time");
+    }
+
+    @Test
+    void fallsBackToTheDriverHandleWhenTheTextIsTooLargeToKeep() {
+        String text = "长".repeat(17 * 1024 * 1024);
+        AtomicInteger streamOpens = new AtomicInteger();
+        java.sql.Clob handle = proxy(java.sql.Clob.class, (proxy, method, args) -> defaultValue(method.getReturnType()));
+        JDBCDataValue value = new JDBCDataValue(
+                characterStreamResultSet(text, streamOpens, handle), metaData("LONGTEXT", Types.LONGVARCHAR), 1, true);
+
+        String display = value.getCharsetString();
+        ResultCell cell = value.buildResultCell(display);
+
+        org.junit.jupiter.api.Assertions.assertSame(handle, cell.getRawValue(),
+                "a value that is too large to keep stays on its driver handle");
+        assertEquals(1, streamOpens.get(), "the stream is still only read once");
+    }
+
+    @Test
     void nullClobReturnsNullInsteadOfDereferencingClob() {
         ResultSet resultSet = resultSet("getClob", null, "getString", null);
         JDBCDataValue value = new JDBCDataValue(resultSet, metaData("CLOB", Types.CLOB), 1, true);
@@ -105,6 +141,23 @@ class JDBCDataValueLargeCellTest {
         JDBCDataValue value = new JDBCDataValue(resultSet, metaData("BLOB", Types.BLOB), 1, true);
 
         assertNull(value.getBlobString());
+    }
+
+    private static ResultSet characterStreamResultSet(String text, AtomicInteger streamOpens) {
+        return characterStreamResultSet(text, streamOpens, null);
+    }
+
+    private static ResultSet characterStreamResultSet(String text, AtomicInteger streamOpens, java.sql.Clob handle) {
+        return proxy(ResultSet.class, (proxy, method, args) -> {
+            if ("getCharacterStream".equals(method.getName())) {
+                streamOpens.incrementAndGet();
+                return new java.io.StringReader(text);
+            }
+            if ("getClob".equals(method.getName())) {
+                return handle;
+            }
+            return defaultValue(method.getReturnType());
+        });
     }
 
     private static ResultSet resultSet() {

@@ -35,6 +35,11 @@ import java.util.regex.Pattern;
 public class JDBCDataValue {
     private static final Logger log = LoggerFactory.getLogger(JDBCDataValue.class);
     private static final int LARGE_VALUE_THRESHOLD_BYTES = 10 * 1024;
+    /**
+     * Upper bound for the text a summary keeps in memory for the capture. A larger value is left to the driver handle,
+     * so one huge column can never pin the whole heap.
+     */
+    private static final int MAX_RETAINED_TEXT_CHARS = 16 * 1024 * 1024;
     private static final int LARGE_VALUE_PREVIEW_CHARS = 200;
     private static final Pattern SUMMARY_SIZE_PATTERN = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(B|KB|MB|GB)\\s*$",
             Pattern.CASE_INSENSITIVE);
@@ -43,6 +48,11 @@ public class JDBCDataValue {
     private int columnIndex;
     private boolean limitSize;
     private String timezone;
+
+    /**
+     * Complete text a summary was produced from, so the capture does not have to read the same value again.
+     */
+    private String fullTextContent;
 
     public JDBCDataValue(ResultSet resultSet, ResultSetMetaData metaData, int columnIndex, boolean limitSize) {
         this.resultSet = resultSet;
@@ -191,7 +201,6 @@ public class JDBCDataValue {
 
     public String getCharsetString() {
         StringBuilder sb = new StringBuilder(8192);
-        long totalSize = 0;
         try (Reader characterStream = getCharacterStream()) {
             if (Objects.isNull(characterStream)) {
                 return null;
@@ -200,13 +209,14 @@ public class JDBCDataValue {
             int charsRead;
             while ((charsRead = characterStream.read(buffer)) != -1) {
                 sb.append(buffer, 0, charsRead);
-                if (sb.length() > LobUnitEnum.M.getSize()) {
-                    totalSize += sb.length();
-                    sb.setLength(0);
-                }
             }
-            totalSize += sb.length();
+            long totalSize = sb.length();
             if (totalSize > LobUnitEnum.M.getSize()) {
+                if (totalSize <= MAX_RETAINED_TEXT_CHARS) {
+                    // The capture reads this value a second time otherwise, so what has already been read is kept for
+                    // it. The caller still shows a summary, so the complete text never travels in the response.
+                    fullTextContent = sb.toString();
+                }
                 return String.format("[%s] %s", getType(), getLobInfo(totalSize));
             } else {
                 return sb.toString();
@@ -372,9 +382,13 @@ public class JDBCDataValue {
                 return getObject();
             }
             if (largeValueInfo.valueType.isTextLike()) {
-                // The complete text is already in hand unless the driver only produced a size summary, so keep it
-                // instead of reading the same value a second time through a LOB handle.
-                return largeValueInfo.summary ? getClob() : value;
+                if (!largeValueInfo.summary) {
+                    // The complete text is already in hand, so keep it instead of reading it again through a LOB handle
+                    return value;
+                }
+                // A summary means the driver's stream has already been consumed: reuse it when it was kept, otherwise
+                // fall back to the handle the driver produced for this value.
+                return fullTextContent != null ? fullTextContent : getClob();
             }
             if (largeValueInfo.valueType.isBinaryLike()) {
                 return getBlob();
