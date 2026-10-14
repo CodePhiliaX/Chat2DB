@@ -34,14 +34,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Covers the desktop capture path end to end at the wiring level: the streaming consumer must capture complete large
- * values into a real snapshot, hand the client a readable id, drop the duplicate raw copy, keep row positions absolute
- * across batches, and move content to disk when the execution ends.
+ * Covers the desktop capture path end to end at the wiring level: the streaming consumer must register complete large
+ * values in a real snapshot, hand the client a readable id, drop the duplicate raw copy, keep row positions absolute
+ * across batches, and leave the content where it is when the execution ends.
  */
 class SqlExecutionConsumerSnapshotTest {
 
     @Test
-    void capturesLargeValuesFromRowBatchesAndFlushesOnClose(@TempDir Path tempDirectory) throws IOException {
+    void capturesLargeValuesFromRowBatchesAndKeepsThemReadable(@TempDir Path tempDirectory) throws IOException {
         Path root = tempDirectory.resolve("result-snapshot");
         FileResultSnapshotStore store = new FileResultSnapshotStore(root);
         store.prepareRootDirectory();
@@ -69,6 +69,12 @@ class SqlExecutionConsumerSnapshotTest {
                 .build();
 
         consumer.rows(result, rows);
+
+        // Registering a value must not touch the disk: a value is only encoded and written when it is read
+        try (var entries = Files.list(root)) {
+            assertEquals(0L, entries.filter(Files::isDirectory).count(),
+                    "a value nobody read must not be written to disk");
+        }
 
         assertNotNull(cell.getLargeValueId(), "the client must receive a readable id");
         assertNull(cell.getRawValue(), "the response must not keep a second copy of the content");
@@ -105,14 +111,9 @@ class SqlExecutionConsumerSnapshotTest {
 
         consumer.close();
 
-        Path directory = root.resolve(token.getSnapshotId());
-        assertTrue(Files.exists(directory), "close must move the captured content to disk");
-        try (var files = Files.list(directory)) {
-            assertFalse(files.findAny().isEmpty(), "the flushed snapshot must contain files");
-        }
-        String afterFlush = readAll(store, token);
-        assertEquals(text.length(), afterFlush.length(), "content stays readable after the flush");
-        assertEquals(text, afterFlush, "content stays readable after the flush");
+        String afterExecution = readAll(store, token);
+        assertEquals(text.length(), afterExecution.length(), "content stays readable after the execution ends");
+        assertEquals(text, afterExecution, "content stays readable after the execution ends");
     }
 
     @Test

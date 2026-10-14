@@ -6,6 +6,11 @@ package ai.chat2db.community.domain.api.model.result.snapshot;
 public enum SnapshotCellStorage {
 
     /**
+     * The content is held by the source object the execution handed over and is only encoded when it is read.
+     */
+    LAZY,
+
+    /**
      * The content is held by the snapshot as an in-memory value.
      */
     MEMORY,

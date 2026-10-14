@@ -69,6 +69,9 @@ class FileResultSnapshotStoreTest {
     void smallTextStaysInMemoryAndRoundTrips() {
         ResultSnapshot snapshot = store.register();
         store.capture(snapshot.getSnapshotId(), 3, 4, "hello 世界");
+        // Registering costs nothing, so the cell keeps the source value until it is read
+        assertEquals(SnapshotCellStorage.LAZY,
+                snapshot.getCells().get(ResultSnapshot.cellKey(3, 4)).getStorage());
 
         SnapshotReadChunk chunk = store.read(snapshot.getSnapshotId(), 3, 4, 0, 1024);
 
@@ -79,7 +82,8 @@ class FileResultSnapshotStoreTest {
         assertEquals(chunk.getNextOffset(), chunk.getSizeBytes());
         assertEquals(8L, chunk.getSizeChars());
         assertEquals(SnapshotCellStorage.MEMORY,
-                snapshot.getCells().get(ResultSnapshot.cellKey(3, 4)).getStorage());
+                snapshot.getCells().get(ResultSnapshot.cellKey(3, 4)).getStorage(),
+                "a small value is encoded in memory on its first read");
     }
 
     @Test
@@ -138,13 +142,15 @@ class FileResultSnapshotStoreTest {
         store.capture(snapshot.getSnapshotId(), 7, 3, big);
 
         ResultSnapshotCell cell = snapshot.getCells().get(ResultSnapshot.cellKey(7, 3));
-        assertEquals(SnapshotCellStorage.FILE, cell.getStorage());
+        assertEquals(SnapshotCellStorage.LAZY, cell.getStorage(), "registering a value must not write it");
+        assertEquals(0L, snapshot.getDiskBytes().get(), "registering a value must not write anything");
+
+        SnapshotReadChunk head = store.read(snapshot.getSnapshotId(), 7, 3, 0, 32);
+        assertEquals(SnapshotCellStorage.FILE, cell.getStorage(), "a value above the cell limit is stored on first read");
         assertNotNull(cell.getFilePath());
         assertTrue(Files.exists(Path.of(cell.getFilePath())), "spilled file must exist");
         assertEquals(big.length, Files.size(Path.of(cell.getFilePath())));
         assertEquals(0L, snapshot.getMemoryBytes().get(), "spilled content must not stay accounted in memory");
-
-        SnapshotReadChunk head = store.read(snapshot.getSnapshotId(), 7, 3, 0, 32);
         assertArrayEquals(java.util.Arrays.copyOf(big, 32), Base64.getDecoder().decode(head.getValue()));
         assertFalse(head.isEof());
 
@@ -220,7 +226,7 @@ class FileResultSnapshotStoreTest {
         String text = "跨块中文-".repeat(200_000);
         store.capture(snapshot.getSnapshotId(), 3, 3, text);
         ResultSnapshotCell cell = snapshot.getCells().get(ResultSnapshot.cellKey(3, 3));
-        assertEquals(SnapshotCellStorage.FILE, cell.getStorage(), "large text must be spilled");
+        assertEquals(SnapshotCellStorage.LAZY, cell.getStorage(), "registering large text must not encode it");
         assertEquals((long) text.getBytes(StandardCharsets.UTF_8).length, cell.getSizeBytes());
 
         long offset = 0L;
@@ -246,6 +252,8 @@ class FileResultSnapshotStoreTest {
         assertEquals(text.length(), assembledText.length(), "assembled char count must match the source text");
         assertEquals(text, assembledText, "assembled content must match the source text");
         assertEquals((long) text.getBytes(StandardCharsets.UTF_8).length, offset);
+        assertEquals(SnapshotCellStorage.FILE, cell.getStorage(),
+                "the first read writes a value above the cell limit to a file");
     }
 
     @Test
@@ -253,6 +261,7 @@ class FileResultSnapshotStoreTest {
         ResultSnapshot snapshot = store.register();
         byte[] big = new byte[(int) FileResultSnapshotStore.CELL_SPILL_BYTES + 10];
         store.capture(snapshot.getSnapshotId(), 1, 1, big);
+        store.read(snapshot.getSnapshotId(), 1, 1, 0, 16);
         Path directory = Path.of(snapshot.getCells().get(ResultSnapshot.cellKey(1, 1)).getFilePath()).getParent();
         assertTrue(Files.exists(directory));
 
@@ -336,9 +345,9 @@ class FileResultSnapshotStoreTest {
         store.capture(snapshot.getSnapshotId(), 0, 0, smallText);
         String largeText = "跨块中文-".repeat(200_000);
         store.capture(snapshot.getSnapshotId(), 1, 0, largeText);
-        assertEquals(SnapshotCellStorage.MEMORY,
+        assertEquals(SnapshotCellStorage.LAZY,
                 snapshot.getCells().get(ResultSnapshot.cellKey(0, 0)).getStorage());
-        assertEquals(SnapshotCellStorage.FILE,
+        assertEquals(SnapshotCellStorage.LAZY,
                 snapshot.getCells().get(ResultSnapshot.cellKey(1, 0)).getStorage());
 
         for (int row : new int[]{0, 1}) {
@@ -370,6 +379,9 @@ class FileResultSnapshotStoreTest {
                 assertEquals(text, assembledText, "content: row=" + row + " limit=" + limit);
             }
         }
+        assertEquals(SnapshotCellStorage.FILE,
+                snapshot.getCells().get(ResultSnapshot.cellKey(1, 0)).getStorage(),
+                "the first read writes a value above the cell limit to a file");
     }
 
     @Test
@@ -379,13 +391,19 @@ class FileResultSnapshotStoreTest {
         store.capture(snapshot.getSnapshotId(), 5, 2, text);
 
         ResultSnapshotCell cell = snapshot.getCells().get(ResultSnapshot.cellKey(5, 2));
+        assertEquals(SnapshotCellStorage.LAZY, cell.getStorage(), "registering a value must not write it");
+        assertNull(cell.getFilePath());
+
+        // The first read writes the cell through a staging file, so a reader never sees a partial cell
+        store.read(snapshot.getSnapshotId(), 5, 2, 0, 16);
         assertEquals(SnapshotCellStorage.FILE, cell.getStorage());
         Path directory = Path.of(cell.getFilePath()).getParent();
         try (var files = Files.list(directory)) {
             List<String> names = files.map(path -> path.getFileName().toString()).sorted().toList();
             assertEquals(List.of("5-2.bin"), names, "no staging file may remain after a successful write");
         }
-        // The file stores padded records, so sizeBytes is the logical size and the content is verified by reading it
+        // sizeBytes is the logical UTF-8 size and the file holds the same bytes in records, so the two only differ by
+        // the record headers and the unused tail of the last record
         assertEquals((long) text.getBytes(StandardCharsets.UTF_8).length, cell.getSizeBytes());
         assertTrue(Files.size(Path.of(cell.getFilePath())) >= cell.getSizeBytes());
     }
@@ -428,6 +446,9 @@ class FileResultSnapshotStoreTest {
         String text = "leftover-".repeat(200_000);
         first.capture(dropped.getSnapshotId(), 0, 0, text);
         first.capture(kept.getSnapshotId(), 0, 0, text);
+        // Files only appear once a value is read, so the read is what makes the directory observable
+        first.read(dropped.getSnapshotId(), 0, 0, 0, 16);
+        first.read(kept.getSnapshotId(), 0, 0, 0, 16);
         Path droppedDirectory = root.resolve(dropped.getSnapshotId());
         Path keptDirectory = root.resolve(kept.getSnapshotId());
         assertTrue(Files.exists(droppedDirectory));
@@ -526,6 +547,7 @@ class FileResultSnapshotStoreTest {
         ResultSnapshot snapshot = first.register();
         String text = "shutdown-".repeat(200_000);
         first.capture(snapshot.getSnapshotId(), 0, 0, text);
+        first.read(snapshot.getSnapshotId(), 0, 0, 0, 16);
         Path directory = root.resolve(snapshot.getSnapshotId());
         assertTrue(Files.exists(directory));
 
@@ -618,8 +640,8 @@ class FileResultSnapshotStoreTest {
 
     @Test
     void contentWhoseCharacterStraddlesARecordBoundaryIsReadable() {
-        // 256 KiB records hold 262140 payload bytes; these lengths put a multi byte character on the seam
-        for (int filler : new int[]{262139, 262137, 262140, 524279}) {
+        // 4 KiB records hold 4092 payload bytes; these lengths put a multi byte character on the seam
+        for (int filler : new int[]{4091, 4089, 4092, 8183}) {
             ResultSnapshot snapshot = store.register();
             String text = "a".repeat(filler) + "\uD83D\uDE00" + "尾";
             store.capture(snapshot.getSnapshotId(), 0, 0, text);
@@ -627,7 +649,7 @@ class FileResultSnapshotStoreTest {
                     "content with a character on the record seam must round trip, filler=" + filler);
 
             ResultSnapshot wide = store.register();
-            String wideText = "中".repeat(87_381) + "文";
+            String wideText = "中".repeat(1_365) + "文";
             store.capture(wide.getSnapshotId(), 0, 0, wideText);
             assertEquals(wideText, readWholeText(wide.getSnapshotId(), 0, 0),
                     "wide characters on the seam must round trip");
@@ -673,13 +695,17 @@ class FileResultSnapshotStoreTest {
         ResultSnapshot snapshot = store.register();
         assertEquals(0L, snapshot.getDiskBytes().get());
         store.capture(snapshot.getSnapshotId(), 0, 0, "落盘记账-".repeat(200_000));
-        long afterCapture = snapshot.getDiskBytes().get();
-        assertTrue(afterCapture > FileResultSnapshotStore.CELL_SPILL_BYTES,
-                "a big value must be written to disk and counted, was " + afterCapture);
+        assertEquals(0L, snapshot.getDiskBytes().get(), "registering a value must not write anything");
+
+        store.read(snapshot.getSnapshotId(), 0, 0, 0, 16);
+        long afterRead = snapshot.getDiskBytes().get();
+        assertTrue(afterRead > FileResultSnapshotStore.CELL_SPILL_BYTES,
+                "a big value must be written to disk and counted when it is read, was " + afterRead);
 
         ResultSnapshotCell cell = snapshot.getCells().get(ResultSnapshot.cellKey(0, 0));
         assertEquals(SnapshotCellStorage.FILE, cell.getStorage());
-        assertEquals(afterCapture, snapshot.getDiskBytes().get(), "flushing an already stored cell must not double count");
+        store.flushToDisk(snapshot.getSnapshotId());
+        assertEquals(afterRead, snapshot.getDiskBytes().get(), "flushing an already stored cell must not double count");
     }
 
     @Test
@@ -689,11 +715,14 @@ class FileResultSnapshotStoreTest {
                 100L * 1024 * 1024);
         limited.prepareRootDirectory();
         ResultSnapshot snapshot = limited.register();
-        // The first cell fits under the cap, the second one would push the snapshot past it
+        // The first cell fits under the cap, the second one would push the snapshot past it. Both are registered
+        // first, so the cap is reached while reading, which is when the content is written.
         limited.capture(snapshot.getSnapshotId(), 0, 0, "上限校验-".repeat(90_000));
+        limited.capture(snapshot.getSnapshotId(), 1, 0, "上限校验-".repeat(90_000));
+        limited.read(snapshot.getSnapshotId(), 0, 0, 0, 16);
 
         BusinessException failure = assertThrows(BusinessException.class,
-                () -> limited.capture(snapshot.getSnapshotId(), 1, 0, "上限校验-".repeat(90_000)));
+                () -> limited.read(snapshot.getSnapshotId(), 1, 0, 0, 16));
         assertEquals("largeCellValue.snapshotWriteFailed", failure.getCode());
         assertTrue(snapshot.getDiskBytes().get() <= cap,
                 "the snapshot must stop at its cap instead of growing past it");
@@ -709,6 +738,8 @@ class FileResultSnapshotStoreTest {
         limited.capture(active.getSnapshotId(), 0, 0, "活跃快照-".repeat(90_000));
         ResultSnapshot idle = limited.register();
         limited.capture(idle.getSnapshotId(), 0, 0, "空闲快照-".repeat(90_000));
+        limited.read(active.getSnapshotId(), 0, 0, 0, 16);
+        limited.read(idle.getSnapshotId(), 0, 0, 0, 16);
         // The idle one has not been touched for two minutes, the active one was just written to
         idle.getLastActivityAt().set(System.currentTimeMillis() - 120_000L);
         long activeBytes = active.getDiskBytes().get();

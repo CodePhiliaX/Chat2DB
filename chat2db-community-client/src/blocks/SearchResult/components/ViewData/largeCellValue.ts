@@ -64,7 +64,7 @@ export const LARGE_CELL_ERROR_MESSAGE = {
 
 export const LARGE_CELL_TEXT_EDITOR_LIMIT = 10 * 1024 * 1024;
 export const LARGE_CELL_BINARY_EDITOR_LIMIT = 50 * 1024 * 1024;
-export const LARGE_CELL_MAX_CHUNK_SIZE = 256 * 1024;
+export const LARGE_CELL_MAX_CHUNK_SIZE = 1024 * 1024;
 
 export function isBinaryDisplayMode(displayMode?: LargeValueType | string) {
   return displayMode === LARGE_VALUE_TYPE.BINARY || displayMode === LARGE_VALUE_TYPE.IMAGE;

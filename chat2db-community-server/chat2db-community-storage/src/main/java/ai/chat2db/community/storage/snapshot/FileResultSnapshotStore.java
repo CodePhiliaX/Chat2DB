@@ -87,13 +87,16 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
     private static final String STAGING_FILE_SUFFIX = ".part";
 
     /**
-     * Text content is stored as fixed size records: a four byte payload length followed by plain UTF-8 bytes, padded to
-     * {@link #TEXT_RECORD_SIZE}. Records are cut on byte offsets, so a record can end inside a multi byte character;
-     * readers concatenate the byte windows first and decode once, which keeps every byte reachable exactly once.
+     * Text content is stored as fixed size records: a four byte payload length followed by plain UTF-8 bytes. Records
+     * are cut on byte offsets, so a record can end inside a multi byte character; readers concatenate the byte windows
+     * first and decode once, which keeps every byte reachable exactly once. The stride is the payload plus its header,
+     * so the stored size follows the content instead of a padding target.
      */
-    private static final int TEXT_RECORD_SIZE = 256 * 1024;
+    private static final int TEXT_RECORD_PAYLOAD_BYTES = 4 * 1024;
 
     private static final int TEXT_RECORD_HEADER_BYTES = 4;
+
+    private static final int TEXT_RECORD_STRIDE_BYTES = TEXT_RECORD_PAYLOAD_BYTES + TEXT_RECORD_HEADER_BYTES;
 
 
     /**
@@ -367,6 +370,8 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         if (cell == null) {
             throw new BusinessException("largeCellValue.snapshotCellMissing");
         }
+        // A value that was only registered is encoded here, on its first read, and never on the query path
+        materialize(snapshot, cell);
         long effectiveOffset = Math.max(0L, offset);
         // Reserve room for one complete UTF-8 character so a caller can never stall on a zero progress chunk
         int effectiveLimit = Math.max(4, limit);
@@ -396,10 +401,10 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             return;
         }
         for (ResultSnapshotCell cell : snapshot.getCells().values()) {
-            Object memoryValue = cell.getMemoryValue();
-            if (cell.getStorage() == SnapshotCellStorage.MEMORY && memoryValue instanceof byte[] bytes) {
+            byte[] content = toFileBytes(cell);
+            if (content != null) {
                 // writeFile subtracts what it flushed, so a capture that lands while this loop runs keeps its accounting
-                writeFile(snapshot, cell, bytes);
+                writeFile(snapshot, cell, content);
             }
         }
     }
@@ -514,11 +519,11 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             return cell;
         }
         if (content instanceof String text) {
-            storeText(snapshot, cell, text);
+            retainText(snapshot, cell, text);
             return cell;
         }
         if (content instanceof byte[] bytes) {
-            storeBinary(snapshot, cell, bytes);
+            retainBinary(snapshot, cell, bytes);
             return cell;
         }
         if (content instanceof java.sql.Clob clob) {
@@ -532,6 +537,53 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         // Any other driver specific value object is stored through its textual form
         storeText(snapshot, cell, String.valueOf(content));
         return cell;
+    }
+
+    /**
+     * Registers text the caller already holds, without encoding or copying it. The value is encoded when it is read
+     * for the first time, so a result nobody opens costs nothing.
+     */
+    private void retainText(ResultSnapshot snapshot, ResultSnapshotCell cell, String text) {
+        cell.setSizeChars((long) text.length());
+        cell.setSizeBytes(utf8Length(text));
+        cell.setStorage(SnapshotCellStorage.LAZY);
+        cell.setMemoryValue(text);
+        snapshot.getMemoryBytes().addAndGet(cell.getSizeBytes());
+    }
+
+    /**
+     * Registers binary content the caller already holds. A byte array needs no encoding, so it is kept as it is and is
+     * only written to a file when the snapshot runs out of memory budget.
+     */
+    private void retainBinary(ResultSnapshot snapshot, ResultSnapshotCell cell, byte[] bytes) {
+        cell.setSizeBytes((long) bytes.length);
+        cell.setStorage(SnapshotCellStorage.LAZY);
+        cell.setMemoryValue(bytes);
+        snapshot.getMemoryBytes().addAndGet(bytes.length);
+    }
+
+    /**
+     * Turns a lazily registered value into the record bytes a read slices, once, on the first read.
+     */
+    private void materialize(ResultSnapshot snapshot, ResultSnapshotCell cell) {
+        if (cell.getStorage() != SnapshotCellStorage.LAZY) {
+            return;
+        }
+        synchronized (cell) {
+            if (cell.getStorage() != SnapshotCellStorage.LAZY) {
+                return;
+            }
+            Object source = cell.getMemoryValue();
+            releaseMemory(snapshot, cell);
+            if (source instanceof String text) {
+                storeText(snapshot, cell, text);
+            } else if (source instanceof byte[] bytes) {
+                storeBinary(snapshot, cell, bytes);
+            } else {
+                // A value whose first read failed has no content left: report that instead of failing on a null path
+                throw new BusinessException("largeCellValue.snapshotReadFailed", new Object[]{"snapshot cell"});
+            }
+        }
     }
 
     /**
@@ -621,25 +673,21 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
     }
 
     /**
-     * Writes to a staging file first and then moves it into place, so a crash can never leave a half written cell
-     * that a later read would treat as complete.
-     */
-    /**
      * Splits content into fixed size records.
      * <p>
-     * A record is a four byte length followed by up to {@code payloadLimit} content bytes, so the logical byte at
-     * index {@code i} always lives in record {@code i / payloadLimit}. Records are plain byte containers: one can end
-     * inside a multi byte character, which is fine because readers hand bytes back verbatim and callers decode the
-     * concatenation once.
+     * A record is a four byte length followed by up to {@link #TEXT_RECORD_PAYLOAD_BYTES} content bytes, so the logical
+     * byte at index {@code i} always lives in record {@code i / TEXT_RECORD_PAYLOAD_BYTES}. Records are plain byte
+     * containers: one can end inside a multi byte character, which is fine because readers hand bytes back verbatim and
+     * callers decode the concatenation once.
      */
     private byte[] toRecordBytes(byte[] content) {
-        int payloadLimit = TEXT_RECORD_SIZE - TEXT_RECORD_HEADER_BYTES;
+        int payloadLimit = TEXT_RECORD_PAYLOAD_BYTES;
         int recordCount = Math.max(1, (content.length + payloadLimit - 1) / payloadLimit);
-        byte[] records = new byte[recordCount * TEXT_RECORD_SIZE];
+        byte[] records = new byte[recordCount * TEXT_RECORD_STRIDE_BYTES];
         int position = 0;
         for (int recordIndex = 0; recordIndex < recordCount; recordIndex++) {
             int payloadLength = Math.min(payloadLimit, content.length - position);
-            int recordStart = recordIndex * TEXT_RECORD_SIZE;
+            int recordStart = recordIndex * TEXT_RECORD_STRIDE_BYTES;
             records[recordStart] = (byte) (payloadLength >>> 24);
             records[recordStart + 1] = (byte) (payloadLength >>> 16);
             records[recordStart + 2] = (byte) (payloadLength >>> 8);
@@ -654,11 +702,11 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
      * Appends the logical bytes {@code [offset, offset + targetBytes)} of a record stream.
      */
     private void appendRecordRange(byte[] records, long offset, long targetBytes, ByteArrayOutputStream output) {
-        int payloadLimit = TEXT_RECORD_SIZE - TEXT_RECORD_HEADER_BYTES;
-        long recordsCount = records.length / TEXT_RECORD_SIZE;
+        int payloadLimit = TEXT_RECORD_PAYLOAD_BYTES;
+        long recordsCount = records.length / TEXT_RECORD_STRIDE_BYTES;
         long produced = 0L;
         for (long record = 0; record < recordsCount && produced < targetBytes; record++) {
-            int recordStart = (int) (record * TEXT_RECORD_SIZE);
+            int recordStart = (int) (record * TEXT_RECORD_STRIDE_BYTES);
             int payloadLength = ((records[recordStart] & 0xFF) << 24) | ((records[recordStart + 1] & 0xFF) << 16)
                     | ((records[recordStart + 2] & 0xFF) << 8) | (records[recordStart + 3] & 0xFF);
             if (payloadLength <= 0 || payloadLength > payloadLimit) {
@@ -714,8 +762,27 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         Object previous = cell.getMemoryValue();
         if (previous instanceof byte[] bytes) {
             snapshot.getMemoryBytes().addAndGet(-bytes.length);
+        } else if (previous instanceof String) {
+            // A lazily registered text value is accounted by its encoded size, which is what sizeBytes holds
+            snapshot.getMemoryBytes().addAndGet(-cell.getSizeBytes());
         }
         cell.setMemoryValue(null);
+    }
+
+    /**
+     * Returns the byte image of a cell that belongs in a file, encoding a lazily registered text value on the way out.
+     *
+     * @return the content to write, or {@code null} when the cell holds nothing in memory
+     */
+    private byte[] toFileBytes(ResultSnapshotCell cell) {
+        Object memoryValue = cell.getMemoryValue();
+        if (memoryValue instanceof byte[] bytes) {
+            return bytes;
+        }
+        if (memoryValue instanceof String text) {
+            return toRecordBytes(text.getBytes(StandardCharsets.UTF_8));
+        }
+        return null;
     }
 
     private void spillLargestCells(ResultSnapshot snapshot) {
@@ -734,12 +801,12 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             if (snapshot.getMemoryBytes().get() <= SNAPSHOT_MEMORY_BUDGET_BYTES) {
                 return;
             }
-            Object value = cell.getMemoryValue();
-            if (value instanceof byte[] bytes) {
-                // The in-memory value is already the exact byte image that belongs in the file (record framed for text,
-                // raw for binary), so it is written verbatim.
+            byte[] content = toFileBytes(cell);
+            if (content != null) {
+                // The byte image is exactly what belongs in the file (record framed for text, raw for binary), so it is
+                // written verbatim; a lazily registered text value is encoded right here.
                 try {
-                    writeFile(snapshot, cell, bytes);
+                    writeFile(snapshot, cell, content);
                 } catch (RuntimeException e) {
                     // Keep the budget meaningful even when the disk cap blocks the spill
                     releaseMemory(snapshot, cell);
@@ -823,17 +890,17 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
      * Reads the requested window from a record file one record at a time, so a large value is never loaded whole.
      */
     private byte[] readFileRecordRange(String filePath, long offset, long targetBytes) {
-        int payloadLimit = TEXT_RECORD_SIZE - TEXT_RECORD_HEADER_BYTES;
+        int payloadLimit = TEXT_RECORD_PAYLOAD_BYTES;
         ByteArrayOutputStream output = new ByteArrayOutputStream((int) Math.min(targetBytes, Integer.MAX_VALUE));
         try (RandomAccessFile file = new RandomAccessFile(filePath, "r")) {
-            long records = (file.length() + TEXT_RECORD_SIZE - 1) / TEXT_RECORD_SIZE;
+            long records = (file.length() + TEXT_RECORD_STRIDE_BYTES - 1) / TEXT_RECORD_STRIDE_BYTES;
             long produced = 0L;
             for (long record = 0; record < records && produced < targetBytes; record++) {
                 long logicalStart = record * payloadLimit;
                 if (logicalStart >= offset + targetBytes) {
                     break;
                 }
-                file.seek(record * TEXT_RECORD_SIZE);
+                file.seek(record * TEXT_RECORD_STRIDE_BYTES);
                 int payloadLength = file.readInt();
                 if (payloadLength <= 0 || payloadLength > payloadLimit) {
                     break;
@@ -859,8 +926,27 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
 
 
 
+    /**
+     * Counts the UTF-8 bytes of a string without materializing them, so registering a large text value costs a scan
+     * instead of a second copy of its content.
+     */
     private static int utf8Length(String text) {
-        return text.getBytes(StandardCharsets.UTF_8).length;
+        int bytes = 0;
+        for (int index = 0; index < text.length(); index++) {
+            char character = text.charAt(index);
+            if (character < 0x80) {
+                bytes++;
+            } else if (character < 0x800) {
+                bytes += 2;
+            } else if (Character.isHighSurrogate(character) && index + 1 < text.length()
+                    && Character.isLowSurrogate(text.charAt(index + 1))) {
+                bytes += 4;
+                index++;
+            } else {
+                bytes += 3;
+            }
+        }
+        return bytes;
     }
 
     private Path snapshotDirectory(String snapshotId) {

@@ -267,7 +267,7 @@ public class JDBCDataValue {
     public ResultCell buildResultCell(String value) {
         String columnType = getType();
         int sqlType = getSqlType();
-        long displayBytes = value == null ? 0L : value.getBytes(StandardCharsets.UTF_8).length;
+        long displayBytes = value == null ? 0L : utf8Length(value);
         long displayChars = value == null ? 0L : value.length();
         LargeValueInfo largeValueInfo = detectLargeValue(value, columnType, sqlType, displayBytes);
         String displayValue = previewValue(value, largeValueInfo);
@@ -372,7 +372,9 @@ public class JDBCDataValue {
                 return getObject();
             }
             if (largeValueInfo.valueType.isTextLike()) {
-                return getClob();
+                // The complete text is already in hand unless the driver only produced a size summary, so keep it
+                // instead of reading the same value a second time through a LOB handle.
+                return largeValueInfo.summary ? getClob() : value;
             }
             if (largeValueInfo.valueType.isBinaryLike()) {
                 return getBlob();
@@ -480,6 +482,29 @@ public class JDBCDataValue {
 
     public double getDouble() {
         return ResultSetUtils.getDouble(resultSet,columnIndex);
+    }
+
+    /**
+     * Counts the UTF-8 bytes of a string without materializing them, so sizing a large value costs a scan instead of a
+     * second copy of its content.
+     */
+    private static int utf8Length(String text) {
+        int bytes = 0;
+        for (int index = 0; index < text.length(); index++) {
+            char character = text.charAt(index);
+            if (character < 0x80) {
+                bytes++;
+            } else if (character < 0x800) {
+                bytes += 2;
+            } else if (Character.isHighSurrogate(character) && index + 1 < text.length()
+                    && Character.isLowSurrogate(text.charAt(index + 1))) {
+                bytes += 4;
+                index++;
+            } else {
+                bytes += 3;
+            }
+        }
+        return bytes;
     }
 
     @Getter
