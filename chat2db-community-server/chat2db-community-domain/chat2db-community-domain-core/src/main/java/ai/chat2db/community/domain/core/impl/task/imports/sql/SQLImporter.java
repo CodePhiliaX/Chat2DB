@@ -115,6 +115,9 @@ public class SQLImporter implements IImportStrategy {
                 sqlExecutor.executeBatch(sqls);
                 context.logInfo(TaskEventCode.FILE_READ_COMPLETED.name(), "SQL file parsed");
             }
+            if (borrowedScriptConnection != null && context.taskId() != null) {
+                sqlExecutor.assertScriptCompleted();
+            }
         } catch (TaskCancelledException | TaskExecutionException e) {
             if (borrowedScriptConnection != null) discardConnection(borrowedScriptConnection, e);
             throw e;

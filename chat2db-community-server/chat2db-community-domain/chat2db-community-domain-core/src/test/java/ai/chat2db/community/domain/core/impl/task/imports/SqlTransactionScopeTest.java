@@ -11,6 +11,23 @@ import org.junit.jupiter.api.Test;
  * {@code BEGIN} ... {@code ROLLBACK} script (see the import path in {@link ImportSqlExecutor}).
  */
 class SqlTransactionScopeTest {
+    @Test
+    void proceduralBlocksDoNotChangeTheScriptTransactionScope() {
+        assertEquals(SqlTransactionScope.Effect.NONE, SqlTransactionScope.effectOf("BEGIN NULL; END;"));
+        assertEquals(SqlTransactionScope.Effect.NONE, SqlTransactionScope.effectOf("BEGIN TRY SELECT 1; END TRY"));
+        assertEquals(SqlTransactionScope.Effect.NONE, SqlTransactionScope.effectOf("END IF;"));
+        assertEquals(SqlTransactionScope.Effect.BEGIN, SqlTransactionScope.effectOf("BEGIN TRANSACTION named_transaction"));
+        assertEquals(SqlTransactionScope.Effect.BEGIN, SqlTransactionScope.effectOf("BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"));
+    }
+
+    @Test
+    void productionOracleParserKeepsAnAnonymousBlockOutsideTransactionScope() {
+        var statements = new ai.chat2db.plugin.oracle.parser.OracleSqlParser()
+                .parserSqlScript("BEGIN\n NULL;\nEND;\n/\n");
+        assertEquals(1, statements.size());
+        assertEquals(SqlTransactionScope.Effect.NONE,
+                SqlTransactionScope.effectOf(statements.get(0).getSql()));
+    }
 
     @Test
     void savepointRollbackKeepsTheScriptTransactionOpen() {

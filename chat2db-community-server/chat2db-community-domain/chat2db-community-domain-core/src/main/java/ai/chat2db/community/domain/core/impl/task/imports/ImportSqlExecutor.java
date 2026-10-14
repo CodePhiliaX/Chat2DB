@@ -41,6 +41,18 @@ public final class ImportSqlExecutor {
         return !transactionScope.isOpen();
     }
 
+    /** A task-owned script cannot hand an unfinished transaction to the next pool borrower. */
+    public void assertScriptCompleted() {
+        context.checkCancelled();
+        try {
+            boolean open = !Chat2DBContext.getConnection().getAutoCommit() || Chat2DBContext.getDbMetaData()
+                    .hasOpenTransaction(Chat2DBContext.getConnection(), context).orElse(transactionScope.isOpen());
+            context.checkCancelled();
+            if (open) throw new TaskExecutionException("IMPORT_SQL_TRANSACTION_OPEN",
+                    I18nUtils.getMessage("import.sql.unfinishedTransaction"));
+        } catch (SQLException failure) { throw importFailure(failure); }
+    }
+
     void observeExecutedStatement(String sql) {
         transactionScope.observe(sql);
     }

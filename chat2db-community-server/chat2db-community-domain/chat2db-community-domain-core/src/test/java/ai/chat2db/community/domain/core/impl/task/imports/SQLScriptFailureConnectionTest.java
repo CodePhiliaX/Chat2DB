@@ -70,6 +70,33 @@ class SQLScriptFailureConnectionTest {
         }
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"BEGIN", "SET AUTOCOMMIT FALSE"})
+    void taskCannotFinishWithAnUncommittedScriptTransaction(String opener) throws Exception {
+        String url = "jdbc:h2:mem:unfinished_" + UUID.randomUUID().toString().replace("-", "");
+        IPlugin previous = Chat2DBContext.PLUGIN_MAP.put("H2", h2FixturePlugin());
+        try (Connection observer = DriverManager.getConnection(url);
+             Connection borrowed = DriverManager.getConnection(url)) {
+            try (Statement statement = observer.createStatement()) { statement.execute("CREATE TABLE TARGET_ROWS (ID INT)"); }
+            ConnectInfo info = new ConnectInfo(); info.setDbType("H2"); info.setDriverConfig(new DriverConfig());
+            info.setConnection(borrowed); Chat2DBContext.putContext(info);
+            Path file = directory.resolve("unfinished.sql");
+            Files.writeString(file, opener + ";\nINSERT INTO TARGET_ROWS VALUES (1);\n");
+            Context taskContext = new Context(false) { @Override public Long taskId() { return 17L; } };
+            TaskExecutionException failure = assertThrows(TaskExecutionException.class, () -> new SQLImporter().run(
+                    ImportTaskSpec.builder().sourceFile(file.toString()).build(), taskContext));
+            assertEquals("IMPORT_SQL_TRANSACTION_OPEN", failure.getCode());
+            assertNull(info.getConnection()); assertTrue(borrowed.isClosed());
+            try (Statement statement = observer.createStatement(); ResultSet rows = statement.executeQuery("SELECT COUNT(*) FROM TARGET_ROWS")) {
+                assertTrue(rows.next()); assertEquals(0, rows.getInt(1));
+            }
+        } finally {
+            Chat2DBContext.removeContext();
+            if (previous == null) Chat2DBContext.PLUGIN_MAP.remove("H2");
+            else Chat2DBContext.PLUGIN_MAP.put("H2", previous);
+        }
+    }
+
     private void run(boolean autoCommit, boolean cancel) throws Exception {
         String url = "jdbc:h2:mem:failed_script_" + UUID.randomUUID().toString().replace("-", "")
                 + ";MODE=MySQL;DB_CLOSE_DELAY=-1";

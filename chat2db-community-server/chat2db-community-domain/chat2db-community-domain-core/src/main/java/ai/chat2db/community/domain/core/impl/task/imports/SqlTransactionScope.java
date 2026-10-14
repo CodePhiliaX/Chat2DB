@@ -72,11 +72,17 @@ final class SqlTransactionScope {
                 && "AND".equals(words[next]) && "CHAIN".equals(words[next + 1]);
         switch (keyword) {
             case "BEGIN":
-                return Effect.BEGIN;
+                // BEGIN also introduces procedural blocks (Oracle, SQL Server). Only complete
+                // transaction statements may affect the fallback used by dialects without a probe.
+                return controls.matches("BEGIN(?:\\s+(?:WORK|TRANSACTION|TRAN)(?:\\s+[^;]+)?"
+                        + "|\\s+(?:ISOLATION|READ|DEFERRABLE|NOT)\\s+[^;]+)?\\s*;?")
+                        ? Effect.BEGIN : Effect.NONE;
             case "START":
                 return words.length > 1 && "TRANSACTION".equals(words[1]) ? Effect.BEGIN : Effect.NONE;
             case "COMMIT":
             case "END":
+                if ("END".equals(keyword) && !controls.matches("END(?:\\s+(?:WORK|TRANSACTION))?"
+                        + "(?:\\s+AND\\s+(?:NO\\s+)?CHAIN)?\\s*;?")) return Effect.NONE;
                 if (words.length > 1 && "PREPARED".equals(words[1])) return Effect.NONE;
                 return chained ? Effect.BEGIN : Effect.COMMIT;
             case "ROLLBACK":
