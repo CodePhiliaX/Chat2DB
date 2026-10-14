@@ -1,6 +1,7 @@
 package ai.chat2db.community.domain.core.impl.db;
 
 import ai.chat2db.community.domain.api.model.db.LargeValueToken;
+import ai.chat2db.community.domain.api.model.result.snapshot.ResultCursorHold;
 import ai.chat2db.community.domain.api.model.result.snapshot.ResultSnapshotCell;
 import ai.chat2db.community.domain.api.service.result.IResultSnapshotStore;
 import ai.chat2db.community.domain.api.model.result.Header;
@@ -8,6 +9,7 @@ import ai.chat2db.community.domain.api.model.result.ResultCell;
 import ai.chat2db.community.domain.api.model.request.db.DbLargeValueTokensAttachRequest;
 import ai.chat2db.community.domain.api.service.db.IDbLargeValueTokenService;
 import ai.chat2db.community.tools.exception.BusinessException;
+import ai.chat2db.spi.sql.ResultCursorLeaseRegistry;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,12 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
      * materialized and encoded before that check can run, so an absurdly large single cell is not captured at all.
      */
     private static final long MAX_CAPTURED_CELL_BYTES = 256L * 1024 * 1024;
+
+    /**
+     * From this size on, a value the driver only handed over as a {@code Clob}/{@code Blob} is kept on its live cursor
+     * instead of being copied, so a page of multi megabyte values costs nothing while the query runs.
+     */
+    private static final long LEASE_MIN_BYTES = 1024 * 1024L;
 
     private static final String UNSUPPORTED_REASON_KEY = "largeCellValue.fullValueUnsupported";
 
@@ -119,7 +127,7 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
                 int absoluteColumn = colIndex;
                 ResultSnapshotCell captured;
                 try {
-                    captured = snapshotStore.capture(snapshotId, absoluteRow, absoluteColumn, cell.getRawValue());
+                    captured = captureOrLease(snapshotStore, snapshotId, absoluteRow, absoluteColumn, cell);
                 } catch (RuntimeException e) {
                     // One uncapturable value must not fail the whole statement: mark that cell and keep going.
                     log.warn("Failed to capture a large value at row {} column {}: {}", absoluteRow, absoluteColumn,
@@ -138,6 +146,24 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
                 cell.setRawValue(null);
             }
         }
+    }
+
+    /**
+     * Captures one value, or keeps it on the cursor that handed it over when it is big enough to be worth it. A lease
+     * only exists while the execution that streams the cursor announced it, so a plain REST query captures as before.
+     */
+    private ResultSnapshotCell captureOrLease(IResultSnapshotStore snapshotStore, String snapshotId, int rowIndex,
+                                              int columnIndex, ResultCell cell) {
+        Object rawValue = cell.getRawValue();
+        boolean handedOver = rawValue instanceof java.sql.Clob || rawValue instanceof java.sql.Blob;
+        if (handedOver && cell.getSizeBytes() != null && cell.getSizeBytes() >= LEASE_MIN_BYTES) {
+            ResultCursorHold hold = ResultCursorLeaseRegistry.holdForCurrentExecution();
+            if (hold != null) {
+                snapshotStore.addCursorHold(snapshotId, hold);
+                return snapshotStore.lease(snapshotId, rowIndex, columnIndex, rawValue);
+            }
+        }
+        return snapshotStore.capture(snapshotId, rowIndex, columnIndex, rawValue);
     }
 
     @Override

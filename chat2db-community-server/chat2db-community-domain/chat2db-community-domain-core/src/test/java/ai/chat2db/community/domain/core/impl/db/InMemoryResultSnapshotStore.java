@@ -37,7 +37,7 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     /**
      * Cursors the test leased values from, closed when the snapshot goes away.
      */
-    private final Map<String, ResultCursorHold> cursorHolds = new ConcurrentHashMap<>();
+    private final Map<String, java.util.List<ResultCursorHold>> cursorHolds = new ConcurrentHashMap<>();
 
     /**
      * Cells the test wants the capture to fail for, keyed as {@code row:column}.
@@ -88,10 +88,23 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
                 Instant.now().plusSeconds(1800), cursorHold);
         cells.put(snapshotId, new ConcurrentHashMap<>());
         expiresAt.put(snapshotId, snapshot.getExpiresAt());
-        if (cursorHold != null) {
-            cursorHolds.put(snapshotId, cursorHold);
-        }
+        addCursorHold(snapshotId, cursorHold);
         return snapshot;
+    }
+
+    @Override
+    public void addCursorHold(String snapshotId, ResultCursorHold cursorHold) {
+        if (cursorHold != null) {
+            cursorHolds.computeIfAbsent(snapshotId, key -> new java.util.concurrent.CopyOnWriteArrayList<>())
+                    .add(cursorHold);
+        }
+    }
+
+    private void closeHolds(String snapshotId) {
+        java.util.List<ResultCursorHold> holds = cursorHolds.remove(snapshotId);
+        if (holds != null) {
+            holds.forEach(ResultCursorHold::close);
+        }
     }
 
     /**
@@ -214,10 +227,7 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     @Override
     public void release(String snapshotId) {
         cells.remove(snapshotId);
-        ResultCursorHold hold = cursorHolds.remove(snapshotId);
-        if (hold != null) {
-            hold.close();
-        }
+        closeHolds(snapshotId);
         if (root == null || !Files.exists(root)) {
             return;
         }

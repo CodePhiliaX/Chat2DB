@@ -356,6 +356,11 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
     }
 
     @Override
+    public void addCursorHold(String snapshotId, ResultCursorHold cursorHold) {
+        requireSnapshot(snapshotId).addCursorHold(cursorHold);
+    }
+
+    @Override
     public ResultSnapshot register(ResultCursorHold cursorHold) {
         Instant now = Instant.now();
         String snapshotId = UUID.randomUUID().toString();
@@ -499,8 +504,8 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         snapshot.getCells().clear();
         snapshot.getMemoryBytes().set(0L);
         cursorReaders.remove(snapshotId);
-        // A leased snapshot owns the cursor it reads from, so releasing it gives the connection back
-        snapshot.closeCursorHold();
+        // A leased snapshot owns the cursors it reads from, so releasing it gives the connections back
+        snapshot.closeCursorHolds();
         deleteDirectory(snapshotDirectory(snapshotId));
         writeIndex();
     }

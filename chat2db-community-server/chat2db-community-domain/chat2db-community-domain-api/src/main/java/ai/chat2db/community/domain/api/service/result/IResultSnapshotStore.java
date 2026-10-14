@@ -46,6 +46,14 @@ public interface IResultSnapshotStore {
     ResultSnapshotCell lease(String snapshotId, int rowIndex, int columnIndex, Object handle);
 
     /**
+     * Adds a cursor this snapshot may lease values from.
+     * <p>
+     * The execution that owns the cursor takes the hold, the store keeps it and closes it with the snapshot, so the
+     * connection is given back as soon as the content is gone.
+     */
+    void addCursorHold(String snapshotId, ResultCursorHold cursorHold);
+
+    /**
      * Captures the complete content of one cell.
      *
      * @param content text ({@link String}), binary ({@code byte[]}), or the {@code Clob}/{@code Blob} a driver returns

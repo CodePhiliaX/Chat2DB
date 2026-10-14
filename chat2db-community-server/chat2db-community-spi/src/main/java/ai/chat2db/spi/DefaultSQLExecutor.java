@@ -30,6 +30,7 @@ import ai.chat2db.community.domain.api.service.db.ISqlExecutionCancellation;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionResultConsumer;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionStatementListener;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ResultCursorLeaseRegistry;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlUtils;
@@ -1189,7 +1190,10 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         ArrayList<ExecuteResponse> executeResults = new ArrayList<>();
         PreparedStatement stmt = connection.prepareStatement(sql);
         statementListener.onStatementCreated(stmt);
-        try (stmt) {
+        // A leased large value keeps reading from this cursor after the query is done, so the cursor is announced here
+        // and closed by the lease instead of the try-with-resources block below
+        ResultCursorLeaseRegistry.begin(Chat2DBContext.getConnectInfo(), stmt);
+        try {
             clearWarnings(stmt, connection);
             stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
             if (sql.toLowerCase().startsWith("select")) {
@@ -1259,6 +1263,11 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             attachMessages(executeResults, collectMessages(stmt, connection));
             clearWarnings(stmt, connection);
         } finally {
+            boolean cursorLeased = ResultCursorLeaseRegistry.isPinned();
+            ResultCursorLeaseRegistry.end();
+            if (!cursorLeased) {
+                stmt.close();
+            }
             statementListener.onStatementClosed(stmt);
         }
         return executeResults;

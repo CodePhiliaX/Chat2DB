@@ -3,8 +3,10 @@ package ai.chat2db.community.domain.api.model.result.snapshot;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,10 +58,10 @@ public class ResultSnapshot {
     private volatile boolean releaseRequested;
 
     /**
-     * Keeps the cursor of the execution that produced this snapshot's leased cells open, or {@code null} when the
-     * snapshot holds no cursor backed value.
+     * Keeps the cursors this snapshot leases values from open. A snapshot can lease from more than one result of the
+     * same execution, and every hold has to be given back, so the snapshot keeps all of them.
      */
-    private volatile ResultCursorHold cursorHold;
+    private final List<ResultCursorHold> cursorHolds = new CopyOnWriteArrayList<>();
 
     public ResultSnapshot(String snapshotId, Instant createdAt, Instant expiresAt) {
         this(snapshotId, createdAt, expiresAt, null);
@@ -69,18 +71,33 @@ public class ResultSnapshot {
         this.snapshotId = snapshotId;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.cursorHold = cursorHold;
+        addCursorHold(cursorHold);
     }
 
     /**
-     * Closes the cursor once, so a snapshot never keeps a connection after its content is gone.
+     * Adds a cursor this snapshot reads leased values from.
      */
-    public void closeCursorHold() {
-        ResultCursorHold hold = cursorHold;
-        cursorHold = null;
-        if (hold != null) {
+    public void addCursorHold(ResultCursorHold cursorHold) {
+        if (cursorHold != null) {
+            cursorHolds.add(cursorHold);
+        }
+    }
+
+    /**
+     * @return {@code true} when this snapshot reads at least one value from a live cursor
+     */
+    public boolean hasCursorHold() {
+        return !cursorHolds.isEmpty();
+    }
+
+    /**
+     * Gives every cursor back, so a snapshot never keeps a connection after its content is gone.
+     */
+    public void closeCursorHolds() {
+        for (ResultCursorHold hold : cursorHolds) {
             hold.close();
         }
+        cursorHolds.clear();
     }
 
     public static long cellKey(int rowIndex, int columnIndex) {

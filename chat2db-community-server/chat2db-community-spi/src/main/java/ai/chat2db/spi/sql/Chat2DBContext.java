@@ -196,6 +196,10 @@ public class Chat2DBContext {
         ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();
         if (connectInfo != null) {
             CONNECT_INFO_THREAD_LOCAL.remove();
+            if (ResultCursorLeaseRegistry.isHeld(connectInfo)) {
+                // A leased large value still reads from this connection: the last cursor hold gives it back instead
+                return;
+            }
             ConnectionPool.close(connectInfo);
         }
     }
