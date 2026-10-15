@@ -45,7 +45,15 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
      */
     private static final long LEASE_MIN_BYTES = 1024 * 1024L;
 
-    private static final String UNSUPPORTED_REASON_KEY = "largeCellValue.fullValueUnsupported";
+    /**
+     * Reasons a large value stays unreadable, as the key the client turns into the message the user sees. Every log
+     * line about such a value carries its key, so a reported message can be matched to its cause in the log.
+     */
+    private static final String TOO_LARGE_REASON_KEY = "largeCellValue.unsupportedTooLarge";
+
+    private static final String UNSTORED_REASON_KEY = "largeCellValue.unsupportedUnstored";
+
+    private static final String NO_SNAPSHOT_REASON_KEY = "largeCellValue.unsupportedNoSnapshot";
 
     private final Map<String, LargeValueToken> tokenCache = new ConcurrentHashMap<>();
 
@@ -80,15 +88,41 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
             return;
         }
         // Without a snapshot there is no content to serve, so every large value stays unresolved.
+        int unresolved = 0;
         for (List<ResultCell> row : dataList) {
             if (row == null) {
                 continue;
             }
             for (ResultCell cell : row) {
                 if (cell != null && cell.isLargeValue()) {
-                    cell.setUnsupportedReason(UNSUPPORTED_REASON_KEY);
+                    cell.setUnsupportedReason(NO_SNAPSHOT_REASON_KEY);
+                    unresolved++;
                 }
             }
+        }
+        if (unresolved > 0) {
+            // One line per result set: the failure that left the snapshot unavailable is recorded where it happened
+            log.error("Result snapshot is unavailable, {} large value(s) cannot be read: reason={} table={}",
+                    unresolved, NO_SNAPSHOT_REASON_KEY, tableName);
+        }
+    }
+
+    /**
+     * Marks a large value as unreadable and records why. The reason key is the one the client shows to the user, so a
+     * report of that message can be found in the log; the value's content is never logged.
+     */
+    private void markUnsupported(ResultCell cell, String reasonKey, DbLargeValueTokensAttachRequest attachRequest,
+                                 List<Header> headers, int row, int colIndex, String detail, RuntimeException cause) {
+        cell.setUnsupportedReason(reasonKey);
+        String message = String.format(
+                "Large value cannot be read: reason=%s table=%s column=%s row=%d columnIndex=%d sizeBytes=%s "
+                        + "valueType=%s (%s)",
+                reasonKey, attachRequest.getTableName(), columnName(headers, colIndex), row, colIndex,
+                cell.getSizeBytes(), cell.getValueType(), detail);
+        if (cause == null) {
+            log.warn(message);
+        } else {
+            log.warn(message, cause);
         }
     }
 
@@ -113,15 +147,15 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
                 if (cell.getRawValue() == null) {
                     // The value was never materialized, so there is nothing to capture. Keeping the cell unresolved is
                     // safer than capturing the truncated preview as if it were the complete value.
-                    cell.setUnsupportedReason(UNSUPPORTED_REASON_KEY);
+                    markUnsupported(cell, UNSTORED_REASON_KEY, attachRequest, headers, absoluteRow, colIndex,
+                            "the driver returned neither a value nor a handle", null);
                     continue;
                 }
                 if (cell.getSizeBytes() != null && cell.getSizeBytes() > MAX_CAPTURED_CELL_BYTES) {
                     // Copying a value this large into the snapshot would need several times its size on the heap before
                     // any limit applies, so the cell is reported as not captured instead of risking the process.
-                    log.warn("Skipping capture of a {} byte large value at row {} column {}: above the per cell limit",
-                            cell.getSizeBytes(), absoluteRow, colIndex);
-                    cell.setUnsupportedReason(UNSUPPORTED_REASON_KEY);
+                    markUnsupported(cell, TOO_LARGE_REASON_KEY, attachRequest, headers, absoluteRow, colIndex,
+                            "above the per cell limit of " + MAX_CAPTURED_CELL_BYTES + " bytes", null);
                     continue;
                 }
                 int absoluteColumn = colIndex;
@@ -130,9 +164,8 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
                     captured = captureOrLease(snapshotStore, snapshotId, absoluteRow, absoluteColumn, cell);
                 } catch (RuntimeException e) {
                     // One uncapturable value must not fail the whole statement: mark that cell and keep going.
-                    log.warn("Failed to capture a large value at row {} column {}: {}", absoluteRow, absoluteColumn,
-                            e.getMessage());
-                    cell.setUnsupportedReason(UNSUPPORTED_REASON_KEY);
+                    markUnsupported(cell, UNSTORED_REASON_KEY, attachRequest, headers, absoluteRow, absoluteColumn,
+                            "storing the value failed", e);
                     continue;
                 }
                 // The snapshot reports the real byte and character counts, which the driver metadata may not match

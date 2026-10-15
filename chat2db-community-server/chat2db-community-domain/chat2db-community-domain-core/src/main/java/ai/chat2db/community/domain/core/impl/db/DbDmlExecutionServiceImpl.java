@@ -153,8 +153,10 @@ public class DbDmlExecutionServiceImpl implements IDbDmlExecutionService {
                     continue;
                 } catch (RuntimeException e) {
                     // A snapshot that cannot be registered must not fail the statement: the large values stay
-                    // unreadable instead. attachTokens below then marks every one of them as unsupported.
-                    log.warn("Failed to register a result snapshot: {}", e.getMessage());
+                    // unreadable instead. attachTokens below then marks every one of them as unsupported, so one line
+                    // with the cause is enough here.
+                    log.error("Failed to register a result snapshot, every large value of this result set stays "
+                            + "unreadable: reason=largeCellValue.unsupportedNoSnapshot", e);
                     attachRequest.setSnapshotId(null);
                     if (snapshotId != null) {
                         resultSnapshotStore.release(snapshotId);
