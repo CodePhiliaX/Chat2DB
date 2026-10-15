@@ -45,6 +45,15 @@ public class ResultCell {
         return rawValue;
     }
 
+    /**
+     * @return {@code true} when the driver handed the value over as a handle instead of transferring its content, so
+     *         the value is only read when it is asked for and its cursor has to stay open until then
+     */
+    @Transient
+    public boolean carriesHandle() {
+        return rawValue instanceof java.sql.Clob || rawValue instanceof java.sql.Blob;
+    }
+
     public static ResultCell of(String value) {
         return ResultCell.builder()
                 .value(value)

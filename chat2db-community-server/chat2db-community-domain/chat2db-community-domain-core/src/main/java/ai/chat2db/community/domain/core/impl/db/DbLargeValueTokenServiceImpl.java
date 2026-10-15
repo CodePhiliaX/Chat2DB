@@ -150,12 +150,13 @@ public class DbLargeValueTokenServiceImpl implements IDbLargeValueTokenService {
 
     /**
      * Captures one value, or keeps it on the cursor that handed it over when it is big enough to be worth it. A lease
-     * only exists while the execution that streams the cursor announced it, so a plain REST query captures as before.
+     * only exists while the cursor of the execution that produced the value is still announced, so a driver that
+     * transfers the content instead of handing over a handle captures as before.
      */
     private ResultSnapshotCell captureOrLease(IResultSnapshotStore snapshotStore, String snapshotId, int rowIndex,
                                               int columnIndex, ResultCell cell) {
         Object rawValue = cell.getRawValue();
-        boolean handedOver = rawValue instanceof java.sql.Clob || rawValue instanceof java.sql.Blob;
+        boolean handedOver = cell.carriesHandle();
         if (handedOver && cell.getSizeBytes() != null && cell.getSizeBytes() >= LEASE_MIN_BYTES) {
             ResultCursorHold hold = ResultCursorLeaseRegistry.holdForCurrentExecution();
             if (hold != null) {

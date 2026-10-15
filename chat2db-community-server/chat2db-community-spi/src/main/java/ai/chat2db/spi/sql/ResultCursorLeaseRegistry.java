@@ -5,9 +5,12 @@ import ai.chat2db.spi.model.datasource.ConnectInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,6 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * takes a {@link #holdForCurrentExecution()} for every snapshot that leases a value, and the execution asks
  * {@link #isPinned()} before it closes anything. The registry closes the cursor and gives the connection back once the
  * last hold is gone, when a lease has been idle for too long, or on shutdown.
+ * <p>
+ * A response that carries such a value on a path without a consumer is announced as well: its cursor is closed with
+ * the connection context of the execution that produced it, see {@link #finishAnnouncedCursor()}.
  */
 @Slf4j
 public final class ResultCursorLeaseRegistry {
@@ -55,10 +61,18 @@ public final class ResultCursorLeaseRegistry {
     }
 
     /**
-     * Announces the cursor of the execution running on this thread.
+     * Announces the cursor of the execution running on this thread. A request can run several statements on the same
+     * connection before their responses are read, so a statement of the same connection joins the announcement instead
+     * of replacing it: every one of their cursors stays open, and they are closed together.
      */
     public static void begin(ConnectInfo connectInfo, Statement statement) {
-        CURRENT_SCOPE.set(new Scope(connectInfo, statement));
+        Scope scope = CURRENT_SCOPE.get();
+        if (scope == null || scope.connectInfo != connectInfo) {
+            finishAnnouncedCursor();
+            CURRENT_SCOPE.set(new Scope(connectInfo, statement));
+            return;
+        }
+        scope.announce(statement);
     }
 
     /**
@@ -66,6 +80,41 @@ public final class ResultCursorLeaseRegistry {
      */
     public static void end() {
         CURRENT_SCOPE.remove();
+    }
+
+    /**
+     * Ends the announcement of the execution running on this thread, closing its cursors when nothing leased them.
+     * <p>
+     * A large value is read after the query that produced it, so the cursors of an announced execution outlive it. This
+     * is called when that execution's connection context goes away: the responses it produced are finished by then, so
+     * cursors no reader leased are given up instead of keeping their statements.
+     */
+    static void finishAnnouncedCursor() {
+        Scope scope = CURRENT_SCOPE.get();
+        if (scope == null) {
+            return;
+        }
+        CURRENT_SCOPE.remove();
+        if (scope.liveLease() != null) {
+            // The lease closes the cursors and gives back their connection once the last hold is gone
+            return;
+        }
+        for (Statement statement : scope.statements) {
+            try {
+                statement.close();
+            } catch (Exception e) {
+                log.warn("Failed to close the announced cursor: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * @return {@code true} while this statement is one the cursor of this thread was announced for, so its execution
+     *         must not close it: a reader may still lease a large value that reads from it
+     */
+    public static boolean isCursorAnnounced(Statement statement) {
+        Scope scope = CURRENT_SCOPE.get();
+        return scope != null && scope.holds(statement);
     }
 
     /**
@@ -84,16 +133,16 @@ public final class ResultCursorLeaseRegistry {
      */
     public static ResultCursorHold holdForCurrentExecution() {
         Scope scope = CURRENT_SCOPE.get();
-        if (scope == null || scope.connectInfo == null || scope.statement == null) {
+        if (scope == null || scope.connectInfo == null || scope.statements.isEmpty()) {
             return null;
         }
-        Lease lease = scope.lease;
+        Lease lease = scope.liveLease();
         if (lease == null) {
             if (LEASES.size() >= MAX_LEASES) {
                 log.warn("No cursor lease available, {} are already open", LEASES.size());
                 return null;
             }
-            lease = new Lease(UUID.randomUUID().toString(), scope.connectInfo, scope.statement);
+            lease = new Lease(UUID.randomUUID().toString(), scope.connectInfo, scope.statements);
             scope.lease = lease;
             LEASES.put(lease.getId(), lease);
         }
@@ -148,10 +197,12 @@ public final class ResultCursorLeaseRegistry {
             return;
         }
         log.debug("Closing the cursor lease of {}", lease.getConnectInfo().getKey());
-        try {
-            lease.getStatement().close();
-        } catch (Exception e) {
-            log.warn("Failed to close the leased statement: {}", e.getMessage());
+        for (Statement statement : lease.getStatements()) {
+            try {
+                statement.close();
+            } catch (Exception e) {
+                log.warn("Failed to close the leased statement: {}", e.getMessage());
+            }
         }
         ConnectionPool.close(lease.getConnectInfo());
     }
@@ -170,17 +221,50 @@ public final class ResultCursorLeaseRegistry {
     }
 
     /**
-     * Cursor the current thread announced, and the lease it produced.
+     * Cursors the current thread announced, and the lease they produced.
      */
     private static final class Scope {
 
         private final ConnectInfo connectInfo;
-        private final Statement statement;
+        private final List<Statement> statements = new ArrayList<>();
         private Lease lease;
 
         private Scope(ConnectInfo connectInfo, Statement statement) {
             this.connectInfo = connectInfo;
-            this.statement = statement;
+            announce(statement);
+        }
+
+        /**
+         * Adds a cursor whose response may still lease a value from it. One statement can carry several results, and
+         * every one of them announces it, so it is only kept once.
+         */
+        private void announce(Statement statement) {
+            if (holds(statement)) {
+                return;
+            }
+            statements.add(statement);
+            Lease open = liveLease();
+            if (open != null) {
+                // A lease still reads from this connection, so it takes this cursor as well and closes it later
+                open.addStatement(statement);
+            }
+        }
+
+        private boolean holds(Statement statement) {
+            for (Statement announced : statements) {
+                if (announced == statement) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * @return the lease of this scope while it is still registered, or {@code null} once it was given up: an idle
+         *         sweep can close it while the request that announced the cursor still runs
+         */
+        private Lease liveLease() {
+            return lease != null && LEASES.containsKey(lease.getId()) ? lease : null;
         }
     }
 
@@ -188,14 +272,17 @@ public final class ResultCursorLeaseRegistry {
 
         private final String id;
         private final ConnectInfo connectInfo;
-        private final Statement statement;
+        /**
+         * Statements of one request, which the lease keeps open until it is given up.
+         */
+        private final List<Statement> statements = new CopyOnWriteArrayList<>();
         private final AtomicInteger holds = new AtomicInteger();
         private final AtomicLong lastActivityAt = new AtomicLong(System.currentTimeMillis());
 
-        private Lease(String id, ConnectInfo connectInfo, Statement statement) {
+        private Lease(String id, ConnectInfo connectInfo, List<Statement> statements) {
             this.id = id;
             this.connectInfo = connectInfo;
-            this.statement = statement;
+            this.statements.addAll(statements);
         }
 
         private String getId() {
@@ -206,8 +293,12 @@ public final class ResultCursorLeaseRegistry {
             return connectInfo;
         }
 
-        private Statement getStatement() {
-            return statement;
+        private List<Statement> getStatements() {
+            return statements;
+        }
+
+        private void addStatement(Statement statement) {
+            statements.add(statement);
         }
 
         private long getLastActivityAt() {

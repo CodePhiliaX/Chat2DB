@@ -76,6 +76,67 @@ class ResultCursorLeaseRegistryTest {
     }
 
     @Test
+    void everyStatementOfOneRequestKeepsItsCursorUntilTheLeaseIsGone() {
+        AtomicBoolean firstClosed = new AtomicBoolean();
+        AtomicBoolean secondClosed = new AtomicBoolean();
+        ConnectInfo connectInfo = connectInfo(connection(new AtomicBoolean()));
+        Statement first = statement(firstClosed);
+        Statement second = statement(secondClosed);
+
+        ResultCursorLeaseRegistry.begin(connectInfo, first);
+        ResultCursorLeaseRegistry.begin(connectInfo, second);
+
+        assertTrue(ResultCursorLeaseRegistry.isCursorAnnounced(first),
+                "the response of the first statement is not read yet, so its cursor stays open");
+        ResultCursorHold hold = ResultCursorLeaseRegistry.holdForCurrentExecution();
+        assertNotNull(hold, "the cursors of the request are leased from");
+
+        Chat2DBContext.removeContext();
+
+        assertFalse(firstClosed.get(), "the lease reads from both cursors");
+        assertFalse(secondClosed.get());
+
+        hold.close();
+
+        assertTrue(firstClosed.get(), "releasing the reader closes every cursor of the request");
+        assertTrue(secondClosed.get());
+    }
+
+    @Test
+    void aCursorAnnouncedAfterItsLeaseWasGivenUpIsNotLeftOpen() {
+        AtomicBoolean firstClosed = new AtomicBoolean();
+        AtomicBoolean secondClosed = new AtomicBoolean();
+        ConnectInfo connectInfo = connectInfo(connection(new AtomicBoolean()));
+        ResultCursorLeaseRegistry.begin(connectInfo, statement(firstClosed));
+        assertNotNull(ResultCursorLeaseRegistry.holdForCurrentExecution());
+
+        // The idle sweep can give a lease up while the request that announced it still runs
+        ResultCursorLeaseRegistry.evictIdle(
+                System.currentTimeMillis() + ResultCursorLeaseRegistry.IDLE_TIMEOUT_MS + 1000L);
+        assertTrue(firstClosed.get(), "the idle lease closes its own cursor");
+
+        ResultCursorLeaseRegistry.begin(connectInfo, statement(secondClosed));
+        Chat2DBContext.removeContext();
+
+        assertTrue(secondClosed.get(),
+                "a cursor announced after the lease was given up is closed with its connection context");
+    }
+
+    @Test
+    void aRequestThatLeasesNothingClosesEveryCursorItAnnounced() {
+        AtomicBoolean firstClosed = new AtomicBoolean();
+        AtomicBoolean secondClosed = new AtomicBoolean();
+        ConnectInfo connectInfo = connectInfo(connection(new AtomicBoolean()));
+
+        ResultCursorLeaseRegistry.begin(connectInfo, statement(firstClosed));
+        ResultCursorLeaseRegistry.begin(connectInfo, statement(secondClosed));
+        Chat2DBContext.removeContext();
+
+        assertTrue(firstClosed.get(), "a cursor nobody leased is given up with its connection context");
+        assertTrue(secondClosed.get());
+    }
+
+    @Test
     void anIdleLeaseIsClosedByTheSweep() {
         AtomicBoolean statementClosed = new AtomicBoolean();
         ConnectInfo connectInfo = connectInfo(connection(new AtomicBoolean()));
