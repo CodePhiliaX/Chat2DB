@@ -33,8 +33,10 @@ tools:
   github:
     mode: gh-proxy
     toolsets: [pull_requests, repos]
-  bash:
-    - "gh *"
+  # The codex engine ignores bash command allowlists, so this is stated as
+  # allow-all: the agent drives the gh and safeoutputs CLI proxies inside the
+  # gh-aw sandbox.
+  bash: ["*"]
   edit: false
 safe-outputs:
   create-pull-request-review-comment:
