@@ -201,6 +201,7 @@ public class JDBCDataValue {
 
     public String getCharsetString() {
         StringBuilder sb = new StringBuilder(8192);
+        long totalSize = 0;
         try (Reader characterStream = getCharacterStream()) {
             if (Objects.isNull(characterStream)) {
                 return null;
@@ -208,11 +209,19 @@ public class JDBCDataValue {
             char[] buffer = new char[8192];
             int charsRead;
             while ((charsRead = characterStream.read(buffer)) != -1) {
-                sb.append(buffer, 0, charsRead);
+                totalSize += charsRead;
+                if (sb != null) {
+                    if (sb.length() + charsRead <= MAX_RETAINED_TEXT_CHARS) {
+                        sb.append(buffer, 0, charsRead);
+                    } else {
+                        // A value past the retention limit is only counted, never held: the buffer is released so the
+                        // size of an arbitrarily large value still fits in the heap.
+                        sb = null;
+                    }
+                }
             }
-            long totalSize = sb.length();
             if (totalSize > LobUnitEnum.M.getSize()) {
-                if (totalSize <= MAX_RETAINED_TEXT_CHARS) {
+                if (sb != null) {
                     // The capture reads this value a second time otherwise, so what has already been read is kept for
                     // it. The caller still shows a summary, so the complete text never travels in the response.
                     fullTextContent = sb.toString();
