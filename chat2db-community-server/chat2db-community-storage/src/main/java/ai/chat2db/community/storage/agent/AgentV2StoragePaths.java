@@ -60,6 +60,28 @@ public class AgentV2StoragePaths {
         return root.resolve("sessions");
     }
 
+    public Path tasksDirectory() {
+        return root.resolve("tasks");
+    }
+
+    public Path taskDirectory(String taskId) {
+        validatePathId(taskId, "taskId");
+        return tasksDirectory().resolve(taskId);
+    }
+
+    public Path taskFile(String taskId) {
+        return taskDirectory(taskId).resolve("task.json");
+    }
+
+    public Path taskResultsDirectory(String taskId) {
+        return taskDirectory(taskId).resolve("results");
+    }
+
+    public Path taskResultFile(String taskId, String resultId) {
+        validatePathId(resultId, "resultId");
+        return taskResultsDirectory(taskId).resolve(resultId + ".json");
+    }
+
     public Path sessionDirectory(String sessionId) {
         validatePathId(sessionId, "sessionId");
         return sessionsDirectory().resolve(sessionId);
