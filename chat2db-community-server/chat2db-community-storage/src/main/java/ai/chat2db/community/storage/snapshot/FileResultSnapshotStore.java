@@ -25,17 +25,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * File backed {@link IResultSnapshotStore}.
@@ -377,7 +380,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
 
     @Override
     public ResultSnapshotCell lease(String snapshotId, int rowIndex, int columnIndex, Object handle) {
-        if (!(handle instanceof java.sql.Clob) && !(handle instanceof java.sql.Blob)) {
+        if (!(handle instanceof Clob) && !(handle instanceof Blob)) {
             throw new BusinessException("largeCellValue.snapshotWriteFailed",
                     new Object[]{"a leased value must be a Clob or a Blob"});
         }
@@ -390,12 +393,12 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 .memoryValue(handle)
                 .build();
         try {
-            if (handle instanceof java.sql.Clob clob) {
+            if (handle instanceof Clob clob) {
                 cell.setSizeChars(clob.length());
                 // The byte size of a text value is only known once it has been read, so it grows while the client reads
                 cell.setSizeBytes(0L);
             } else {
-                cell.setSizeBytes(((java.sql.Blob) handle).length());
+                cell.setSizeBytes(((Blob) handle).length());
             }
         } catch (SQLException e) {
             throw new BusinessException("largeCellValue.snapshotWriteFailed", new Object[]{"leased value"}, e);
@@ -587,11 +590,11 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             retainBinary(snapshot, cell, bytes);
             return cell;
         }
-        if (content instanceof java.sql.Clob clob) {
+        if (content instanceof Clob clob) {
             storeText(snapshot, cell, readClob(clob));
             return cell;
         }
-        if (content instanceof java.sql.Blob blob) {
+        if (content instanceof Blob blob) {
             storeBinary(snapshot, cell, readBlob(blob));
             return cell;
         }
@@ -692,8 +695,8 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         snapshot.getMemoryBytes().addAndGet(bytes.length);
     }
 
-    private String readClob(java.sql.Clob clob) {
-        try (java.io.Reader reader = clob.getCharacterStream()) {
+    private String readClob(Clob clob) {
+        try (Reader reader = clob.getCharacterStream()) {
             StringBuilder text = new StringBuilder();
             char[] buffer = new char[COPY_BUFFER_BYTES];
             int read;
@@ -703,12 +706,12 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 }
             }
             return text.toString();
-        } catch (IOException | java.sql.SQLException e) {
+        } catch (IOException | SQLException e) {
             throw new BusinessException("largeCellValue.snapshotWriteFailed", new Object[]{e.getMessage()}, e);
         }
     }
 
-    private byte[] readBlob(java.sql.Blob blob) {
+    private byte[] readBlob(Blob blob) {
         try (InputStream input = blob.getBinaryStream()) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             byte[] chunk = new byte[COPY_BUFFER_BYTES];
@@ -719,7 +722,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 }
             }
             return buffer.toByteArray();
-        } catch (IOException | java.sql.SQLException e) {
+        } catch (IOException | SQLException e) {
             throw new BusinessException("largeCellValue.snapshotWriteFailed", new Object[]{e.getMessage()}, e);
         }
     }
@@ -901,13 +904,13 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 // instead of reporting a live snapshot as expired.
                 return readBinarySlice(cell, offset, limit);
             }
-            return java.util.Arrays.copyOfRange(bytes, (int) offset, (int) offset + wanted);
+            return Arrays.copyOfRange(bytes, (int) offset, (int) offset + wanted);
         }
         try (RandomAccessFile file = new RandomAccessFile(cell.getFilePath(), "r")) {
             file.seek(offset);
             byte[] buffer = new byte[wanted];
             int read = file.read(buffer);
-            return read == wanted ? buffer : java.util.Arrays.copyOf(buffer, Math.max(read, 0));
+            return read == wanted ? buffer : Arrays.copyOf(buffer, Math.max(read, 0));
         } catch (IOException e) {
             // The raw message contains a server side path, so only the log keeps the detail
             log.warn("Failed to read a result snapshot file", e);
@@ -993,7 +996,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
      */
     private SnapshotReadChunk readCursorChunk(ResultSnapshot snapshot, ResultSnapshotCell cell, long offset, int limit) {
         Object handle = cell.getMemoryValue();
-        if (handle instanceof java.sql.Blob blob) {
+        if (handle instanceof Blob blob) {
             byte[] binary = readCursorBlobSlice(cell, blob, offset, limit);
             long nextBinaryOffset = offset + binary.length;
             return SnapshotReadChunk.builder()
@@ -1008,7 +1011,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         CursorTextReader reader = cursorReaders
                 .computeIfAbsent(snapshot.getSnapshotId(), key -> new ConcurrentHashMap<>())
                 .computeIfAbsent(ResultSnapshot.cellKey(cell.getRowIndex(), cell.getColumnIndex()),
-                        key -> new CursorTextReader((java.sql.Clob) handle));
+                        key -> new CursorTextReader((Clob) handle));
         byte[] text = reader.slice(offset, limit);
         long nextOffset = offset + text.length;
         // The byte size of a text value is only known once it has been read to the end, so it grows while it is read
@@ -1023,7 +1026,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 .build();
     }
 
-    private byte[] readCursorBlobSlice(ResultSnapshotCell cell, java.sql.Blob blob, long offset, int limit) {
+    private byte[] readCursorBlobSlice(ResultSnapshotCell cell, Blob blob, long offset, int limit) {
         long size = cell.getSizeBytes();
         if (offset >= size) {
             return new byte[0];
@@ -1043,7 +1046,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
      */
     private static final class CursorTextReader {
 
-        private final java.sql.Clob clob;
+        private final Clob clob;
         /**
          * Encoded bytes the caller has not taken yet: the live window is {@code buffer[start, end)} and its first byte
          * sits at {@link #windowStart} in the value. Dropping a handed out prefix only moves {@code start}, so paging
@@ -1057,7 +1060,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
         private char pendingHighSurrogate;
         private boolean complete;
 
-        CursorTextReader(java.sql.Clob clob) {
+        CursorTextReader(Clob clob) {
             this.clob = clob;
         }
 
@@ -1076,7 +1079,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             while (to > from && to < available() && (buffer[start + to] & 0xC0) == 0x80) {
                 to--;
             }
-            byte[] slice = java.util.Arrays.copyOfRange(buffer, start + from, start + to);
+            byte[] slice = Arrays.copyOfRange(buffer, start + from, start + to);
             discardBefore(windowStart + to);
             return slice;
         }
@@ -1214,7 +1217,7 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
             }
             compact();
             if (end + length > buffer.length) {
-                buffer = java.util.Arrays.copyOf(buffer, Math.max(buffer.length * 2, end + length));
+                buffer = Arrays.copyOf(buffer, Math.max(buffer.length * 2, end + length));
             }
         }
     }

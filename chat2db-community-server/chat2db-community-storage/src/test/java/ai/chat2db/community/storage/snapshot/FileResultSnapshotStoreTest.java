@@ -16,20 +16,28 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -152,12 +160,12 @@ class FileResultSnapshotStoreTest {
         assertTrue(Files.exists(Path.of(cell.getFilePath())), "spilled file must exist");
         assertEquals(big.length, Files.size(Path.of(cell.getFilePath())));
         assertEquals(0L, snapshot.getMemoryBytes().get(), "spilled content must not stay accounted in memory");
-        assertArrayEquals(java.util.Arrays.copyOf(big, 32), Base64.getDecoder().decode(head.getValue()));
+        assertArrayEquals(Arrays.copyOf(big, 32), Base64.getDecoder().decode(head.getValue()));
         assertFalse(head.isEof());
 
         long tailOffset = big.length - 10;
         SnapshotReadChunk tail = store.read(snapshot.getSnapshotId(), 7, 3, tailOffset, 64);
-        assertArrayEquals(java.util.Arrays.copyOfRange(big, (int) tailOffset, big.length),
+        assertArrayEquals(Arrays.copyOfRange(big, (int) tailOffset, big.length),
                 Base64.getDecoder().decode(tail.getValue()));
         assertTrue(tail.isEof());
         assertEquals(big.length, tail.getNextOffset());
@@ -170,7 +178,7 @@ class FileResultSnapshotStoreTest {
         localStore.prepareRootDirectory();
         ResultSnapshot snapshot = localStore.register();
         byte[] payload = "streamed-text-".repeat(2000).getBytes(StandardCharsets.UTF_8);
-        java.sql.Clob clob = new StringClob(new String(payload, StandardCharsets.UTF_8));
+        Clob clob = new StringClob(new String(payload, StandardCharsets.UTF_8));
 
         ResultSnapshotCell cell = localStore.capture(snapshot.getSnapshotId(), 2, 2, clob);
 
@@ -757,7 +765,7 @@ class FileResultSnapshotStoreTest {
     void aReleaseDuringAnOpenReadIsDeferredInsteadOfTruncatingIt() throws Exception {
         ResultSnapshot snapshot = store.register();
         byte[] content = new byte[600_000];
-        new java.util.Random(7L).nextBytes(content);
+        new Random(7L).nextBytes(content);
         store.capture(snapshot.getSnapshotId(), 0, 0, content);
 
         store.hold(snapshot.getSnapshotId());
@@ -925,12 +933,12 @@ class FileResultSnapshotStoreTest {
         assertEquals(content.length, cell.getSizeBytes(), "a blob reports its exact size");
 
         SnapshotReadChunk head = store.read(snapshot.getSnapshotId(), 0, 1, 0, 100);
-        assertArrayEquals(java.util.Arrays.copyOf(content, 100), Base64.getDecoder().decode(head.getValue()));
+        assertArrayEquals(Arrays.copyOf(content, 100), Base64.getDecoder().decode(head.getValue()));
         SnapshotReadChunk middle = store.read(snapshot.getSnapshotId(), 0, 1, 2_000, 50);
-        assertArrayEquals(java.util.Arrays.copyOfRange(content, 2_000, 2_050),
+        assertArrayEquals(Arrays.copyOfRange(content, 2_000, 2_050),
                 Base64.getDecoder().decode(middle.getValue()));
         SnapshotReadChunk tail = store.read(snapshot.getSnapshotId(), 0, 1, content.length - 10L, 100);
-        assertArrayEquals(java.util.Arrays.copyOfRange(content, content.length - 10, content.length),
+        assertArrayEquals(Arrays.copyOfRange(content, content.length - 10, content.length),
                 Base64.getDecoder().decode(tail.getValue()));
         assertTrue(tail.isEof(), "the last window ends the value");
         SnapshotReadChunk beyond = store.read(snapshot.getSnapshotId(), 0, 1, content.length + 5L, 100);
@@ -966,7 +974,7 @@ class FileResultSnapshotStoreTest {
     /**
      * Minimal {@link java.sql.Clob} so the driver type path is covered without a database.
      */
-    private static class StringClob implements java.sql.Clob {
+    private static class StringClob implements Clob {
 
         private final String value;
 
@@ -985,13 +993,13 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.Reader getCharacterStream() {
-            return new java.io.StringReader(value);
+        public Reader getCharacterStream() {
+            return new StringReader(value);
         }
 
         @Override
-        public java.io.InputStream getAsciiStream() {
-            return new java.io.ByteArrayInputStream(value.getBytes(StandardCharsets.US_ASCII));
+        public InputStream getAsciiStream() {
+            return new ByteArrayInputStream(value.getBytes(StandardCharsets.US_ASCII));
         }
 
         @Override
@@ -1000,7 +1008,7 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public long position(java.sql.Clob searchstr, long start) {
+        public long position(Clob searchstr, long start) {
             throw new UnsupportedOperationException();
         }
 
@@ -1015,12 +1023,12 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.OutputStream setAsciiStream(long pos) {
+        public OutputStream setAsciiStream(long pos) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.io.Writer setCharacterStream(long pos) {
+        public Writer setCharacterStream(long pos) {
             throw new UnsupportedOperationException();
         }
 
@@ -1034,7 +1042,7 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.Reader getCharacterStream(long pos, long length) {
+        public Reader getCharacterStream(long pos, long length) {
             throw new UnsupportedOperationException();
         }
     }
@@ -1065,7 +1073,7 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.Reader getCharacterStream() {
+        public Reader getCharacterStream() {
             reads++;
             return super.getCharacterStream();
         }
@@ -1074,7 +1082,7 @@ class FileResultSnapshotStoreTest {
     /**
      * Minimal {@link java.sql.Blob} with random access reads.
      */
-    private static final class ByteArrayBlob implements java.sql.Blob {
+    private static final class ByteArrayBlob implements Blob {
 
         private final byte[] content;
 
@@ -1089,12 +1097,12 @@ class FileResultSnapshotStoreTest {
 
         @Override
         public byte[] getBytes(long pos, int length) {
-            return java.util.Arrays.copyOfRange(content, (int) pos - 1, (int) pos - 1 + length);
+            return Arrays.copyOfRange(content, (int) pos - 1, (int) pos - 1 + length);
         }
 
         @Override
-        public java.io.InputStream getBinaryStream() {
-            return new java.io.ByteArrayInputStream(content);
+        public InputStream getBinaryStream() {
+            return new ByteArrayInputStream(content);
         }
 
         @Override
@@ -1103,7 +1111,7 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public long position(java.sql.Blob pattern, long start) {
+        public long position(Blob pattern, long start) {
             throw new UnsupportedOperationException();
         }
 
@@ -1118,7 +1126,7 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.OutputStream setBinaryStream(long pos) {
+        public OutputStream setBinaryStream(long pos) {
             throw new UnsupportedOperationException();
         }
 
@@ -1132,8 +1140,8 @@ class FileResultSnapshotStoreTest {
         }
 
         @Override
-        public java.io.InputStream getBinaryStream(long pos, long length) {
-            return new java.io.ByteArrayInputStream(getBytes(pos, (int) length));
+        public InputStream getBinaryStream(long pos, long length) {
+            return new ByteArrayInputStream(getBytes(pos, (int) length));
         }
     }
 }

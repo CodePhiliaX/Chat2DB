@@ -18,11 +18,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.ObjectProvider;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -147,7 +155,7 @@ class SqlExecutionConsumerLeaseTest {
     }
 
     private static String readAll(IResultSnapshotStore store, LargeValueToken token) {
-        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         long offset = 0L;
         int guard = 0;
         while (true) {
@@ -203,10 +211,10 @@ class SqlExecutionConsumerLeaseTest {
         };
     }
 
-    private static java.sql.Statement statement(AtomicBoolean closed) {
-        return (java.sql.Statement) Proxy.newProxyInstance(
+    private static Statement statement(AtomicBoolean closed) {
+        return (Statement) Proxy.newProxyInstance(
                 SqlExecutionConsumerLeaseTest.class.getClassLoader(),
-                new Class<?>[]{java.sql.Statement.class},
+                new Class<?>[]{Statement.class},
                 (proxy, method, args) -> {
                     switch (method.getName()) {
                         case "close":
@@ -220,10 +228,10 @@ class SqlExecutionConsumerLeaseTest {
                 });
     }
 
-    private static java.sql.Connection connection(AtomicBoolean closed) {
-        return (java.sql.Connection) Proxy.newProxyInstance(
+    private static Connection connection(AtomicBoolean closed) {
+        return (Connection) Proxy.newProxyInstance(
                 SqlExecutionConsumerLeaseTest.class.getClassLoader(),
-                new Class<?>[]{java.sql.Connection.class},
+                new Class<?>[]{Connection.class},
                 (proxy, method, args) -> {
                     switch (method.getName()) {
                         case "close":
@@ -256,7 +264,7 @@ class SqlExecutionConsumerLeaseTest {
     /**
      * A Clob that only produces its content when it is read, and counts how often that happened.
      */
-    private static final class LazyClob implements java.sql.Clob {
+    private static final class LazyClob implements Clob {
 
         private final String value;
         private int reads;
@@ -280,13 +288,13 @@ class SqlExecutionConsumerLeaseTest {
         }
 
         @Override
-        public java.io.Reader getCharacterStream() {
+        public Reader getCharacterStream() {
             reads++;
             return new StringReader(value);
         }
 
         @Override
-        public java.io.InputStream getAsciiStream() {
+        public InputStream getAsciiStream() {
             throw new UnsupportedOperationException();
         }
 
@@ -296,7 +304,7 @@ class SqlExecutionConsumerLeaseTest {
         }
 
         @Override
-        public long position(java.sql.Clob searchstr, long start) {
+        public long position(Clob searchstr, long start) {
             throw new UnsupportedOperationException();
         }
 
@@ -311,12 +319,12 @@ class SqlExecutionConsumerLeaseTest {
         }
 
         @Override
-        public java.io.OutputStream setAsciiStream(long pos) {
+        public OutputStream setAsciiStream(long pos) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.io.Writer setCharacterStream(long pos) {
+        public Writer setCharacterStream(long pos) {
             throw new UnsupportedOperationException();
         }
 
@@ -330,7 +338,7 @@ class SqlExecutionConsumerLeaseTest {
         }
 
         @Override
-        public java.io.Reader getCharacterStream(long pos, long length) {
+        public Reader getCharacterStream(long pos, long length) {
             throw new UnsupportedOperationException();
         }
     }

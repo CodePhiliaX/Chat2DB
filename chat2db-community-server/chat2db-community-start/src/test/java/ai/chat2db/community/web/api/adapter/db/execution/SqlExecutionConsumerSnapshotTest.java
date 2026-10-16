@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.ObjectProvider;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -197,7 +198,7 @@ class SqlExecutionConsumerSnapshotTest {
      * multi-byte character.
      */
     private static String readAll(IResultSnapshotStore store, LargeValueToken token) {
-        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         long offset = 0L;
         int guard = 0;
         while (true) {

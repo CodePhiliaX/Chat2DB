@@ -4,9 +4,12 @@ import ai.chat2db.spi.model.value.JDBCDataValue;
 import ai.chat2db.community.domain.api.model.result.ResultCell;
 import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
@@ -78,7 +81,7 @@ class JDBCDataValueLargeCellTest {
         assertEquals("JSON", cell.getValueType());
         assertEquals(200, cell.getValue().length());
         assertEquals(json, cell.getRawValue());
-        assertEquals((long) json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length, cell.getSizeBytes());
+        assertEquals((long) json.getBytes(StandardCharsets.UTF_8).length, cell.getSizeBytes());
         assertEquals((long) json.length(), cell.getSizeChars());
         assertEquals(200L, cell.getLoadedBytes());
         assertEquals(200L, cell.getLoadedChars());
@@ -107,7 +110,7 @@ class JDBCDataValueLargeCellTest {
     void fallsBackToTheDriverHandleWhenTheTextIsTooLargeToKeep() {
         String text = "长".repeat(17 * 1024 * 1024);
         AtomicInteger streamOpens = new AtomicInteger();
-        java.sql.Clob handle = proxy(java.sql.Clob.class, (proxy, method, args) -> defaultValue(method.getReturnType()));
+        Clob handle = proxy(Clob.class, (proxy, method, args) -> defaultValue(method.getReturnType()));
         JDBCDataValue value = new JDBCDataValue(
                 characterStreamResultSet(text, streamOpens, handle), metaData("LONGTEXT", Types.LONGVARCHAR), 1, true);
 
@@ -147,11 +150,11 @@ class JDBCDataValueLargeCellTest {
         return characterStreamResultSet(text, streamOpens, null);
     }
 
-    private static ResultSet characterStreamResultSet(String text, AtomicInteger streamOpens, java.sql.Clob handle) {
+    private static ResultSet characterStreamResultSet(String text, AtomicInteger streamOpens, Clob handle) {
         return proxy(ResultSet.class, (proxy, method, args) -> {
             if ("getCharacterStream".equals(method.getName())) {
                 streamOpens.incrementAndGet();
-                return new java.io.StringReader(text);
+                return new StringReader(text);
             }
             if ("getClob".equals(method.getName())) {
                 return handle;

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceResolvable;
 
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -178,7 +179,7 @@ class DefaultSQLExecutorCursorLeaseTest {
         }
         try (PreparedStatement insert = connection.prepareStatement(
                 "INSERT INTO lease_sample (id, payload_text, payload_clob) VALUES (1, 'small', ?)")) {
-            insert.setCharacterStream(1, new java.io.StringReader("租".repeat(LARGE_CLOB_CHARS)),
+            insert.setCharacterStream(1, new StringReader("租".repeat(LARGE_CLOB_CHARS)),
                     LARGE_CLOB_CHARS);
             insert.execute();
         }

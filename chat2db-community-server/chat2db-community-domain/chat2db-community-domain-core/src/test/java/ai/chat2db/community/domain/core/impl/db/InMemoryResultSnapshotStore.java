@@ -13,12 +13,18 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * In-memory {@link IResultSnapshotStore} for domain tests, so they do not depend on the storage module. Content larger
@@ -37,7 +43,7 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     /**
      * Cursors the test leased values from, closed when the snapshot goes away.
      */
-    private final Map<String, java.util.List<ResultCursorHold>> cursorHolds = new ConcurrentHashMap<>();
+    private final Map<String, List<ResultCursorHold>> cursorHolds = new ConcurrentHashMap<>();
 
     /**
      * Cells the test wants the capture to fail for, keyed as {@code row:column}.
@@ -95,13 +101,13 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
     @Override
     public void addCursorHold(String snapshotId, ResultCursorHold cursorHold) {
         if (cursorHold != null) {
-            cursorHolds.computeIfAbsent(snapshotId, key -> new java.util.concurrent.CopyOnWriteArrayList<>())
+            cursorHolds.computeIfAbsent(snapshotId, key -> new CopyOnWriteArrayList<>())
                     .add(cursorHold);
         }
     }
 
     private void closeHolds(String snapshotId) {
-        java.util.List<ResultCursorHold> holds = cursorHolds.remove(snapshotId);
+        List<ResultCursorHold> holds = cursorHolds.remove(snapshotId);
         if (holds != null) {
             holds.forEach(ResultCursorHold::close);
         }
@@ -118,13 +124,13 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
 
     private static byte[] readHandle(Object handle) {
         try {
-            if (handle instanceof java.sql.Clob clob) {
+            if (handle instanceof Clob clob) {
                 return clob.getSubString(1L, (int) clob.length()).getBytes(StandardCharsets.UTF_8);
             }
-            if (handle instanceof java.sql.Blob blob) {
+            if (handle instanceof Blob blob) {
                 return blob.getBytes(1L, (int) blob.length());
             }
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
         throw new IllegalArgumentException("a leased value must be a Clob or a Blob");
@@ -191,7 +197,7 @@ class InMemoryResultSnapshotStore implements IResultSnapshotStore {
             end--;
         }
         return SnapshotReadChunk.builder()
-                .value(Base64.getEncoder().encodeToString(java.util.Arrays.copyOfRange(bytes, start, end)))
+                .value(Base64.getEncoder().encodeToString(Arrays.copyOfRange(bytes, start, end)))
                 .offset(start)
                 .nextOffset((long) end)
                 .eof(end >= bytes.length)

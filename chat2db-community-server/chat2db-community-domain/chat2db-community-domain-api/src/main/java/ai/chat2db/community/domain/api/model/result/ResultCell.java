@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.beans.Transient;
+import java.sql.Blob;
+import java.sql.Clob;
 
 @Data
 @Builder
@@ -51,7 +53,7 @@ public class ResultCell {
      */
     @Transient
     public boolean carriesHandle() {
-        return rawValue instanceof java.sql.Clob || rawValue instanceof java.sql.Blob;
+        return rawValue instanceof Clob || rawValue instanceof Blob;
     }
 
     public static ResultCell of(String value) {
