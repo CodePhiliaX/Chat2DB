@@ -21,7 +21,7 @@ public class JSONImporter extends BaseImporter {
         JsonOptions options = (spec.getJsonOptions() == null ? new JsonOptions() : spec.getJsonOptions()).validate();
         spec.setJsonOptions(options);
         ImportRowSqlBuilder builder = new ImportRowSqlBuilder(spec, columns);
-        ImportSqlExecutor executor = new ImportSqlExecutor(context);
+        ImportSqlExecutor executor = new ImportSqlExecutor(context, false);
         Map<Integer, String> header = new LinkedHashMap<>();
         List<String> names = spec.getColumnMappings() == null ? columns.stream().map(TableColumn::getName).toList()
                 : spec.getColumnMappings().stream().map(mapping -> mapping.getSourceColumn()).toList();
