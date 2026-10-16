@@ -873,6 +873,48 @@ class FileResultSnapshotStoreTest {
     }
 
     @Test
+    void aWideLeasedTextValueIsPagedWithoutHoldingAllOfIt() {
+        // Wide enough that the windows a reader keeps do not cover the whole value, and mixed content so a chunk
+        // boundary falls inside a multi byte character
+        StringBuilder source = new StringBuilder();
+        while (source.length() < 1024 * 1024) {
+            source.append("abcdefgh\u4e2d\u6587\uD83D\uDE00");
+        }
+        String text = source.toString();
+        CountingClob clob = new CountingClob(text);
+        ResultSnapshot snapshot = store.register(new TestCursorHold());
+        store.lease(snapshot.getSnapshotId(), 0, 0, clob);
+
+        byte[] whole = readWholeValue(snapshot.getSnapshotId(), 0, 0, 64 * 1024);
+
+        assertArrayEquals(text.getBytes(StandardCharsets.UTF_8), whole,
+                "a value has to reassemble across the windows a reader drops while it pages");
+        assertEquals(1, clob.reads, "a sequential read walks the cursor once");
+
+        // The windows handed out so far are gone, so the same range is read from the start of the value again
+        byte[] again = readWholeValue(snapshot.getSnapshotId(), 0, 0, 64 * 1024);
+
+        assertEquals(2, clob.reads, "an offset that is no longer buffered restarts the read");
+        assertArrayEquals(whole, again, "reading a window again returns the same bytes");
+        store.release(snapshot.getSnapshotId());
+    }
+
+    private byte[] readWholeValue(String snapshotId, int rowIndex, int columnIndex, int chunkSize) {
+        ByteArrayOutputStream assembled = new ByteArrayOutputStream();
+        long offset = 0L;
+        int loops = 0;
+        while (true) {
+            SnapshotReadChunk read = store.read(snapshotId, rowIndex, columnIndex, offset, chunkSize);
+            byte[] bytes = Base64.getDecoder().decode(read.getValue());
+            assembled.write(bytes, 0, bytes.length);
+            offset = read.getNextOffset();
+            if (read.isEof() || ++loops > 100000) {
+                return assembled.toByteArray();
+            }
+        }
+    }
+
+    @Test
     void aLeasedBlobIsReadAtAnyOffset() {
         byte[] content = new byte[5_000];
         for (int index = 0; index < content.length; index++) {

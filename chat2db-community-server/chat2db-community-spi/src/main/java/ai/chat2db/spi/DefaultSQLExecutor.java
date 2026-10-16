@@ -1317,10 +1317,13 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         } finally {
             boolean cursorLeased = ResultCursorLeaseRegistry.isPinned();
             ResultCursorLeaseRegistry.end();
-            if (!cursorLeased) {
-                stmt.close();
+            try {
+                if (!cursorLeased) {
+                    stmt.close();
+                }
+            } finally {
+                statementListener.onStatementClosed(stmt);
             }
-            statementListener.onStatementClosed(stmt);
         }
         return executeResults;
     }
