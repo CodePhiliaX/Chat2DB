@@ -847,7 +847,8 @@ class FileResultSnapshotStoreTest {
         ResultSnapshotCell cell = store.lease(snapshot.getSnapshotId(), 2, 3, clob);
 
         assertEquals(0, clob.reads, "leasing a value must not read it");
-        assertEquals(0L, cell.getSizeBytes(), "the byte size of a leased text value is unknown until it is read");
+        assertEquals((long) clob.length(), cell.getSizeBytes(),
+                "a leased text value is sized by its character count until its bytes have been read");
         assertEquals(SnapshotCellStorage.CURSOR, cell.getStorage());
 
         String expected = "a".repeat(8191) + "\uD83D\uDE00" + "中文结尾";

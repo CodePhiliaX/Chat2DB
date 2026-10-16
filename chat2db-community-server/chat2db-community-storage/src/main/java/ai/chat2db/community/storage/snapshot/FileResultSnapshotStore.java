@@ -388,9 +388,11 @@ public class FileResultSnapshotStore implements IResultSnapshotStore {
                 .build();
         try {
             if (handle instanceof Clob clob) {
+                // Leasing does not read the value, so its byte size is not known yet: the character count stands in
+                // for it, the way a summarised text value is sized, and the read path reports the exact count once the
+                // value has been read
                 cell.setSizeChars(clob.length());
-                // The byte size of a text value is only known once it has been read, so it grows while the client reads
-                cell.setSizeBytes(0L);
+                cell.setSizeBytes(clob.length());
             } else {
                 cell.setSizeBytes(((Blob) handle).length());
             }
