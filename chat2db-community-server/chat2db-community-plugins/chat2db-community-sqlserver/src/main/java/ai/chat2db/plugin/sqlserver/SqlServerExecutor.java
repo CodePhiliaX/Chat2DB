@@ -185,7 +185,8 @@ public class SqlServerExecutor extends DefaultSQLExecutor {
         ExecuteResponse executeResult = ExecuteResponse.builder().sql(originalSql).success(Boolean.TRUE).build();
         int resultCount = 0;
         for (String sql : sqlList) {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            try {
                 ExecutionContext executionContext = JdbcExecutionContext.capture(connection);
                 long startedAtEpochMs = System.currentTimeMillis();
                 long executeStartedNanos = System.nanoTime();
@@ -226,6 +227,8 @@ public class SqlServerExecutor extends DefaultSQLExecutor {
                     startedAtEpochMs = nextStartedAtEpochMs;
                     executeDurationNanos = nextExecuteDurationNanos;
                 }
+            } finally {
+                closeStatementUnlessCursorAnnounced(stmt);
             }
         }
         return executeResults;

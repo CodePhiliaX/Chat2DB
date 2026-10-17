@@ -30,6 +30,7 @@ import ai.chat2db.community.domain.api.service.db.ISqlExecutionCancellation;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionResultConsumer;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionStatementListener;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ResultCursorLeaseRegistry;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlParameterParser;
@@ -308,7 +309,9 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         checkTaskCancellation(cancellationChecker);
         PreparedStatement statementToNotify = null;
         SqlParameterParser.BoundSql boundSql = compileParameters(sql, request.getParameters());
-        try (PreparedStatement stmt = connection.prepareStatement(boundSql == null ? sql : boundSql.sql())) {
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(boundSql == null ? sql : boundSql.sql());
             statementToNotify = stmt;
             notifyStatementCreated(statementListener, stmt);
             try {
@@ -346,7 +349,11 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                 throw e;
             }
         } finally {
-            notifyStatementClosed(statementListener, statementToNotify);
+            try {
+                closeStatementUnlessCursorAnnounced(stmt);
+            } finally {
+                notifyStatementClosed(statementListener, statementToNotify);
+            }
         }
         return executeResult;
     }
@@ -382,6 +389,7 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                                                      Integer count) throws SQLException {
         ExecuteResponse executeResult = ExecuteResponse.builder().success(Boolean.TRUE).build();
         executeResult.setDescription(I18nUtils.getMessage("sqlResult.success"));
+        boolean cursorAnnounced = false;
         ResultSet rs = null;
         try {
             rs = stmt.getResultSet();
@@ -393,13 +401,55 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             int chat2dbAutoRowIdIndex = getChat2dbAutoRowIdIndex(headerList);
             List<List<ResultCell>> dataList = generateDataList(rs, col, chat2dbAutoRowIdIndex, limitRowSize,
                     offset, count);
+            cursorAnnounced = announceCursor(stmt, dataList);
 
             executeResult.setHeaderList(headerList);
             executeResult.setDataList(dataList);
         } finally {
-            JdbcUtils.closeResultSet(rs);
+            if (!cursorAnnounced) {
+                JdbcUtils.closeResultSet(rs);
+            }
         }
         return executeResult;
+    }
+
+    /**
+     * Announces the cursor of this execution when the response carries a value the driver handed over as a handle
+     * instead of transferring its content. Such a value is read from that cursor after the query, so the cursor stays
+     * open until the connection context of this execution closes it or a lease takes it over.
+     *
+     * @return {@code true} when this execution must leave its cursor open
+     */
+    private boolean announceCursor(Statement stmt, List<List<ResultCell>> dataList) {
+        if (!carriesHandedOverHandle(dataList)) {
+            return false;
+        }
+        ResultCursorLeaseRegistry.begin(Chat2DBContext.getConnectInfo(), stmt);
+        return true;
+    }
+
+    private boolean carriesHandedOverHandle(List<List<ResultCell>> dataList) {
+        for (List<ResultCell> row : dataList) {
+            if (row == null) {
+                continue;
+            }
+            for (ResultCell cell : row) {
+                if (cell != null && cell.isLargeValue() && cell.carriesHandle()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Closes the statement of a finished execution unless it announced its cursor, which a reader may still lease a
+     * large value from: that cursor is closed with the connection context of this execution instead.
+     */
+    protected void closeStatementUnlessCursorAnnounced(Statement stmt) throws SQLException {
+        if (stmt != null && !ResultCursorLeaseRegistry.isCursorAnnounced(stmt)) {
+            stmt.close();
+        }
     }
 
     private List<List<ResultCell>> generateDataList(ResultSet rs, int col, int chat2dbAutoRowIdIndex,
@@ -1285,7 +1335,8 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         Assert.notNull(sql, "SQL must not be null");
         ArrayList<ExecuteResponse> executeResults = new ArrayList<>();
         SqlParameterParser.BoundSql boundSql = compileStatementParameters(simpleSqlStatement, sql);
-        try (PreparedStatement stmt = connection.prepareStatement(boundSql == null ? sql : boundSql.sql())) {
+        PreparedStatement stmt = connection.prepareStatement(boundSql == null ? sql : boundSql.sql());
+        try {
             clearWarnings(stmt, connection);
             bindParameterValues(stmt, boundSql);
             stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
@@ -1334,6 +1385,8 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             }
             attachMessages(executeResults, collectMessages(stmt, connection));
             clearWarnings(stmt, connection);
+        } finally {
+            closeStatementUnlessCursorAnnounced(stmt);
         }
         return executeResults;
     }
@@ -1367,7 +1420,10 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         SqlParameterParser.BoundSql boundSql = compileStatementParameters(simpleSqlStatement, sql);
         PreparedStatement stmt = connection.prepareStatement(boundSql == null ? sql : boundSql.sql());
         statementListener.onStatementCreated(stmt);
-        try (stmt) {
+        // A leased large value keeps reading from this cursor after the query is done, so the cursor is announced here
+        // and closed by the lease instead of the try-with-resources block below
+        ResultCursorLeaseRegistry.begin(Chat2DBContext.getConnectInfo(), stmt);
+        try {
             clearWarnings(stmt, connection);
             bindParameterValues(stmt, boundSql);
             stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
@@ -1438,7 +1494,15 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             attachMessages(executeResults, collectMessages(stmt, connection));
             clearWarnings(stmt, connection);
         } finally {
-            statementListener.onStatementClosed(stmt);
+            boolean cursorLeased = ResultCursorLeaseRegistry.isPinned();
+            ResultCursorLeaseRegistry.end();
+            try {
+                if (!cursorLeased) {
+                    stmt.close();
+                }
+            } finally {
+                statementListener.onStatementClosed(stmt);
+            }
         }
         return executeResults;
     }
