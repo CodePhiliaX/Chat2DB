@@ -1,5 +1,5 @@
 import { normalizeDatabaseType, TreeNodeType } from '@/constants';
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
+import { clientRuntime } from '@client-runtime';
 import { NamespacesItem, NamespaceTreeListItem } from '@/service/connection';
 import { resolveDataSourceAuthorization } from '@/utils/dataSourceAuthorization';
 import { getDatabaseSupport } from '@/utils/database';
@@ -12,7 +12,7 @@ export const neatenDataSourceTreeNode = (data: any) => {
   const rawDatabaseType = data.type || data.databaseType || data.dbType || data.dataSourceType;
   const databaseType = normalizeDatabaseType(rawDatabaseType) || rawDatabaseType;
   const { supportDatabase, supportSchema } = getDatabaseSupport(databaseType);
-  const { hasPermission, isAdmin } = resolveDataSourceAuthorization(data, runtimeEditionConfig.usesFixedIdentity);
+  const { hasPermission, isAdmin } = resolveDataSourceAuthorization(data, clientRuntime.usesFixedIdentity);
   return {
     key: `dataSource_${data.id}`,
     id: data.id,
@@ -27,6 +27,11 @@ export const neatenDataSourceTreeNode = (data: any) => {
       databaseType,
       dataSourceId: data.id,
       dataSourceName: data.alias,
+      environmentId: data.environmentId ?? data.environment?.id ?? null,
+      environment: data.environment ?? null,
+      identityColor: data.identityColor ?? null,
+      watermarkEnabled: data.watermarkEnabled ?? null,
+      watermarkContent: data.watermarkContent ?? null,
       supportDatabase,
       supportSchema,
     },

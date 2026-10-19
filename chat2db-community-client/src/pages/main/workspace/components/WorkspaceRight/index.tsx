@@ -8,8 +8,7 @@ import {
   RESULT_INSPECTOR_MAX_PANEL_RATIO,
 } from '@/store/workspace/utils/resultInspector';
 import SplitPane from 'react-split-pane';
-import ExportProgressBar from '@/blocks/ImportAndExport/components/ExportProgressBar';
-import { canImportExport } from '@/utils/env';
+import { useGlobalStore } from '@/store/global';
 // import DragFileToApp from '@/components/DragFileToApp';
 
 // ----- components -----
@@ -21,6 +20,7 @@ const WorkspaceRight = memo(() => {
   const draggablePanelRef = useRef<HTMLDivElement>(null);
 
   const { styles } = useStyles();
+  const appTitleBarRightComponent = useGlobalStore((state) => state.appTitleBarRightComponent);
 
   const { currentWorkspaceExtend, panelRight, panelRightWidth, setPanelRightWidth } = useWorkspaceStore((state) => {
     return {
@@ -53,6 +53,7 @@ const WorkspaceRight = memo(() => {
       : preferredPanelSize
     : 0;
   const maxPanelSize = workspaceWidth * (resultInspectorOpen ? RESULT_INSPECTOR_MAX_PANEL_RATIO : 0.8);
+  const hasTitleBarActionHost = Boolean(appTitleBarRightComponent) && (window._appTitleBarHeight ?? 0) > 0;
 
   return (
     <div className={styles.workspaceRight}>
@@ -65,26 +66,21 @@ const WorkspaceRight = memo(() => {
           maxSize={maxPanelSize}
           primary="second"
           allowResize={panelRight}
-          onChange={(newSize) => {
-            setPanelRightWidth(newSize);
+          onDragFinished={(newSize) => {
+            if (Number.isFinite(newSize) && newSize !== panelRightWidth) {
+              setPanelRightWidth(newSize);
+            }
           }}
         >
-          {/* <DragFileToApp className={styles.masterScope} onDropCallback={handleDropCallback} fileType="sql">
-            <div className={styles.masterScopeMain}>
-              <WorkspaceTabs />
-            </div>
-            <div className={styles.masterScopeBottom}>{canImportExport && <ExportProgressBar />}</div>
-          </DragFileToApp> */}
           <div className={styles.masterScope}>
             <div className={styles.masterScopeMain}>
               <WorkspaceTabs />
             </div>
-            <div className={styles.masterScopeBottom}>{canImportExport && <ExportProgressBar />}</div>
           </div>
           <Fragment>{panelRight && <WorkspaceExtendBody />}</Fragment>
         </SplitPane>
       </div>
-      <WorkspaceExtendNav />
+      {!hasTitleBarActionHost && <WorkspaceExtendNav />}
     </div>
   );
 });

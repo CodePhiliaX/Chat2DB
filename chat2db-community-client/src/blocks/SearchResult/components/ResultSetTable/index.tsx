@@ -16,10 +16,13 @@ import { IManageResultData } from '@/typings/database';
 import onContextmenuCell from './event/onContextmenuCell';
 import onChangeCellValue from './event/onChangeCellValue';
 import onCopyData from './event/onCopyData';
+import { cancelResultCopy } from './copyResultData';
+
 import onPasteData from './event/onPasteData';
 import { buildResultColumns, buildResultRecords } from './utils/dataTreating';
 import useOperationRecord, { OperationRecordUtils } from './hooks/useOperationRecord';
 import useFilterAndSort from './hooks/useFilterAndSort';
+import useHeaderTooltip from './hooks/useHeaderTooltip';
 import { ITableOperationUtils } from './typings';
 import { useGlobalStore } from '@/store/global';
 import ColumnVisibilityModal, { ResultColumnVisibilityOption } from './ColumnVisibilityModal';
@@ -35,6 +38,9 @@ import {
   getResultFieldAtTableColumn,
 } from './columnState';
 import { resolveResultSelectionActiveCell, ResultSelectionCause } from './selectionState';
+import { RESULT_TABLE_CONTENT_LAYOUT_OPTIONS } from './layoutOptions';
+import { resetResultTableLayout, updateResultTableRowExpansion } from './rowHeight';
+import { hasActiveResultEditorChange } from '../ResultSet/resultEditActions';
 
 interface IProps {
   className?: string;
@@ -47,6 +53,7 @@ interface IProps {
   setTableInstance: (tableInstance: ITableInstance) => void;
   setOrderByText?: (orderByText: string) => void;
   onFilterCountChange?: (count: number) => void;
+  onActiveEditChange?: (hasChange: boolean) => void;
   onSelectionChange?: (selection: IResultSetSelection) => void;
 }
 
@@ -125,6 +132,40 @@ const ResultSetTable = forwardRef((props: IProps, ref: ForwardedRef<ResultSetTab
     theme,
   });
 
+  useEffect(() => {
+    if (!tableInstance || !props.onActiveEditChange) {
+      return;
+    }
+    let frameId: number | null = null;
+    const syncActiveEditState = () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        props.onActiveEditChange?.(hasActiveResultEditorChange(tableInstance));
+      });
+    };
+    const eventIds = [
+      tableInstance.on('click_cell', syncActiveEditState),
+      tableInstance.on('dblclick_cell', syncActiveEditState),
+      tableInstance.on('keydown', syncActiveEditState),
+      tableInstance.on('change_cell_value', syncActiveEditState),
+    ];
+    const tableElement = tableInstance.getElement();
+    tableElement.addEventListener('input', syncActiveEditState, true);
+    tableElement.addEventListener('change', syncActiveEditState, true);
+    syncActiveEditState();
+    return () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+      eventIds.forEach((eventId) => tableInstance.off(eventId));
+      tableElement.removeEventListener('input', syncActiveEditState, true);
+      tableElement.removeEventListener('change', syncActiveEditState, true);
+    };
+  }, [props.onActiveEditChange, tableInstance]);
+
   // Filter and sort
   const { activeFilterCount, clearAllFilters } = useFilterAndSort({
     theme,
@@ -155,6 +196,20 @@ const ResultSetTable = forwardRef((props: IProps, ref: ForwardedRef<ResultSetTab
     hiddenColumnFields,
   ]);
   const records = useMemo(() => buildResultRecords(resultData), [resultData]);
+  useEffect(() => () => {
+    if (tableInstance) cancelResultCopy(tableInstance);
+  }, [tableInstance, resultData.dataList]);
+  const headerTooltip = useHeaderTooltip({ tableInstance });
+
+  useEffect(() => {
+    if (!tableInstance) {
+      return;
+    }
+    const eventId = tableInstance.on('resize_row_end', ({ row, rowHeight }) => {
+      updateResultTableRowExpansion(tableInstance, row, rowHeight);
+    });
+    return () => tableInstance.off(eventId);
+  }, [tableInstance]);
 
   const clearColumnSensitiveSelection = useCallback(() => {
     interactionRevisionRef.current += 1;
@@ -392,12 +447,18 @@ const ResultSetTable = forwardRef((props: IProps, ref: ForwardedRef<ResultSetTab
     interactionRevisionRef.current += 1;
   }, []);
 
+  const handleBeforeRecordsChange = useCallback((table: ITableInstance) => {
+    cancelResultCopy(table);
+    resetResultTableLayout(table);
+  }, []);
+
   return (
     <>
       <CanvasTable
         columns={columns}
         records={records}
         onInit={onInit}
+        onBeforeRecordsChange={handleBeforeRecordsChange}
         className={styles.canvasTable}
         onCopy={onCopy}
         onPaste={onPaste}
@@ -405,6 +466,7 @@ const ResultSetTable = forwardRef((props: IProps, ref: ForwardedRef<ResultSetTab
         onPointerDown={handleTablePointerDown}
         customOptions={{ showFrozenColumnDivider: frozenColumnFields.length > 0 }}
         options={{
+          ...RESULT_TABLE_CONTENT_LAYOUT_OPTIONS,
           rowSeriesNumber: {
             title: undefined,
             width: 'auto' as any,
@@ -421,6 +483,7 @@ const ResultSetTable = forwardRef((props: IProps, ref: ForwardedRef<ResultSetTab
           defaultHeaderRowHeight: 'auto',
         }}
       />
+      {headerTooltip}
       <ColumnVisibilityModal
         open={columnVisibilityOpen}
         columns={columnVisibilityOptions}

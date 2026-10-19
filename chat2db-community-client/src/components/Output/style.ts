@@ -10,25 +10,17 @@ export const useStyles = createStyles(({ css, token }) => {
       flex-direction: column;
       background: ${token.colorBgContainer};
     `,
-    outputTitle: css`
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 36px;
-      padding: 0px 12px;
-      font-weight: 600;
-      box-sizing: border-box;
-      border-bottom: 1px solid ${token.colorBorderLayout};
-      background: ${token.colorBgContainer};
-    `,
     outputContent: css`
       padding: 8px;
       overflow-y: auto;
       flex: 1;
       height: 0px;
+    `,
+    outputFilters: css`
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border-bottom: 1px solid ${token.colorBorderSecondary};
+      background: ${token.colorBgContainer};
     `,
     outputItem: css`
       position: relative;
@@ -42,9 +34,7 @@ export const useStyles = createStyles(({ css, token }) => {
       border-radius: 6px;
       background: ${token.colorFillQuaternary};
       cursor: pointer;
-      transition:
-        border-color 0.16s ease,
-        background-color 0.16s ease;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
 
       &:hover {
         border-color: ${token.colorPrimaryBorder};

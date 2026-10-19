@@ -7,7 +7,6 @@ import ai.chat2db.plugin.sqlserver.enums.type.SqlServerIndexTypeEnum;
 import ai.chat2db.spi.DefaultSqlBuilder;
 import ai.chat2db.spi.model.request.PageLimitRequest;
 import ai.chat2db.community.domain.api.model.account.*;
-import ai.chat2db.community.domain.api.model.async.*;
 import ai.chat2db.community.domain.api.config.*;
 import ai.chat2db.spi.model.datasource.*;
 import ai.chat2db.community.domain.api.model.form.*;
@@ -34,7 +33,6 @@ public final class SqlServerSqlBuilderConstants {
     public static final String VALUE_CLOSE_PAREN_GO = "\n)\ngo\n";
     public static final String VALUE_GO = "\ngo\n";
     public static final String VALUE_BACKSLASH_DOT = "\\.";
-    public static final String ORDER_BY_KEYWORD_LOWER = "order by";
     public static final String SQL_ORDER_BY_OPEN_PAREN_SELECT_NULL_CLOSE_PAREN = "\n ORDER BY (SELECT NULL)";
     public static final String SQL_COLLATE = " COLLATE ";
     public static final String SQL_EXEC_OPEN_BRACKET = "exec [";

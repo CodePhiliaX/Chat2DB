@@ -1,4 +1,6 @@
 export default {
+  'dashboard.list.loadFailed': 'ダッシュボード一覧を読み込めませんでした',
+  'dashboard.list.retry': '再試行',
   'dashboard.title': 'ダッシュボード',
   'dashboard.edit': '編集',
   'dashboard.modal.editTitle': 'ダッシュボードを編集',
@@ -66,7 +68,6 @@ export default {
   'dashboard.chart.pinToDashboardSuccess': 'ダッシュボードにピンしました',
   'import.community.dataSource': 'コミュニティ版のリンクをインポートする ',
   'dashboard.createName.placeholder': 'ダッシュボード名を入力してください（必須）',
-  'dashboard.select.aiDataCollection': 'AIチャートのコマンドセットを選択してください（必須）',
   'dashboard.createDescription.placeholder': 'ダッシュボードの説明を入力してください（任意）',
   'dashboard.delete.confirm': 'このレポートを削除してもよろしいですか？',
   'dashboard.delete.chart.confirm': 'このチャートを削除してもよろしいですか？',

@@ -83,6 +83,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +95,9 @@ public class MainJFrame extends JFrame {
             ConsoleCodec.CHAT2DB_IPC_RESPONSE_SERVICE_STATUS_SUCCESS;
     private static final String MAC_OS_14_1_VERSION_PREFIX = "14.1";
     private static final String WEB_FRONTEND_PROPERTY = "chat2db.jcef.web-frontend";
+    private static final String WEB_FRONTEND_URL_PROPERTY = "chat2db.jcef.web-frontend-url";
     private static final String WEB_FRONTEND_URL = "http://127.0.0.1:8889/";
+    private static final String DESKTOP_READY_FILE_PROPERTY = "chat2db.jcef.ready-file";
     private JSplitPane splitPane;
     private DevToolsPanel devToolsPanel;
     private boolean isDevToolsVisible = false;
@@ -103,6 +106,8 @@ public class MainJFrame extends JFrame {
     private CefBrowser browser_;
     private Component browserUI_;
     private JCefAppConfig jcefAppConfig_;
+    private volatile boolean windowFullScreen = false;
+    private volatile boolean showWindowOnStartup = true;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<Pair<String, String>, IJcefActionHandler> actionHandlers = new HashMap<>();
     private static final String appName;
@@ -112,6 +117,7 @@ public class MainJFrame extends JFrame {
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<>()
     );
+    private final Map<Long, CancellableCefQueryCallback> activeQueryCallbacks = new ConcurrentHashMap<>();
     private void ensureBrowserFocusIfNeeded() {
         if (browser_ == null || browserUI_ == null) {
             return;
@@ -134,7 +140,7 @@ public class MainJFrame extends JFrame {
         return instance;
     }
     static {
-        appName = DesktopProductTitle.resolve(OS.isWindows(), ConfigUtils.isCommunity(), ConfigUtils.isLocalEdition());
+        appName = DesktopProductTitle.resolve();
         if (!OS.isMacintosh()) {
             JFrame.setDefaultLookAndFeelDecorated(true);
             JDialog.setDefaultLookAndFeelDecorated(true);
@@ -160,23 +166,24 @@ public class MainJFrame extends JFrame {
             }
         }
     }
-    private static void handleNewUri(String uriString) {
-        SwingUtilities.invokeLater(() -> {
-            if (JcefContext.getInstance().getFrame_() != null) {
-                if (uriString != null) {
-                    JcefContext.getInstance().getFrame_().processUri(UriUtil.processInput(uriString));
-                    JcefContext.getInstance().getFrame_().toFront();
-                    JcefContext.getInstance().getFrame_().requestFocus();
-                }
-            } else {
-                log.error("Error: application is not initialized; cannot process URI: {}", uriString);
+    public void handleLaunchRequest(String argument) {
+        if (StringUtils.isNotEmpty(argument)) {
+            try {
+                processUri(UriUtil.processInput(argument));
+            } catch (RuntimeException exception) {
+                log.error("Cannot handle desktop launch argument", exception);
             }
-        });
+        }
+        setVisible(true);
+        setExtendedState(getExtendedState() & ~Frame.ICONIFIED);
+        toFront();
+        requestFocus();
     }
     public void start(String[] args) {
-        if (!OS.isMacintosh() && !SingleInstanceUtil.registerInstance(args, MainJFrame::handleNewUri)) {
-            System.exit(0);
-        }
+        start(args, true);
+    }
+    public void start(String[] args, boolean showWindowOnStartup) {
+        this.showWindowOnStartup = showWindowOnStartup;
         UrlProtocolRegistrarUtil.register();
         initPreProcessor();
         initializeCefApp(args);
@@ -200,6 +207,10 @@ public class MainJFrame extends JFrame {
                         frame.revalidate();
                         frame.repaint();
                     });
+                } else if ("windowEnteredFullScreen".equals(methodName)) {
+                    updateWindowFullScreen(true);
+                } else if ("windowExitedFullScreen".equals(methodName)) {
+                    updateWindowFullScreen(false);
                 }
                 return null;
             };
@@ -213,6 +224,19 @@ public class MainJFrame extends JFrame {
         } catch (Exception e) {
             log.error("Failed to set up macOS full screen listener via reflection. This is expected on non-Apple JDKs or newer macOS versions where this API is deprecated.");
         }
+    }
+    public boolean isWindowFullScreen() {
+        return windowFullScreen;
+    }
+    private void updateWindowFullScreen(boolean fullScreen) {
+        windowFullScreen = fullScreen;
+        if (browser_ == null) {
+            return;
+        }
+        ConsoleResult consoleResult = new ConsoleResult();
+        consoleResult.setActionType(ActionTypeEnum.WINDOW_FULL_SCREEN_CHANGED.getName());
+        consoleResult.setMessage(Map.of("data", fullScreen));
+        CallJsFunctionUtil.callHandleJavaMessage(browser_, JSON.toJSONString(consoleResult));
     }
     public void processUri(URI uri) {
         String query = uri.getQuery();
@@ -275,18 +299,9 @@ public class MainJFrame extends JFrame {
         Desktop desktop = Desktop.getDesktop();
         if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
             desktop.setQuitHandler((e, response) -> {
-                log.info("Quit handler triggered. Preparing for graceful shutdown.");
-                SystemSettingsUtil.saveWindowsInfo();
-                JcefContext.getInstance().getFrame_().dispose();
-                CefApp.getInstance().dispose();
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        log.info("CefApp is shutting down... {}", Thread.currentThread().getName());
-                        response.performQuit();
-                    }
-                }, 3000);
+                log.info("Quit handler triggered. Waiting for application exit confirmation.");
+                response.cancelQuit();
+                ApplicationExitCoordinator.request(ApplicationExitCoordinator.ExitAction.CLOSE.name());
             });
         }
         if (desktop.isSupported(Desktop.Action.APP_OPEN_URI)) {
@@ -359,6 +374,9 @@ public class MainJFrame extends JFrame {
     private void setupGenericPlatformSpecifics(Image appIcon) {
         this.setTitle(appName);
         this.setIconImage(appIcon);
+        if (WindowsDesktopWindowChrome.isEnabled(OS.isWindows())) {
+            WindowsDesktopWindowChrome.configureRootPane(getRootPane());
+        }
         applyTheme(ThemeEnum.DARK);
     }
     private static Image buildAppLogoImage() {
@@ -481,6 +499,7 @@ public class MainJFrame extends JFrame {
             @Override
             public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
                 if (frame.isMain()) {
+                    ApplicationExitCoordinator.markFrontendUnavailable();
                     String languagePreference = OSOperateUtil.getLanguagePreference();
                     OSTypeEnum osType = JcefContext.getInstance().getOsType();
                     browser.executeJavaScript(String.format("window.navigator.app_language = '%s';", languagePreference), browser.getURL(), 0);
@@ -641,6 +660,8 @@ public class MainJFrame extends JFrame {
             @Override
             public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId, String data,
                                    boolean persistent, CefQueryCallback callback) {
+                CancellableCefQueryCallback guardedCallback = new CancellableCefQueryCallback(callback);
+                activeQueryCallbacks.put(queryId, guardedCallback);
                 executor.submit(() -> {
                     String action = "unKnow Action";
                     ConsoleMessage wsMessage = new ConsoleMessage();
@@ -659,14 +680,14 @@ public class MainJFrame extends JFrame {
                         bridge.setHeaders(wsMessage);
                         IJcefActionHandler handler = actionHandlers.get(Pair.of(action, wsMessage.getMethod().toLowerCase()));
                         if (handler != null) {
-                            handler.handle(wsMessage, wsResult, callback);
+                            handler.handle(wsMessage, wsResult, guardedCallback);
                         } else {
                             while (!bridge.isReady()) {
                                 Thread.sleep(20);
                             }
                             wsResult = bridge.doController(wsMessage);
                             if (wsResult != null) {
-                                ResponseBuilder.buildSuccess(wsResult, callback);
+                                ResponseBuilder.buildSuccess(wsResult, guardedCallback);
                             } else {
                                 ResponseBuilder.buildSuccess(
                                         ConsoleResult.builder()
@@ -676,14 +697,16 @@ public class MainJFrame extends JFrame {
                                                 .method(wsMessage.getMethod())
                                                 .message(Map.of("success", true))
                                                 .build(),
-                                        callback
+                                        guardedCallback
                                 );
                             }
                         }
                     } catch (ForestNetworkException ex) {
-                        handleNetworkException(ex, wsMessage, callback, action);
+                        handleNetworkException(ex, wsMessage, guardedCallback, action);
                     } catch (Exception e) {
-                        handleGenericException(e, wsMessage, callback, action);
+                        handleGenericException(e, wsMessage, guardedCallback, action);
+                    } finally {
+                        activeQueryCallbacks.remove(queryId, guardedCallback);
                     }
                 });
                 return true;
@@ -691,6 +714,10 @@ public class MainJFrame extends JFrame {
             @Override
             public void onQueryCanceled(CefBrowser browser, CefFrame frame, long queryId) {
                 log.info("JS query canceled: {}", queryId);
+                CancellableCefQueryCallback callback = activeQueryCallbacks.remove(queryId);
+                if (callback != null) {
+                    callback.cancel();
+                }
             }
         }, true);
         this.client_.addMessageRouter(messageRouter);
@@ -720,8 +747,8 @@ public class MainJFrame extends JFrame {
         log.info("4. Starting CefBrowser and UI component creation...");
         String indexHtmlFile;
         if (Boolean.getBoolean(WEB_FRONTEND_PROPERTY)) {
-            indexHtmlFile = WEB_FRONTEND_URL;
-            log.info("Using Community Web frontend for JCEF development: {}", indexHtmlFile);
+            indexHtmlFile = resolveWebFrontendUrl();
+            log.info("Using web frontend for JCEF development: {}", indexHtmlFile);
         } else {
             String currentJarPath = OSOperateUtil.getCurrentJarPath();
             try {
@@ -739,6 +766,10 @@ public class MainJFrame extends JFrame {
         }
         this.browser_ = this.client_.createBrowser(indexHtmlFile, CefRendering.DEFAULT, false);
         this.browserUI_ = browser_.getUIComponent();
+        if (WindowsDesktopWindowChrome.isEnabled(OS.isWindows())) {
+            WindowsDesktopWindowChrome.configureBrowserComponent(browserUI_);
+            WindowsDesktopWindowChrome.installWindowDragging(this, browserUI_);
+        }
         this.browserUI_.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -768,18 +799,34 @@ public class MainJFrame extends JFrame {
         } else {
             this.splitPane.setBackground(ThemeUtil.getThemeColor());
         }
-        this.splitPane.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                if (Math.abs(e.getX() - splitPane.getDividerLocation()) < 3) {
-                    splitPane.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
-                } else {
-                    splitPane.setCursor(Cursor.getDefaultCursor());
+        if (CursorHandler.isNativeCursorOverrideEnabled()) {
+            this.splitPane.addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    if (Math.abs(e.getX() - splitPane.getDividerLocation()) < 3) {
+                        splitPane.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+                    } else {
+                        splitPane.setCursor(Cursor.getDefaultCursor());
+                    }
                 }
-            }
-        });
+            });
+        }
+        createBrowserImmediatelyForHiddenStartup(browser_, showWindowOnStartup);
         log.info("4. CefBrowser and UI component creation completed.");
     }
+
+    static void createBrowserImmediatelyForHiddenStartup(CefBrowser browser, boolean showWindowOnStartup) {
+        if (!showWindowOnStartup) {
+            // Windowed JCEF normally creates the browser when Swing makes its component displayable.
+            browser.createImmediately();
+        }
+    }
+
+    private static String resolveWebFrontendUrl() {
+        String configuredUrl = System.getProperty(WEB_FRONTEND_URL_PROPERTY);
+        return StringUtils.isBlank(configuredUrl) ? WEB_FRONTEND_URL : configuredUrl;
+    }
+
     private void initializeFrame() {
         log.info("5. Starting JFrame initialization...");
         initAppWindowSize();
@@ -798,9 +845,8 @@ public class MainJFrame extends JFrame {
                     log.info("macOS 'X' button clicked. Hiding window.");
                     setVisible(false);
                 } else {
-                    log.info("Non-macOS 'X' button clicked. Disposing window and exiting application.");
-                    JFrame frameToClose = (JFrame) e.getSource();
-                    OSOperateUtil.closeWindows(frameToClose);
+                    log.info("Non-macOS 'X' button clicked. Requesting application exit.");
+                    ApplicationExitCoordinator.request(ApplicationExitCoordinator.ExitAction.CLOSE.name());
                 }
             }
         });
@@ -813,8 +859,28 @@ public class MainJFrame extends JFrame {
             public void windowLostFocus(WindowEvent e) {
             }
         });
-        this.setVisible(true);
+        if (showWindowOnStartup) {
+            this.setVisible(true);
+        }
+        writeDesktopReadyMarker();
         log.info("5. JFrame initialization completed.");
+    }
+    private void writeDesktopReadyMarker() {
+        String readyFile = System.getProperty(DESKTOP_READY_FILE_PROPERTY);
+        if (StringUtils.isBlank(readyFile)) {
+            return;
+        }
+        Path readyPath = Paths.get(readyFile).toAbsolutePath().normalize();
+        try {
+            Path parent = readyPath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.writeString(readyPath, "ready\n", StandardCharsets.UTF_8);
+            log.info("JCEF desktop ready marker written: {}", readyPath);
+        } catch (IOException | RuntimeException exception) {
+            log.error("Failed to write JCEF desktop ready marker: {}", readyPath, exception);
+        }
     }
     private void initAppWindowSize() {
         Boolean isMaxWindow = (Boolean) SystemSettingsUtil.getProperty(SystemSettingConstant.IS_MAX_WINDOW);

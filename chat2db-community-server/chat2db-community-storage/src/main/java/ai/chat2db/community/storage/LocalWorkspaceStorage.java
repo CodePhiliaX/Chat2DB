@@ -1,8 +1,10 @@
 package ai.chat2db.community.storage;
 
 import ai.chat2db.community.domain.api.model.PageResponse;
+import ai.chat2db.community.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.community.domain.api.enums.StorageTypeEnum;
 import ai.chat2db.community.domain.api.model.datasource.DataSource;
+import ai.chat2db.community.domain.api.model.datasource.DataSourceIdentityColorUtils;
 import ai.chat2db.community.domain.api.model.datasource.DataSourceNamespace;
 import ai.chat2db.community.domain.api.model.er.ERPosition;
 import ai.chat2db.community.domain.api.model.workspace.Namespace;
@@ -10,11 +12,7 @@ import ai.chat2db.community.domain.api.model.workspace.Node;
 import ai.chat2db.community.domain.api.model.operation.Operation;
 import ai.chat2db.community.domain.api.model.operation.OperationLog;
 import ai.chat2db.community.domain.api.model.pin.PinTable;
-import ai.chat2db.community.domain.api.model.task.Task;
 import ai.chat2db.community.domain.api.model.request.pin.DbTablePinRequest;
-import ai.chat2db.community.domain.api.model.request.task.TaskRecordCreateRequest;
-import ai.chat2db.community.domain.api.model.request.task.TaskRecordPageRequest;
-import ai.chat2db.community.domain.api.model.request.task.TaskRecordUpdateRequest;
 import ai.chat2db.community.domain.api.model.request.datasource.DbDataSourcePageQueryRequest;
 import ai.chat2db.community.domain.api.model.request.datasource.DbDataSourcePositionUpdateRequest;
 import ai.chat2db.community.domain.api.model.request.operation.OpsOperationLogPageQueryRequest;
@@ -25,16 +23,18 @@ import ai.chat2db.community.domain.api.model.storage.WorkspaceDataSourceNamespac
 import ai.chat2db.community.storage.converter.StorageConverter;
 import ai.chat2db.community.storage.large.ConsoleStorage;
 import ai.chat2db.community.storage.large.OperationLogStorage;
-import ai.chat2db.community.storage.large.TaskStorage;
 import ai.chat2db.community.storage.small.*;
 import ai.chat2db.community.tools.security.AesGcmUtil;
+import ai.chat2db.community.tools.exception.DataNotFoundException;
 import ai.chat2db.community.tools.wrapper.result.DataResult;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class LocalWorkspaceStorage implements IWorkspaceStorage {
@@ -61,6 +61,7 @@ public class LocalWorkspaceStorage implements IWorkspaceStorage {
 
     @Override
     public Long createDataSource(WorkspaceDataSource dataSource) {
+        dataSource.setIdentityColor(DataSourceIdentityColorUtils.normalize(dataSource.getIdentityColor()));
         dataSource.setStorageType(StorageTypeEnum.LOCAL.name());
         dataSource.setPassword(encryptString(dataSource.getPassword()));
         dataSource.setId(DataSourceStorage.INSTANCE.generateId());
@@ -78,20 +79,39 @@ public class LocalWorkspaceStorage implements IWorkspaceStorage {
 
     @Override
     public Long updateDataSource(WorkspaceDataSource dataSource) {
+        dataSource.setIdentityColor(DataSourceIdentityColorUtils.normalize(dataSource.getIdentityColor()));
         dataSource.setStorageType(StorageTypeEnum.LOCAL.name());
         if (dataSource.getPassword() != null && !dataSource.getPassword().isEmpty()) {
             dataSource.setPassword(encryptString(dataSource.getPassword()));
         } else {
-            DataSource oldDataSource = DataSourceStorage.INSTANCE.getById(dataSource.getId());
-            dataSource.setPassword(oldDataSource == null ? null : oldDataSource.getPassword());
+            dataSource.setPassword(null);
         }
         DataSourceStorage.INSTANCE.update(storageConverter.workspace2dataSource(dataSource));
         return dataSource.getId();
     }
 
     @Override
+    public Long updateDataSourceIdentityColor(Long id, String identityColor) {
+        String normalizedIdentityColor = DataSourceIdentityColorUtils.normalize(identityColor);
+        if (!DataSourceStorage.INSTANCE.updateIdentityColor(id, normalizedIdentityColor)) {
+            throw new DataNotFoundException();
+        }
+        return id;
+    }
+
+    @Override
     public PageResponse<WorkspaceDataSource> listDataSources(DbDataSourcePageQueryRequest dataSourcePageQueryRequest) {
-        List<DataSource> dataSources = DataSourceStorage.INSTANCE.getDataList();
+        String searchKey = dataSourcePageQueryRequest.getSearchKey();
+        String kind = dataSourcePageQueryRequest.getKind();
+        List<DataSource> dataSources = DataSourceStorage.INSTANCE.getDataList().stream()
+                .filter(dataSource -> StringUtils.isBlank(searchKey)
+                        || StringUtils.containsIgnoreCase(dataSource.getAlias(), searchKey))
+                .filter(dataSource -> StringUtils.isBlank(kind)
+                        || StringUtils.equalsIgnoreCase(
+                                dataSource.getKind() == null
+                                        ? DataSourceKindEnum.PRIVATE.getCode() : dataSource.getKind(),
+                                kind))
+                .toList();
         List<WorkspaceDataSource> result = storageConverter.dataSource2workspace(dataSources);
         result.forEach(dataSource -> dataSource.setStorageType(StorageTypeEnum.LOCAL.name()));
         return page(result, dataSourcePageQueryRequest.getPageNo(), dataSourcePageQueryRequest.getPageSize());
@@ -151,34 +171,6 @@ public class LocalWorkspaceStorage implements IWorkspaceStorage {
     }
 
     @Override
-    public PageResponse<Task> taskList(TaskRecordPageRequest taskPageRequest) {
-        List<Task> tasks = TaskStorage.INSTANCE.getDataList();
-        return page(tasks, taskPageRequest.getPageNo(), taskPageRequest.getPageSize());
-    }
-
-    @Override
-    public Task getTask(Long id) {
-        return TaskStorage.INSTANCE.getById(id);
-    }
-
-    @Override
-    public Long createTask(TaskRecordCreateRequest taskCreateRequest) {
-        Task task = storageConverter.taskCreateParam2model(taskCreateRequest);
-        task.setId(TaskStorage.INSTANCE.generateId());
-        task.setGmtCreate(new Date());
-        task.setGmtModified(new Date());
-        TaskStorage.INSTANCE.save(task);
-        return task.getId();
-    }
-
-    @Override
-    public void updateTask(TaskRecordUpdateRequest taskUpdateRequest) {
-        Task task = storageConverter.taskUpdateParam2model(taskUpdateRequest);
-        task.setGmtModified(new Date());
-        TaskStorage.INSTANCE.update(task);
-    }
-
-    @Override
     public Long createOperationLog(OperationLog request) {
         request.setGmtCreate(DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN));
         request.setGmtModified(DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN));
@@ -187,7 +179,9 @@ public class LocalWorkspaceStorage implements IWorkspaceStorage {
 
     @Override
     public PageResponse<OperationLog> operationLogList(OpsOperationLogPageQueryRequest operationLogPageQueryRequest) {
-        List<OperationLog> logs = OperationLogStorage.INSTANCE.getDataList();
+        List<OperationLog> logs = OperationLogStorage.INSTANCE.getDataList().stream()
+                .filter(operationLog -> matchesOperationLog(operationLog, operationLogPageQueryRequest))
+                .toList();
         return page(logs, operationLogPageQueryRequest.getPageNo(), operationLogPageQueryRequest.getPageSize());
     }
 
@@ -238,6 +232,26 @@ public class LocalWorkspaceStorage implements IWorkspaceStorage {
             return password;
         }
         return AesGcmUtil.configured().encrypt(password);
+    }
+
+    private boolean matchesOperationLog(OperationLog operationLog, OpsOperationLogPageQueryRequest request) {
+        if (operationLog == null) {
+            return false;
+        }
+        if (request.getDataSourceId() != null
+                && !Objects.equals(request.getDataSourceId(), operationLog.getDataSourceId())) {
+            return false;
+        }
+        if (StringUtils.isNotBlank(request.getDatabaseName())
+                && !Objects.equals(request.getDatabaseName(), operationLog.getDatabaseName())) {
+            return false;
+        }
+        if (StringUtils.isNotBlank(request.getSchemaName())
+                && !Objects.equals(request.getSchemaName(), operationLog.getSchemaName())) {
+            return false;
+        }
+        String searchKey = StringUtils.trimToNull(request.getSearchKey());
+        return searchKey == null || StringUtils.containsIgnoreCase(operationLog.getDdl(), searchKey);
     }
 
     private int normalizePageNo(Integer pageNo) {

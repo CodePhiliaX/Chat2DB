@@ -19,6 +19,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-community-bootstrap</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
         </dependency>
@@ -39,6 +44,10 @@
         <dependency>
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-community-jcef</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-community-sqlx</artifactId>
         </dependency>
         <!-- Services loaded at startup. -->
         <dependency>
@@ -315,24 +324,15 @@
                                 <zip destfile="${project.build.directory}/lib.zip"
                                      basedir="${project.build.directory}"
                                      includes="lib/**"/>
-                                <copy file="${project.build.directory}/${chat2db.finalName}.jar"
-                                      tofile="${project.basedir}/../../jpackage/input/mac/${chat2db.finalName}.jar"/>
-                                <copy file="${project.build.directory}/${chat2db.finalName}.jar"
-                                      tofile="${project.basedir}/../../jpackage/input/win/${chat2db.finalName}.jar"/>
-                                <copy file="${project.build.directory}/${chat2db.finalName}.jar"
-                                      tofile="${project.basedir}/../../jpackage/input/linux/${chat2db.finalName}.jar"/>
-                                <delete dir="${project.basedir}/../../jpackage/input/mac/lib"/>
-                                <delete dir="${project.basedir}/../../jpackage/input/win/lib"/>
-                                <delete dir="${project.basedir}/../../jpackage/input/linux/lib"/>
-                                <copy todir="${project.basedir}/../../jpackage/input/mac/lib">
-                                    <fileset dir="${project.build.directory}/lib"/>
-                                </copy>
-                                <copy todir="${project.basedir}/../../jpackage/input/win/lib">
-                                    <fileset dir="${project.build.directory}/lib"/>
-                                </copy>
-                                <copy todir="${project.basedir}/../../jpackage/input/linux/lib">
-                                    <fileset dir="${project.build.directory}/lib"/>
-                                </copy>
+                                <ant antfile="${project.basedir}/../../script/package/stage_desktop_backend.xml" inheritAll="false">
+                                    <property name="desktop.root" location="${project.basedir}/../../"/>
+                                    <property name="desktop.mainJar" location="${project.build.directory}/${chat2db.finalName}.jar"/>
+                                    <property name="desktop.jarName" value="${chat2db.finalName}.jar"/>
+                                    <property name="desktop.lib" location="${project.build.directory}/lib"/>
+                                    <property name="desktop.bootstrap" location="${project.basedir}/../chat2db-community-bootstrap/target/chat2db-bootstrap.jar"/>
+                                    <property name="desktop.helper" location="${project.basedir}/../chat2db-community-updater/target/chat2db-community-updater-${project.version}-helper.jar"/>
+                                    <property name="desktop.launch" location="${project.basedir}/src/main/desktop/launch.json"/>
+                                </ant>
                                 <!-- sourceFile is used for desktop incremental updates. All platforms use the
                                      plain jar to keep installer and updater artifacts consistent. -->
                                 <copy file="${project.build.directory}/${chat2db.finalName}.jar"
@@ -365,44 +365,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <!-- macOS packaging profile. -->
-        <profile>
-            <id>macos-build</id>
-            <activation>
-                <os>
-                    <!-- This profile is automatically active on macOS. -->
-                    <family>mac</family>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>${chat2db.maven-dependency-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>copy-mac-jcef-jar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.jetbrains.intellij.deps.jcef</groupId>
-                                            <artifactId>jcef</artifactId>
-                                            <version>${jcef.version}</version>
-                                            <outputDirectory>${project.basedir}/../../jpackage/input/mac</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

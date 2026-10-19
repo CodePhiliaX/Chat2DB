@@ -1,6 +1,7 @@
 import { CreateTabIntroType, WorkspaceTabType, DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { ITreeNode } from '@/typings';
 import type { TerminalOpenPosition } from '@/typings/settings';
+import type { IConnectionEnv } from './connection';
 
 export interface ICreateTabIntro {
   type: CreateTabIntroType;
@@ -64,19 +65,16 @@ export interface TableCommentExt {
   columnAlias: ColumnAlias[];
 }
 
-export interface AITableComment {
-  dataSourceId: number;
-  databaseName?: string;
-  schemaName?: string;
-  tableName: string;
-  tableCommentExt: TableCommentExt;
-}
-
 export interface IBoundInfo {
   consoleId?: number;
   workspaceTabId?: number | string;
   dataSourceId?: number;
   dataSourceName?: string;
+  environmentId?: number | null;
+  environment?: IConnectionEnv | null;
+  identityColor?: string | null;
+  watermarkEnabled?: boolean | null;
+  watermarkContent?: string | null;
   databaseType?: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;

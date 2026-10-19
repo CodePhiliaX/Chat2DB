@@ -4,47 +4,75 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { StateCreator } from 'zustand/vanilla';
 import { IDatabaseBaseInfo } from '@/typings/database';
 import { ImportExportDataBoundInfo, ImportExportTaskDetails } from '@/typings/importExport';
-import { ImportExportTaskStatus } from '@/constants/importExport';
+import { ACTIVE_TASK_STATUSES, ImportExportTaskStatus } from '@/constants/importExport';
 import importExportServices from '@/service/importExport';
+import {
+  createTaskListRequestCoordinator,
+  getTaskPollingDelay,
+  listAllTasksByStatus,
+  loadMissingTrackedTasks,
+  mergeTasks,
+  reconcileCompletedTaskNotifications,
+  shouldKeepTaskPolling,
+  shouldRetryTaskPolling,
+  TASK_CENTER_PAGE_SIZE,
+  TaskNotificationCursor,
+  TaskStatusById,
+} from './taskCenterUtils';
+
+let taskListRequestGeneration = 0;
+const taskListRequestCoordinator = createTaskListRequestCoordinator();
 
 interface ImportExportState {
   runSqlBoundInfo: IDatabaseBaseInfo | null;
   importExportDataBoundInfo: ImportExportDataBoundInfo | null;
-  showExportToolbar: boolean;
   taskList: ImportExportTaskDetails[];
-  getTaskListTimer: NodeJS.Timeout | null;
-  currentTask: ImportExportTaskDetails | null;
+  taskListPageSize: number;
+  taskListHasNextPage: boolean;
+  taskListLoadingMore: boolean;
+  getTaskListTimer: ReturnType<typeof setTimeout> | null;
+  activeTaskCount: number;
   logModalTaskId: number | null;
+  unreadCompletedTaskCount: number;
+  unreadCompletedTaskIds: number[];
+  taskCenterOpen: boolean;
+  taskNotificationsInitialized: boolean;
+  taskNotificationCursor: TaskNotificationCursor | null;
+  taskStatusById: TaskStatusById;
+  activeTaskIds: number[];
 }
 
 const initialState: ImportExportState = {
   runSqlBoundInfo: null,
   importExportDataBoundInfo: null,
-  showExportToolbar: false,
   taskList: [],
+  taskListPageSize: TASK_CENTER_PAGE_SIZE,
+  taskListHasNextPage: false,
+  taskListLoadingMore: false,
   getTaskListTimer: null,
-  currentTask: null,
+  activeTaskCount: 0,
   logModalTaskId: null,
+  unreadCompletedTaskCount: 0,
+  unreadCompletedTaskIds: [],
+  taskCenterOpen: false,
+  taskNotificationsInitialized: false,
+  taskNotificationCursor: null,
+  taskStatusById: {},
+  activeTaskIds: [],
 };
 
 export interface ImportExportAction {
   setRunSqlBoundInfo: (data: ImportExportState['runSqlBoundInfo']) => void;
   setImportExportDataBoundInfo: (data: ImportExportState['importExportDataBoundInfo']) => void;
-  clearImportExportStore: () => void;
-  setShowExportToolbar: (showExportToolbar: ImportExportState['showExportToolbar']) => void;
-  getTaskList: (param?: { visible: boolean }) => void;
+  getTaskList: () => Promise<void>;
+  loadMoreTasks: () => Promise<void>;
+  stopTaskListPolling: () => void;
+  removeTask: (taskId: number) => void;
   openLogModal: (taskId: number | null) => void;
+  setTaskCenterOpen: (open: boolean) => void;
 }
 
 export type ImportExportStore = ImportExportState & ImportExportAction;
-
-// import { useImportExportStore } from '@/store/importExport';
-// const { runSqlBoundInfo, setRunSqlBoundInfo } = useImportExportStore((state) => {
-//   return {
-//     runSqlBoundInfo: state.runSqlBoundInfo,
-//     setRunSqlBoundInfo: state.setRunSqlBoundInfo,
-//   };
-// });
 
 export const createImportExportAction: StateCreator<
   ImportExportStore,
@@ -62,42 +90,149 @@ export const createImportExportAction: StateCreator<
       importExportDataBoundInfo: _importExportDataBoundInfo,
     });
   },
-  clearImportExportStore: () => {
-    set(initialState);
-  },
-  setShowExportToolbar: (showExportToolbar) => {
-    if (showExportToolbar) {
-      get().getTaskList();
-    }
-    set({ showExportToolbar });
-  },
-  getTaskList: (params) => {
-    const { visible } = params || {};
+  getTaskList: () => {
+    const requestGeneration = ++taskListRequestGeneration;
+    const previousActiveTaskIds = get().activeTaskIds;
     // clear timer
     const { getTaskListTimer } = get();
     if (getTaskListTimer) {
       clearTimeout(getTaskListTimer);
+      set({ getTaskListTimer: null });
     }
-    importExportServices.getTaskList({ pageNo: 1, pageSize: 10 }).then((res) => {
-      if (!res.data) {
-        return;
-      }
-      const _taskList = res.data || [];
-      const _currentTask = _taskList.find((item) =>
-        [ImportExportTaskStatus.INIT, ImportExportTaskStatus.PROCESSING, ImportExportTaskStatus.RUNNING].includes(
-          item.taskStatus,
-        ),
-      );
-      set({ currentTask: _currentTask, taskList: _taskList });
-      if (_currentTask) {
+    return Promise.all([
+      importExportServices.getTaskList({ pageNo: 1, pageSize: TASK_CENTER_PAGE_SIZE }),
+      listAllTasksByStatus(importExportServices.getTaskList, ImportExportTaskStatus.PENDING),
+      listAllTasksByStatus(importExportServices.getTaskList, ImportExportTaskStatus.RUNNING),
+    ])
+      .then(async ([recentPage, pendingTasks, runningTasks]) => {
+        if (requestGeneration !== taskListRequestGeneration) return;
+        const activeTasks = mergeTasks(pendingTasks, runningTasks);
+        const visibleTasks = mergeTasks(recentPage.data || [], activeTasks);
+        const recovered = await loadMissingTrackedTasks(
+          previousActiveTaskIds,
+          visibleTasks,
+          importExportServices.getTaskDetails,
+        );
+        if (requestGeneration !== taskListRequestGeneration) return;
+        const currentState = get();
+        const taskList = mergeTasks(currentState.taskList, visibleTasks, recovered.tasks);
+        const knownTaskIds = new Set(taskList.map((task) => task.id));
+        const activeTaskIds = taskList
+          .filter((task) => ACTIVE_TASK_STATUSES.includes(task.status))
+          .map((task) => task.id);
+        activeTaskIds.push(...recovered.unresolvedTaskIds.filter((id) => !knownTaskIds.has(id)));
+        const pollDelay = getTaskPollingDelay(activeTaskIds.length);
+        const notificationUpdate = reconcileCompletedTaskNotifications(
+          currentState.taskStatusById,
+          taskList,
+          currentState.taskNotificationsInitialized,
+          currentState.taskNotificationCursor,
+        );
+        const unreadCompletedTaskIds = currentState.taskCenterOpen
+          ? []
+          : [...new Set([...currentState.unreadCompletedTaskIds, ...notificationUpdate.newlyCompletedTaskIds])];
         set({
-          showExportToolbar: visible ? true : get().showExportToolbar,
+          activeTaskCount: activeTaskIds.length,
+          taskList,
+          taskListHasNextPage:
+            currentState.taskListPageSize === TASK_CENTER_PAGE_SIZE
+              ? recentPage.hasNextPage === true
+              : currentState.taskListHasNextPage,
+          unreadCompletedTaskCount: unreadCompletedTaskIds.length,
+          unreadCompletedTaskIds,
+          taskNotificationsInitialized: true,
+          taskNotificationCursor: notificationUpdate.cursor,
+          taskStatusById: notificationUpdate.statuses,
+          activeTaskIds,
+          getTaskListTimer: pollDelay === null ? null : setTimeout(() => get().getTaskList(), pollDelay),
         });
-      }
+      })
+      .catch((error) => {
+        if (requestGeneration !== taskListRequestGeneration) return;
+        const state = get();
+        const retryDelay =
+          shouldRetryTaskPolling(error) && shouldKeepTaskPolling(state.taskCenterOpen, state.activeTaskIds.length)
+            ? getTaskPollingDelay(0, true)
+            : null;
+        set({
+          getTaskListTimer: retryDelay === null ? null : setTimeout(() => get().getTaskList(), retryDelay),
+        });
+      });
+  },
+  loadMoreTasks: () => {
+    const { taskListHasNextPage, taskListLoadingMore, taskListPageSize } = get();
+    if (!taskListHasNextPage || taskListLoadingMore) {
+      return Promise.resolve();
+    }
+    const nextPageSize = taskListPageSize + TASK_CENTER_PAGE_SIZE;
+    const loadMoreRequest = taskListRequestCoordinator.beginLoadMoreRequest();
+    set({ taskListLoadingMore: true });
+    return importExportServices
+      .getTaskList({ pageNo: 1, pageSize: nextPageSize })
+      .then((page) => {
+        if (!taskListRequestCoordinator.canApplyLoadMoreResponse(loadMoreRequest)) return;
+        set({
+          taskList: mergeTasks(page.data || [], get().taskList),
+          taskListPageSize: nextPageSize,
+          taskListHasNextPage: page.hasNextPage === true,
+        });
+      })
+      .catch((error) => {
+        if (taskListRequestCoordinator.canApplyLoadMoreResponse(loadMoreRequest)) throw error;
+      })
+      .finally(() => {
+        if (taskListRequestCoordinator.isLatestLoadMoreRequest(loadMoreRequest)) {
+          set({ taskListLoadingMore: false });
+        }
+      });
+  },
+  stopTaskListPolling: () => {
+    taskListRequestGeneration += 1;
+    taskListRequestCoordinator.invalidateState();
+    const { getTaskListTimer } = get();
+    if (getTaskListTimer) {
+      clearTimeout(getTaskListTimer);
+    }
+    set({ getTaskListTimer: null, taskListLoadingMore: false });
+  },
+  removeTask: (taskId) => {
+    taskListRequestGeneration += 1;
+    taskListRequestCoordinator.invalidateState();
+    const state = get();
+    const taskStatusById = { ...state.taskStatusById };
+    delete taskStatusById[String(taskId)];
+    const unreadCompletedTaskIds = state.unreadCompletedTaskIds.filter((id) => id !== taskId);
+    set({
+      taskList: state.taskList.filter((task) => task.id !== taskId),
+      taskListPageSize: Math.max(TASK_CENTER_PAGE_SIZE, state.taskListPageSize - 1),
+      taskListLoadingMore: false,
+      unreadCompletedTaskIds,
+      unreadCompletedTaskCount: unreadCompletedTaskIds.length,
+      taskStatusById,
+      activeTaskIds: state.activeTaskIds.filter((id) => id !== taskId),
     });
   },
   openLogModal: (taskId) => {
     set({ logModalTaskId: taskId });
+  },
+  setTaskCenterOpen: (open) => {
+    const state = get();
+    if (!open) {
+      taskListRequestCoordinator.invalidateState();
+    }
+    if (!open && state.activeTaskIds.length === 0) {
+      taskListRequestGeneration += 1;
+      if (state.getTaskListTimer) {
+        clearTimeout(state.getTaskListTimer);
+      }
+    }
+    set({
+      taskCenterOpen: open,
+      taskListLoadingMore: open ? state.taskListLoadingMore : false,
+      unreadCompletedTaskCount: open ? 0 : get().unreadCompletedTaskCount,
+      unreadCompletedTaskIds: open ? [] : get().unreadCompletedTaskIds,
+      getTaskListTimer: !open && state.activeTaskIds.length === 0 ? null : state.getTaskListTimer,
+    });
   },
 });
 
@@ -112,8 +247,3 @@ export const useImportExportStore = createWithEqualityFn<ImportExportStore>()(
   }),
   shallow,
 );
-
-// // Clean up the store
-export const clearImportExportStore = () => {
-  useImportExportStore.setState(initialState);
-};

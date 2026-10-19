@@ -1,5 +1,6 @@
-import { Confetti, IconButton, IconfontSvg } from '@chat2db/ui';
-import { Tooltip, type InputRef } from 'antd';
+import { Confetti } from '@chat2db/ui';
+import clientExtension from '@client-extension';
+import { type InputRef } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import i18n from '@/i18n';
@@ -11,27 +12,31 @@ import { useUpdateEffect } from 'ahooks';
 
 import { getConnectionEnvList } from '@/store/connection';
 import { useGlobalStore } from '@/store/global';
-import { useUserStore } from '@/store/user';
+import { useUserStore } from '@/store/session';
 
 import CommunitySetting from '@/blocks/Setting/CommunitySetting';
-import OfflineAvatar from '@/blocks/PersonalCenter/components/OfflineAvatar';
-import CustomLayout from '@/components/CustomLayout';
+import CommunityMainActionBar from './components/CommunityMainActionBar';
+import CommunityTitleBarActions from './components/CommunityTitleBarActions';
 import StreamSidebar from './components/StreamSidebar';
 
 import Dashboard from './dashboard';
-import DashboardMenuList from './dashboard/DashboardMenuList';
+import { mergeNavigationItems } from '@/client-extension/merge';
 import { createCoreMainNavItems } from './navigationItems';
 import Workspace from './workspace';
 import Stream from '../stream';
 
 import { useStyles } from './style';
 
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
+import { clientRuntime } from '@client-runtime';
 import { IframeType } from '@/constants';
 import aiStreamService, { IChatSession } from '@/service/aiStream';
-import { useChatStore } from '@/store/chat';
 import { useWorkspaceStore } from '@/store/workspace';
 import { isDesktop, isHashHistoryEnv } from '@/utils/env';
+import {
+  APP_TITLE_BAR_ACTION_EVENT,
+  AppTitleBarActionEventDetail,
+  isAppTitleBarAction,
+} from '@/utils/appTitleBarAction';
 import {
   readPersistedMainPageActiveTab,
   resolveDesktopInitialMainPage,
@@ -42,42 +47,30 @@ import { checkIsSharePage } from '@/utils/url';
 function CommunityMainPage() {
   const [navConfig, setNavConfig] = useState<INavItem[]>([]);
 
-  const initNavConfig: INavItem[] = useMemo(
+  const allNavItems: INavItem[] = useMemo(
     () =>
-      createCoreMainNavItems({
-        stream: { component: <Stream />, name: i18n('stream.nav.title') },
-        workspace: { component: <Workspace />, name: i18n('workspace.title') },
-        dashboard: { component: <Dashboard />, name: i18n('dashboard.title') },
-      }),
+      mergeNavigationItems(
+        createCoreMainNavItems({
+          stream: { component: <Stream />, name: i18n('stream.nav.title') },
+          workspace: { component: <Workspace />, name: i18n('workspace.title') },
+          dashboard: { component: <Dashboard />, name: i18n('dashboard.title') },
+        }),
+        clientExtension.navigationItems ?? [],
+      ),
     [],
   );
+  const initNavConfig = clientExtension.mainPage.useNavigationItems(allNavItems);
 
   const showLeftContainer = useMemo(() => checkIsSharePage(), []);
-
-  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
-    return localStorage.getItem(runtimeEditionConfig.sidebarExpandedStorageKey) === 'true';
-  });
-  const toggleSidebar = useCallback(() => {
-    setSidebarExpanded((prev) => {
-      const next = !prev;
-      localStorage.setItem(runtimeEditionConfig.sidebarExpandedStorageKey, String(next));
-      return next;
-    });
-  }, []);
-  const collapseSidebar = useCallback(() => {
-    setSidebarExpanded(false);
-    localStorage.setItem(runtimeEditionConfig.sidebarExpandedStorageKey, 'false');
-  }, []);
 
   const [sidebarSessions, setSidebarSessions] = useState<IChatSession[]>([]);
   const [sidebarSearchOpen, setSidebarSearchOpen] = useState(false);
   const [sidebarSearchKeyword, setSidebarSearchKeyword] = useState('');
   const sidebarSearchInputRef = useRef<InputRef>(null);
-  const { styles, cx } = useStyles({ sidebarExpanded });
+  const { styles } = useStyles({});
   const { tab: settingTab } = useParams<{ tab: string }>();
 
-  const { networkAbandoned, curUser } = useUserStore((state) => ({
-    networkAbandoned: state.networkAbandoned,
+  const { curUser } = useUserStore((state) => ({
     curUser: state.curUser,
   }));
 
@@ -97,11 +90,6 @@ function CommunityMainPage() {
     setSettingPageActiveTab: state.setSettingPageActiveTab,
     triggerConfetti: state.triggerConfetti,
     isEmbedIframe: state.isEmbedIframe,
-  }));
-
-  const { currentChat, setCurrentChat } = useChatStore((state) => ({
-    setCurrentChat: state.setCurrentChat,
-    currentChat: state.currentChat,
   }));
 
   const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
@@ -150,40 +138,24 @@ function CommunityMainPage() {
           page === currentMainPageActiveTab &&
           !isFirst &&
           currentSettingPageActiveTab === false;
-        const shouldCollapseSidebarOnWorkspaceEnter =
-          page === 'workspace' && (currentMainPageActiveTab !== 'workspace' || isFirst);
-
         tabObject.isLoad = true;
         setNavConfig([...navConfigTmp]);
         setMainPageActiveTab({ page, pathName, searchParams });
         setSettingPageActiveTab(false);
 
-        if (shouldCollapseSidebarOnWorkspaceEnter) {
-          collapseSidebar();
-        }
-
         if (shouldToggleWorkspacePanel) {
-          if (useWorkspaceStore.getState().layout.panelLeftWidth === 0) {
-            useWorkspaceStore.getState().setPanelLeftWidth(240);
-          } else {
-            useWorkspaceStore.getState().setPanelLeftWidth(0);
-          }
+          useWorkspaceStore.getState().togglePanelLeft();
         }
       }
     },
-    [collapseSidebar, setMainPageActiveTab, setSettingPageActiveTab],
+    [setMainPageActiveTab, setSettingPageActiveTab],
   );
 
   const handleInitPage = useCallback(() => {
     let nextNavConfig = [...initNavConfig];
 
-    if (!runtimeEditionConfig.dashboardEntry) {
+    if (!clientRuntime.showDashboard) {
       nextNavConfig = nextNavConfig.filter((item) => item.key !== 'dashboard');
-    }
-
-    if (networkAbandoned) {
-      const filterKeys = ['stream', 'dashboard'];
-      nextNavConfig = nextNavConfig.filter((item) => !filterKeys.includes(item.key));
     }
 
     setNavConfig(nextNavConfig);
@@ -197,7 +169,7 @@ function CommunityMainPage() {
       if (isDesktop) {
         let persistedPage: string | undefined;
         try {
-          persistedPage = readPersistedMainPageActiveTab(localStorage.getItem(runtimeEditionConfig.globalStoreName));
+          persistedPage = readPersistedMainPageActiveTab(localStorage.getItem(clientRuntime.globalStoreName));
         } catch {
           persistedPage = undefined;
         }
@@ -222,13 +194,24 @@ function CommunityMainPage() {
       pathName = '/workspace';
     }
 
+    const resolvedPage =
+      clientExtension.mainPage.resolveNavigationPage?.({
+        requestedPage: page,
+        allItems: allNavItems,
+        visibleItems: nextNavConfig,
+      }) ?? page;
+    if (resolvedPage !== page) {
+      page = resolvedPage;
+      pathName = `/${resolvedPage}`;
+    }
+
     handleChangePageTab({
       page,
       pathName,
       navConfigTmp: nextNavConfig,
       isFirst: true,
     });
-  }, [handleChangePageTab, initNavConfig, mainPageActiveTab, networkAbandoned]);
+  }, [allNavItems, handleChangePageTab, initNavConfig, mainPageActiveTab]);
 
   useEffect(() => {
     if (mainPageActiveTab === 'stream') {
@@ -307,6 +290,23 @@ function CommunityMainPage() {
     [activeSessionId],
   );
 
+  const handleSidebarRenameSession = useCallback(
+    async (sessionId: string, title: string) => {
+      try {
+        await aiStreamService.renameChatSession({ id: sessionId, title });
+        setSidebarSessions((prev) =>
+          prev.map((session) => (session.id === sessionId ? { ...session, title } : session)),
+        );
+        window.dispatchEvent(new CustomEvent('stream:sessionRenamed', { detail: { sessionId, title } }));
+        feedback.success(i18n('common.message.modifySuccessfully'));
+      } catch (error) {
+        feedback.error(i18n('stream.sidebar.renameFailed'));
+        throw error;
+      }
+    },
+    [],
+  );
+
   const handleSidebarNewChat = useCallback(() => {
     setActiveSessionId(null);
     handleChangePageTab({ page: 'stream', navConfigTmp: navConfig, pathName: '/stream' });
@@ -341,17 +341,6 @@ function CommunityMainPage() {
     }
   }, [setSettingPageActiveTab, settingTab]);
 
-  useEffect(() => {
-    if (mainPageActiveTab === 'workspace') {
-      setAppTitleBarRightComponent(<CustomLayout />);
-    } else {
-      setAppTitleBarRightComponent(false);
-    }
-    return () => {
-      setAppTitleBarRightComponent(false);
-    };
-  }, [mainPageActiveTab, setAppTitleBarRightComponent]);
-
   useUpdateEffect(() => {
     if (!navConfig) {
       return;
@@ -366,13 +355,6 @@ function CommunityMainPage() {
       const chatId = parts[1] === 'stream' && parts[2] ? parts[2] : null;
       setActiveSessionId(chatId);
     }
-  }, [mainPageActiveTab]);
-
-  useEffect(() => {
-    setCurrentChat({
-      ...currentChat,
-      [mainPageActiveTab]: currentChat[mainPageActiveTab],
-    });
   }, [mainPageActiveTab]);
 
   const handleNavItemClick = useCallback(
@@ -391,94 +373,100 @@ function CommunityMainPage() {
     [activeSessionId, handleChangePageTab, navConfig],
   );
 
+  const handleOpenSettings = useCallback(() => {
+    setSettingPageActiveTab(settingPageActiveTab === false ? 'basic' : false);
+  }, [setSettingPageActiveTab, settingPageActiveTab]);
+
+  useEffect(() => {
+    const handleTitleBarAction = (event: Event) => {
+      const action = (event as CustomEvent<AppTitleBarActionEventDetail>).detail?.action;
+      if (!isAppTitleBarAction(action)) {
+        return;
+      }
+
+      // Mark valid Community title-bar actions as handled even when the entry is unavailable.
+      event.preventDefault();
+      if (showLeftContainer || isEmbedIframe === IframeType.ZOER) {
+        return;
+      }
+
+      if (action === 'settings') {
+        if (!isEmbedIframe) {
+          handleOpenSettings();
+        }
+        return;
+      }
+
+      const navItem = navConfig.find((item) => item.key === action);
+      if (navItem) {
+        handleNavItemClick(navItem);
+      }
+    };
+
+    window.addEventListener(APP_TITLE_BAR_ACTION_EVENT, handleTitleBarAction);
+    return () => window.removeEventListener(APP_TITLE_BAR_ACTION_EVENT, handleTitleBarAction);
+  }, [handleNavItemClick, handleOpenSettings, isEmbedIframe, navConfig, showLeftContainer]);
+
+  useEffect(() => {
+    const shouldShowWorkspaceTitleBarActions =
+      !showLeftContainer &&
+      isEmbedIframe !== IframeType.ZOER &&
+      mainPageActiveTab === 'workspace' &&
+      settingPageActiveTab === false;
+    const shouldShowTitleBarActions =
+      !showLeftContainer &&
+      isEmbedIframe !== IframeType.ZOER &&
+      (Boolean(clientExtension.mainPage.slots?.titleBarActions) || shouldShowWorkspaceTitleBarActions);
+
+    if (!shouldShowTitleBarActions) {
+      setAppTitleBarRightComponent(false);
+      return;
+    }
+
+    setAppTitleBarRightComponent(
+      <CommunityTitleBarActions
+        extras={clientExtension.mainPage.slots?.titleBarActions}
+        showWorkspaceActions={shouldShowWorkspaceTitleBarActions}
+      />,
+    );
+  }, [
+    isEmbedIframe,
+    mainPageActiveTab,
+    setAppTitleBarRightComponent,
+    settingPageActiveTab,
+    showLeftContainer,
+  ]);
+
+  useEffect(() => {
+    return () => setAppTitleBarRightComponent(false);
+  }, [setAppTitleBarRightComponent]);
+
   const showStreamSidebar =
     mainPageActiveTab === 'stream' &&
     settingPageActiveTab === false &&
     !showLeftContainer &&
     isEmbedIframe !== IframeType.ZOER;
+  const showMainActionBar = !showLeftContainer && isEmbedIframe !== IframeType.ZOER;
 
   return (
     <div className={styles.container}>
-      <div
-        className={cx(styles.leftContainer, { [styles.leftContainerHidden]: showLeftContainer })}
-        style={{ display: isEmbedIframe === IframeType.ZOER ? 'none' : 'flex' }}
-      >
-        <div className={styles.sidebarHeader}>
-          <Tooltip
-            title={sidebarExpanded ? i18n('stream.sidebar.collapse') : i18n('stream.sidebar.expand')}
-            placement="right"
-            mouseEnterDelay={0.3}
-          >
-            <span>
-              <IconButton
-                size={{
-                  boxSize: 30,
-                  iconSize: 22,
-                }}
-                className={styles.sidebarBtn}
-                code="icon-chat-menu"
-                onClick={toggleSidebar}
-              />
-            </span>
-          </Tooltip>
-          {sidebarExpanded && <span className={styles.sidebarHeaderSpacer} />}
-        </div>
-
-        <div className={styles.navContainer}>
-          {navConfig.map((item) => {
-            const isActive = item.key === mainPageActiveTab && settingPageActiveTab === false;
-            const NavIcon = item.icon;
-
-            if (!sidebarExpanded) {
-              return (
-                <IconButton
-                  type="primary"
-                  isActive={isActive}
-                  key={item.key}
-                  size={{
-                    boxSize: 34,
-                    iconSize: 18,
-                  }}
-                  title={item.name}
-                  icon={NavIcon}
-                  tooltipPlacement="right"
-                  onClick={() => handleNavItemClick(item)}
-                />
-              );
-            }
-
-            return (
-              <div
-                key={item.key}
-                className={cx(styles.navItem, isActive && styles.navItemActive)}
-                onClick={() => handleNavItemClick(item)}
-              >
-                <NavIcon className={styles.navItemIcon} size={18} />
-                <span className={styles.navItemLabel}>{item.name}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {runtimeEditionConfig.dashboardEntry && mainPageActiveTab === 'dashboard' && (
-          <div className={styles.sessionSection}>
-            <DashboardMenuList />
-          </div>
-        )}
-
-        {!isEmbedIframe && (
-          <div className={styles.bottomNav}>
-            {sidebarExpanded ? (
-              <div className={styles.navItem} onClick={() => setSettingPageActiveTab('basic')}>
-                <IconfontSvg code="icon-adjustments" className={styles.navItemIcon} size={18} />
-                <span className={styles.navItemLabel}>{i18n('setting.title.setting')}</span>
-              </div>
-            ) : (
-              <OfflineAvatar logoSize={24} triggerSize={34} />
-            )}
-          </div>
-        )}
-      </div>
+      {showMainActionBar && (
+        <CommunityMainActionBar
+          navItems={navConfig}
+          activePage={mainPageActiveTab}
+          settingsActive={settingPageActiveTab !== false}
+          hideSettings={
+            Boolean(isEmbedIframe) || clientExtension.mainPage.hiddenCoreActions?.includes('settings') === true
+          }
+          beforeTerminal={
+            clientExtension.mainPage.slots?.actionBarBeforeTerminal ??
+            clientExtension.mainPage.slots?.actionBarFooter
+          }
+          afterTerminal={clientExtension.mainPage.slots?.actionBarAfterTerminal}
+          onNavigate={handleNavItemClick}
+          onOpenSettings={handleOpenSettings}
+        />
+      )}
 
       {showStreamSidebar && (
         <StreamSidebar
@@ -493,6 +481,7 @@ function CommunityMainPage() {
           onNewChat={handleSidebarNewChat}
           onSessionClick={handleSidebarSessionClick}
           onSessionDelete={handleSidebarDeleteSession}
+          onSessionRename={handleSidebarRenameSession}
         />
       )}
 

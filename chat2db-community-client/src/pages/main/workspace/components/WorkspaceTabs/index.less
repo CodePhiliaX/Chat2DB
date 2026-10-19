@@ -1,7 +1,15 @@
-.tabBox {
-  flex: 1;
-  height: 100%;
+.tabHeaderBox {
+  flex: 0 0 36px;
+  height: 36px;
   overflow: hidden;
+}
+
+.workspaceTabIdentityIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
 }
 
 .splitTabBox {
@@ -36,6 +44,35 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.splitPaneContentSlot {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspaceTabContentLayer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.workspaceTabContentItem {
+  position: absolute;
+  display: none;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.workspaceTabContentItemActive {
+  display: block;
+  pointer-events: auto;
 }
 
 .workspacePaneDropOverlay {
@@ -84,10 +121,7 @@
   z-index: 1;
   border-radius: 6px;
   opacity: 0.9;
-  transition:
-    inset 120ms ease,
-    width 120ms ease,
-    height 120ms ease;
+  transition: inset 120ms ease, width 120ms ease, height 120ms ease;
   pointer-events: none;
 }
 
@@ -133,7 +167,6 @@
   opacity: 0.96;
   transform: translateY(2px) rotate(1deg);
   cursor: grabbing;
-
 }
 
 .workspaceTabDragOverlayIcon {

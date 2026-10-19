@@ -75,6 +75,7 @@ const useSSERequest = <T = string>(
       let accumulatedContent = '';
       let requestHandle: SSERequestHandle | undefined;
       let callbackHandledError = false;
+      let terminalCallbackFired = false;
       const isActiveRequest = () => mountedRef.current && requestOwner.owns(generation, requestHandle);
 
       try {
@@ -83,10 +84,12 @@ const useSSERequest = <T = string>(
           guardSSERequestCallbacks<SSEOutput>(
             {
               onSuccess: () => {
+                terminalCallbackFired = true;
                 console.log('[useSSERequest] onSuccess, chunks count:', chunks.length);
                 setStatus(SSERequestStatus.FINISH);
               },
               onError: (err) => {
+                terminalCallbackFired = true;
                 callbackHandledError = true;
                 console.log('[useSSERequest] onError:', err);
                 setStatus(SSERequestStatus.ERROR);
@@ -117,6 +120,7 @@ const useSSERequest = <T = string>(
                 }
               },
               onStop: () => {
+                terminalCallbackFired = true;
                 console.log('[useSSERequest] onStop');
                 setStatus(SSERequestStatus.FINISH);
               },
@@ -136,6 +140,12 @@ const useSSERequest = <T = string>(
         setStatus(SSERequestStatus.ERROR);
         setError(error_ instanceof Error ? error_ : new Error('Unknown error'));
       } finally {
+        if (!terminalCallbackFired && mountedRef.current && requestOwner.isCurrentGeneration(generation)) {
+          // A stream can end without a terminal callback, for example when the backend answers with a
+          // business error payload. Never leave the request in LOADING, otherwise the UI keeps showing
+          // its generating state next to an error that already arrived.
+          setStatus(SSERequestStatus.ERROR);
+        }
         if (requestHandle) {
           requestOwner.release(generation, requestHandle);
         }

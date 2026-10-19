@@ -34,7 +34,6 @@ export interface IDatabase {
   iconExistDark?: boolean;
   supportDatabase: boolean;
   supportSchema: boolean;
-  needAiDataCollections?: boolean;
 }
 
 export interface ITableHeaderItem {
@@ -43,6 +42,7 @@ export interface ITableHeaderItem {
   columnName?: string;
   columnType?: string;
   editorType?: ResultSetEditorType;
+  editorOptions?: IResultSetEditorOption[];
   tableName?: string;
   autoIncrement?: boolean | number | null; // Whether to increment automatically
   columnSize?: number | null; // field length
@@ -53,7 +53,12 @@ export interface ITableHeaderItem {
   primaryKey?: boolean | null; // Is it a primary key?
 }
 
-export type ResultSetEditorType = 'TEXT' | 'DATE' | 'TIME' | 'DATETIME' | 'TIMESTAMP';
+export interface IResultSetEditorOption {
+  label: string;
+  value: string;
+}
+
+export type ResultSetEditorType = 'TEXT' | 'DATE' | 'TIME' | 'DATETIME' | 'TIMESTAMP' | 'SELECT' | 'MULTI_SELECT';
 
 export type LargeValueType = 'TEXT' | 'BINARY' | 'IMAGE' | 'JSON' | 'UNKNOWN';
 

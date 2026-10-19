@@ -17,6 +17,8 @@ import {
 interface AIModelSelectProps {
   onChange?: (value: SelectedModelOption | null) => void;
   options?: ModelSelectOption[];
+  /** Requests a reload when the provided list is empty, e.g. the first fetch failed. */
+  onReloadModelOptions?: () => void;
   showCustomModelEntry?: boolean;
   onCustomModelClick?: () => void;
   customModelText?: string;
@@ -25,6 +27,7 @@ interface AIModelSelectProps {
 const AIModelSelect = ({
   onChange,
   options,
+  onReloadModelOptions,
   showCustomModelEntry = false,
   onCustomModelClick,
   customModelText,
@@ -69,13 +72,17 @@ const AIModelSelect = ({
 
   // handles the drop-down box opening event
   const handleDropdownVisibleChange = (open: boolean) => {
-    if (open && openCustomModelDirectly) {
+    if (!open || openCustomModelDirectly) {
       return;
     }
-    if (open && (!modelList || modelList.length === 0)) {
-      if (options !== undefined) {
-        return;
+    // The parent owns this list, so ask it to reload instead of keeping an empty dropdown.
+    if (options !== undefined) {
+      if (options.length === 0) {
+        onReloadModelOptions?.();
       }
+      return;
+    }
+    if (!modelList || modelList.length === 0) {
       getModelList();
     }
   };

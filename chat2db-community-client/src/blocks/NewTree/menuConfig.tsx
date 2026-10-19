@@ -1,4 +1,5 @@
-import { DatabaseTypeCode, OperationColumn, TreeNodeType } from '@/constants';
+import { DatabaseTypeCode } from '@/constants/common';
+import { OperationColumn, TreeNodeType } from '@/constants/tree';
 
 export const dropMenuConfig = {
   [DatabaseTypeCode.MONGODB]: {
@@ -12,14 +13,21 @@ export const dropMenuConfig = {
       OperationColumn.CopyName,
       OperationColumn.CopyMcpConfig,
       OperationColumn.Divider,
-      OperationColumn.Refresh,
       OperationColumn.MoveToGroup,
+      OperationColumn.Refresh,
       OperationColumn.Divider,
       OperationColumn.RemoveDataSource,
     ],
-    [TreeNodeType.TABLES]: [OperationColumn.CreateConsole, OperationColumn.ViewAllTable, OperationColumn.Refresh],
+    [TreeNodeType.TABLES]: [
+      OperationColumn.CreateConsole,
+      OperationColumn.Divider,
+      OperationColumn.ViewAllTable,
+      OperationColumn.Divider,
+      OperationColumn.Refresh,
+    ],
     [TreeNodeType.TABLE]: [
       OperationColumn.OpenTable,
+      OperationColumn.Divider,
       OperationColumn.CreateConsole,
       OperationColumn.Pin,
       OperationColumn.Divider,
@@ -40,24 +48,36 @@ export const dropMenuConfig = {
       OperationColumn.Divider,
       OperationColumn.RemoveDataSource,
     ],
-    [TreeNodeType.TABLES]: [OperationColumn.CreateConsole, OperationColumn.ViewAllTable, OperationColumn.Refresh],
-    [TreeNodeType.TABLE]: [OperationColumn.OpenTable, OperationColumn.CreateConsole, OperationColumn.Pin],
+    [TreeNodeType.TABLES]: [
+      OperationColumn.CreateConsole,
+      OperationColumn.Divider,
+      OperationColumn.ViewAllTable,
+      OperationColumn.Divider,
+      OperationColumn.Refresh,
+    ],
+    [TreeNodeType.TABLE]: [
+      OperationColumn.OpenTable,
+      OperationColumn.Divider,
+      OperationColumn.CreateConsole,
+      OperationColumn.Pin,
+    ],
   },
   [DatabaseTypeCode.CLICKHOUSE]: {
     [TreeNodeType.TABLES]: [
       OperationColumn.CreateConsole,
+      OperationColumn.Divider,
       OperationColumn.ViewAllTable,
+      OperationColumn.Divider,
       OperationColumn.CopyName,
       OperationColumn.Refresh,
     ],
     [TreeNodeType.TABLE]: [
       OperationColumn.OpenTable,
+      OperationColumn.Divider,
       OperationColumn.CreateConsole,
       OperationColumn.Pin,
       OperationColumn.Divider,
       OperationColumn.CopyName,
-      OperationColumn.Divider,
-      OperationColumn.GenerateTestData,
       OperationColumn.Divider,
       OperationColumn.DeleteTable,
     ],
@@ -145,42 +165,12 @@ export const dropMenuConfig = {
       OperationColumn.Divider,
       OperationColumn.RemoveDataSource,
     ],
+    [TreeNodeType.MONITOR]: [],
+    [TreeNodeType.ACTIVE_TRANSACTIONS]: [OperationColumn.ActiveTransactions],
     [TreeNodeType.DATABASE_ACCOUNTS]: [OperationColumn.CreateAccount, OperationColumn.Refresh],
     [TreeNodeType.DATABASE_ACCOUNT]: [OperationColumn.OpenAccountPrivileges],
     [TreeNodeType.SCHEMAS]: [],
     [TreeNodeType.ALL_DATA]: [OperationColumn.CreateConsole, OperationColumn.OpenAllData],
-    [TreeNodeType.AI_DATA_COLLECTIONS]: [
-      OperationColumn.CreateAiDataCollection,
-      OperationColumn.CopyName,
-      OperationColumn.Refresh,
-    ],
-    [TreeNodeType.AI_DATA_COLLECTION]: [
-      // added
-      OperationColumn.AddAiDataCollectionTable,
-      OperationColumn.AddAiDataCollectionView,
-      OperationColumn.SyncAiDataCollection,
-      OperationColumn.Divider,
-      // Edit & Copy
-      OperationColumn.Rename,
-      OperationColumn.CopyName,
-      OperationColumn.CopyAiDataCollectionId,
-      OperationColumn.Divider,
-      OperationColumn.Refresh,
-      OperationColumn.Divider,
-      OperationColumn.RemoveAiDataCollection,
-    ],
-    [TreeNodeType.AI_DATA_COLLECTION_TABLE]: [
-      OperationColumn.ChangeAiTableInfo,
-      OperationColumn.CopyName,
-      OperationColumn.Divider,
-      OperationColumn.RemoveAiDataCollectionElement,
-    ],
-    [TreeNodeType.AI_DATA_COLLECTION_VIEW]: [
-      OperationColumn.ChangeAiTableInfo,
-      OperationColumn.CopyName,
-      OperationColumn.Divider,
-      OperationColumn.RemoveAiDataCollectionElement,
-    ],
     [TreeNodeType.DATABASE]: [
       // Operation
       OperationColumn.CreateConsole,
@@ -194,7 +184,6 @@ export const dropMenuConfig = {
       // Copy & Tools
       OperationColumn.CopyMcpConfig,
       OperationColumn.CopyName,
-      OperationColumn.Refresh,
       OperationColumn.Divider,
       OperationColumn.DeleteDatabase,
     ],
@@ -207,17 +196,17 @@ export const dropMenuConfig = {
       OperationColumn.Divider,
       OperationColumn.CopyMcpConfig,
       OperationColumn.CopyName,
-      OperationColumn.Refresh,
       OperationColumn.Divider,
       OperationColumn.DeleteSchema,
     ],
     [TreeNodeType.TABLES]: [
-      // View
       OperationColumn.CreateConsole,
+      OperationColumn.Divider,
+      // View
       OperationColumn.ViewAllTable,
       OperationColumn.ViewERModal,
       OperationColumn.Divider,
-      // create.
+      // Create
       OperationColumn.CreateTable,
       OperationColumn.Divider,
       OperationColumn.CopyName,
@@ -227,20 +216,22 @@ export const dropMenuConfig = {
       // Open & Edit
       OperationColumn.OpenTable,
       OperationColumn.EditTable,
+      OperationColumn.Divider,
+      // Query & Pin
       OperationColumn.CreateConsole,
       OperationColumn.Pin,
       OperationColumn.Divider,
-      // Copy & Import and Export
+      // Copy
       OperationColumn.CopyName,
       OperationColumn.ViewDDL,
       OperationColumn.CopyTable,
-      OperationColumn.ExportSqlFile,
+      OperationColumn.Divider,
+      // Import & Export
       OperationColumn.ImportData,
       OperationColumn.ExportData,
+      OperationColumn.ExportSqlFile,
       OperationColumn.Divider,
-      // AI
       OperationColumn.ChangeAiTableInfoNodataCollection,
-      OperationColumn.GenerateTestData,
       OperationColumn.Divider,
       // Dangerous operation
       OperationColumn.TruncateTable,
@@ -264,10 +255,12 @@ export const dropMenuConfig = {
       // Open & Edit
       OperationColumn.OpenView,
       OperationColumn.EditView,
+      OperationColumn.Divider,
       OperationColumn.CreateConsole,
       OperationColumn.Divider,
-      // AI & Copy
       OperationColumn.ChangeAiTableInfoNodataCollection,
+      OperationColumn.Divider,
+      // Copy
       OperationColumn.CopyName,
     ],
     [TreeNodeType.VIEWCOLUMN]: [OperationColumn.CreateConsole, OperationColumn.CopyName],
@@ -278,6 +271,11 @@ export const dropMenuConfig = {
     [TreeNodeType.INDEXES]: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh],
     [TreeNodeType.INDEX]: [OperationColumn.CreateConsole, OperationColumn.CopyName],
     [TreeNodeType.SAVE_CONSOLES]: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh],
-    [TreeNodeType.SAVE_CONSOLE]: [OperationColumn.OpenConsole, OperationColumn.Rename, OperationColumn.RemoveConsole],
+    [TreeNodeType.SAVE_CONSOLE]: [
+      OperationColumn.OpenConsole,
+      OperationColumn.Rename,
+      OperationColumn.Divider,
+      OperationColumn.RemoveConsole,
+    ],
   },
 };

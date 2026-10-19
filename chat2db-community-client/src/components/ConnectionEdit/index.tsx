@@ -1,4 +1,5 @@
 import LoadingGracile from '@/components/Loading/LoadingGracile';
+import DataSourceColorPicker from '@/components/DataSourceColorPicker';
 import { ConnectionEnvType, DatabaseTypeCode } from '@/constants';
 import { LangType } from '@/constants/settings';
 import { i18n } from '@/i18n';
@@ -7,21 +8,24 @@ import connectionService from '@/service/connection';
 import { DataSourceStorageType, IConnectionDetails } from '@/typings';
 import { deepClone } from '@/utils';
 import { FolderOpenOutlined } from '@ant-design/icons';
-import { Button, Collapse, Form, Input, Select, Table } from 'antd';
+import { Button, Checkbox, Collapse, Form, Input, Select, Table, Tooltip } from 'antd';
 import classnames from 'classnames';
-import React, { ForwardedRef, Fragment, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { CircleHelp } from 'lucide-react';
+import React, { ForwardedRef, Fragment, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import Driver from './components/Driver';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { InputType } from './config/enum';
 import { IConnectionConfig, IFormItem, ILocalizedConnectionText, ISelect } from './config/types';
+import { applyConnectionIdentityColorUpdate } from './identityColorUpdate';
 import styles from './index.less';
-import { formatJdbcHostForUrl, normalizeJdbcHostFromUrl } from './utils/jdbcUrl';
+import { SubmissionGuard } from './submissionGuard';
+import { formatJdbcHostForUrl, normalizeJdbcHostFromUrl, shouldSyncJdbcUrlForField } from './utils/jdbcUrl';
 
 // ----- store -----
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
+import { clientRuntime } from '@client-runtime';
 import { useGlobalStore } from '@/store/global';
-import { useOrgStore } from '@/store/organization';
-import { OrganizationType } from '@/typings/enterprise/organization';
+import { useOrgStore } from '@/store/workspaceContext';
+import clientExtension from '@client-extension';
 import { staticMessage } from '@chat2db/ui';
 
 const { Option } = Select;
@@ -32,6 +36,14 @@ const OSCAR_JDBC_URL_PREFIX = 'jdbc:oscar://';
 const OSCAR_DRIVER_CLASS = 'com.oscar.Driver';
 
 const connectionFormTranslations: Partial<Record<LangType, Record<string, string>>> = {
+  [LangType.ZH_CN]: {
+    'User&Password': '用户名和密码',
+    NONE: '无',
+  },
+  [LangType.JA_JP]: {
+    'User&Password': 'ユーザー名とパスワード',
+    NONE: 'なし',
+  },
   [LangType.ES_ES]: {
     'USE SSH': 'Usar SSH',
     'SSH Hostname': 'Host SSH',
@@ -64,6 +76,7 @@ const connectionFormTranslations: Partial<Record<LangType, Record<string, string
     Datatset: 'Conjunto de datos',
     'Google Service Account': 'Cuenta de servicio de Google',
     'User&Password': 'Usuario y contraseña',
+    NONE: 'Ninguno',
     LocalFile: 'Archivo local',
     Service: 'Servicio',
   },
@@ -99,6 +112,7 @@ const connectionFormTranslations: Partial<Record<LangType, Record<string, string
     Datatset: '데이터 세트',
     'Google Service Account': 'Google 서비스 계정',
     'User&Password': '사용자 및 비밀번호',
+    NONE: '없음',
     LocalFile: '로컬 파일',
     Service: '서비스',
   },
@@ -143,13 +157,12 @@ function normalizeConnectionData(connectionData?: IConnectionDetails | null) {
     return {} as IConnectionDetails;
   }
   const resolvedType = resolveConnectionType(connectionData);
-  if (resolvedType && resolvedType !== connectionData.type) {
-    return {
-      ...connectionData,
-      type: resolvedType,
-    };
-  }
-  return connectionData;
+  return {
+    ...connectionData,
+    ...(resolvedType && resolvedType !== connectionData.type ? { type: resolvedType } : {}),
+    watermarkEnabled: connectionData.watermarkEnabled === true,
+    watermarkContent: connectionData.watermarkContent || '',
+  };
 }
 
 function mergeSavedConnectionData(current: IConnectionDetails, saved: any) {
@@ -176,11 +189,64 @@ function mergeSavedConnectionData(current: IConnectionDetails, saved: any) {
 
 function resolveDataSourceFormConfig(type?: string): IConnectionConfig {
   const clonedConfigs = deepClone(dataSourceFormConfigs);
-  return (
+  const config =
     clonedConfigs.find((item: IConnectionConfig) => item.type === type) ||
     clonedConfigs.find((item: IConnectionConfig) => item.type === DatabaseTypeCode.MYSQL) ||
-    clonedConfigs[0]
+    clonedConfigs[0];
+  const identityItems: IFormItem[] = [
+    {
+      defaultValue: null,
+      inputType: InputType.COLOR,
+      labelKey: 'workspace.identityColor.label',
+      helpKey: 'workspace.identityColor.help',
+      name: 'identityColor',
+      required: false,
+    },
+    {
+      defaultValue: false,
+      inputType: InputType.CHECKBOX,
+      labelKey: 'workspace.watermark.label',
+      helpKey: 'workspace.watermark.help',
+      name: 'watermarkEnabled',
+      required: false,
+    },
+    {
+      defaultValue: '',
+      visibleWhen: {
+        name: 'watermarkEnabled',
+        value: true,
+      },
+      inputType: InputType.INPUT,
+      labelKey: 'workspace.watermark.contentLabel',
+      maxLength: 64,
+      name: 'watermarkContent',
+      placeholderKey: 'workspace.watermark.contentPlaceholder',
+      required: false,
+    },
+  ];
+  const identityItemNames = new Set(identityItems.map((item) => item.name));
+  const configuredIdentityItems = new Map(
+    config.baseInfo.items
+      .filter((item) => identityItemNames.has(item.name))
+      .map((item) => [item.name, item]),
   );
+  const baseInfoItems = config.baseInfo.items.filter((item) => !identityItemNames.has(item.name));
+  const environmentIndex = baseInfoItems.findIndex((item) => item.name === 'environmentId');
+  if (environmentIndex >= 0) {
+    const groupedItems = [
+      { ...baseInfoItems[environmentIndex], layoutGroup: 'dataSourceIdentity' as const },
+      ...identityItems.map((item) => ({
+        ...(configuredIdentityItems.get(item.name) || item),
+        layoutGroup: 'dataSourceIdentity' as const,
+      })),
+    ];
+    config.baseInfo.items = [
+      ...baseInfoItems.slice(0, environmentIndex),
+      ...groupedItems,
+      ...baseInfoItems.slice(environmentIndex + 1),
+    ];
+  }
+  return config;
 }
 
 function resolveSelectedFilePath(data: any): string | undefined {
@@ -333,18 +399,19 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
     testButton: false,
     sshTestLoading: false,
   });
+  const submissionGuardRef = useRef(new SubmissionGuard());
   const { curOrg } = useOrgStore((s) => ({ curOrg: s.curOrg }));
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const data = resolveDataSourceFormConfig(backfillData?.type);
 
-    // Team-specific storageType handling.
     const items = data?.baseInfo?.items || [];
-    if (curOrg?.type === OrganizationType.TEAM) {
+    const storagePolicy = clientExtension.connectionStoragePolicy?.(curOrg);
+    if (storagePolicy) {
       const storage = items.find((t) => t.name === 'storageType');
       if (storage) {
-        storage.defaultValue = DataSourceStorageType.CLOUD;
-        storage.disabled = true;
+        storage.defaultValue = storagePolicy.value as DataSourceStorageType;
+        storage.disabled = storagePolicy.disabled;
       }
     }
     return data;
@@ -412,6 +479,8 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
   function getData() {
     const ssh = sshForm.getFieldsValue();
     const baseInfo = baseInfoForm.getFieldsValue();
+    baseInfo.watermarkEnabled = baseInfo.watermarkEnabled === true;
+    baseInfo.watermarkContent = baseInfo.watermarkContent?.trim() || '';
     if (baseInfo.host) {
       baseInfo.host = normalizeJdbcHostFromUrl(baseInfo.host);
     }
@@ -449,7 +518,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
       p.id = backfillData.id;
     }
 
-    if (runtimeEditionConfig.localPersistence) {
+    if (clientRuntime.usesLocalPersistence) {
       p.storageType = DataSourceStorageType.LOCAL;
     } else if (!curIsPersonalOrg()) {
       p.storageType = DataSourceStorageType.CLOUD;
@@ -463,16 +532,30 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
     }));
 
     if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
-      submit?.(p, type).finally(() => {
-        setLoading((state) => ({
-          ...state,
-          [loadingsButton]: false,
-        }));
-      });
+      const request = submissionGuardRef.current.run(() => submit(p, type));
+      if (!request) {
+        return;
+      }
+      request
+        .catch((error: any) => {
+          staticMessage.error(getConnectionErrorMessage(error));
+        })
+        .finally(() => {
+          setLoading((state) => ({
+            ...state,
+            [loadingsButton]: false,
+          }));
+        });
       return;
     }
 
-    const api: any = connectionService[type](p);
+    const api: any =
+      type === submitType.SAVE || type === submitType.UPDATE
+        ? submissionGuardRef.current.run(() => connectionService[type](p))
+        : connectionService[type](p);
+    if (!api) {
+      return;
+    }
     if (type === submitType.TEST) {
       api
         .then((res: any) => {
@@ -502,6 +585,17 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
     }
 
     api
+      .then((res: any) => {
+        if (type !== submitType.UPDATE) {
+          return res;
+        }
+        return applyConnectionIdentityColorUpdate(
+          res,
+          backfillData.identityColor,
+          p.identityColor,
+          connectionService.updateIdentityColor,
+        );
+      })
       .then((res: any) => {
         staticMessage.success(
           type === submitType.UPDATE
@@ -535,6 +629,13 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
       .testSSH(p)
       .then(() => {
         staticMessage.success(i18n('connection.message.testConnectResult', i18n('common.text.successful')));
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          staticMessage.error(getConnectionErrorMessage(error));
+        } else if (typeof error === 'string' && error.startsWith('timeout_error:')) {
+          staticMessage.error(i18n('connection.message.testSshTimeout'));
+        }
       })
       .finally(() => {
         setLoading({
@@ -602,6 +703,14 @@ interface IRenderFormProps {
 
 function RenderForm(props: IRenderFormProps) {
   const { tab, form, backfillData, dataSourceFormConfigProps } = props;
+  const curLanguage = useGlobalStore.getState().baseSetting.language;
+  const defaultLabelWidth: Record<LangType, string> = {
+    [LangType.EN_US]: '110px',
+    [LangType.ZH_CN]: '70px',
+    [LangType.JA_JP]: '100px',
+    [LangType.ES_ES]: '110px',
+    [LangType.KO_KR]: '100px',
+  };
 
   let aliasChanged = false;
 
@@ -737,6 +846,10 @@ function RenderForm(props: IRenderFormProps) {
     const keyValue = variableData[Object.keys(variableData)[0]];
     let newData: any = {};
 
+    if (!shouldSyncJdbcUrlForField(keyName, template)) {
+      return;
+    }
+
     if (keyName === 'url') {
       // First check whether the URL matches the expected expression.
       if (pattern.test(keyValue)) {
@@ -786,22 +899,30 @@ function RenderForm(props: IRenderFormProps) {
     if (t.hidden) {
       return null;
     }
-    const curLanguage = useGlobalStore.getState().baseSetting.language;
-    const defaultLabelWidth: Record<LangType, string> = {
-      [LangType.EN_US]: '110px',
-      [LangType.ZH_CN]: '70px',
-      [LangType.JA_JP]: '100px',
-      [LangType.ES_ES]: '110px',
-      [LangType.KO_KR]: '100px',
-    };
-    const label = resolveLocalizedConnectionText(t.labelName, curLanguage);
+    const labelText = t.labelKey ? i18n(t.labelKey) : resolveLocalizedConnectionText(t.labelName, curLanguage);
+    const helpText = t.helpKey ? i18n(t.helpKey) : undefined;
+    const label = helpText ? (
+      <span className={styles.formLabelWithHelp}>
+        <span>{labelText}</span>
+        <Tooltip title={helpText} mouseEnterDelay={0.2}>
+          <span className={styles.formHelpIcon} role="img" tabIndex={0} aria-label={helpText}>
+            <CircleHelp aria-hidden="true" size={14} />
+          </span>
+        </Tooltip>
+      </span>
+    ) : (
+      labelText
+    );
     const name = t.name;
-    const width = t?.styles?.width || '100%';
+    const isIdentitySetting = t.layoutGroup === 'dataSourceIdentity';
+    const width = isIdentitySetting ? undefined : t?.styles?.width || '100%';
     const labelWidth =
       t?.styles?.labelWidth?.[curLanguage] ||
       t?.styles?.labelWidth?.[LangType.EN_US] ||
       defaultLabelWidth[curLanguage];
-    const placeholder = resolveLocalizedConnectionText(t.placeholder, curLanguage);
+    const placeholder = t.placeholderKey
+      ? i18n(t.placeholderKey)
+      : resolveLocalizedConnectionText(t.placeholder, curLanguage);
     const labelAlign: any = t?.styles?.labelAlign || 'left';
 
     function handleFormItemValueChange(value: any) {
@@ -823,6 +944,78 @@ function RenderForm(props: IRenderFormProps) {
       form.setFieldsValue(variableData);
     }
 
+    const inputControl = (
+      <Input disabled={props.disabled} maxLength={t.maxLength} placeholder={placeholder} />
+    );
+    const selectControl = (
+      <Select
+        placeholder={placeholder}
+        value={t.defaultValue}
+        disabled={t?.disabled}
+        onChange={(e) => {
+          t.selects?.forEach((selectItem) => {
+            if (selectItem.value === e) {
+              let _dataSourceFormConfig = { ...dataSourceFormConfigProps };
+              if (selectItem.onChange) {
+                _dataSourceFormConfig = selectItem.onChange(_dataSourceFormConfig);
+              }
+
+              _dataSourceFormConfig[tab]?.items.map((j) => {
+                if (j.name === name) {
+                  j.defaultValue = selectItem.value;
+                }
+              });
+              setDataSourceFormConfig(_dataSourceFormConfig);
+              regEXFormatting({ [name]: e }, formDataRef.current, _dataSourceFormConfig);
+            }
+          });
+        }}
+      >
+        {t.selects?.map((selectItem: any) => (
+          <Option key={selectItem.value?.toString()} value={selectItem.value}>
+            <div className={styles.optionItem}>
+              {selectItem?.color && (
+                <div className={styles.envTag} style={{ background: selectItem?.color.toLocaleLowerCase() }} />
+              )}
+              {localizeConnectionFormText(selectItem.label, curLanguage)}
+            </div>
+          </Option>
+        ))}
+      </Select>
+    );
+
+    const renderIdentityFormControl = () => {
+      if (t.inputType === InputType.CHECKBOX) {
+        return (
+          <Form.Item name={name} valuePropName="checked" noStyle>
+            <Checkbox aria-label={labelText}>{label}</Checkbox>
+          </Form.Item>
+        );
+      }
+
+      const controls: Partial<Record<InputType, React.ReactNode>> = {
+        [InputType.INPUT]: inputControl,
+        [InputType.SELECT]: selectControl,
+        [InputType.COLOR]: (
+          <DataSourceColorPicker
+            disabled={props.disabled}
+            placement="bottomLeft"
+            responsive
+            showLabel={false}
+          />
+        ),
+      };
+
+      return (
+        <div className={styles.identitySettingsField}>
+          <span className={styles.identitySettingsLabel}>{label}</span>
+          <Form.Item name={name} noStyle>
+            {controls[t.inputType]}
+          </Form.Item>
+        </div>
+      );
+    };
+
     const FormItemTypes: { [key in InputType]: () => React.ReactNode } = {
       [InputType.INPUT]: () => (
         <Form.Item
@@ -831,7 +1024,7 @@ function RenderForm(props: IRenderFormProps) {
           style={{ '--form-label-width': labelWidth } as any}
           labelAlign={labelAlign}
         >
-          <Input placeholder={placeholder} />
+          {inputControl}
         </Form.Item>
       ),
 
@@ -858,40 +1051,7 @@ function RenderForm(props: IRenderFormProps) {
           style={{ '--form-label-width': labelWidth } as any}
           labelAlign={labelAlign}
         >
-          <Select
-            placeholder={placeholder}
-            value={t.defaultValue}
-            disabled={t?.disabled}
-            onChange={(e) => {
-              t.selects?.forEach((selectItem) => {
-                if (selectItem.value === e) {
-                  let _dataSourceFormConfig = { ...dataSourceFormConfigProps };
-                  if (selectItem.onChange) {
-                    _dataSourceFormConfig = selectItem.onChange(_dataSourceFormConfig);
-                  }
-
-                  _dataSourceFormConfig[tab]?.items.map((j) => {
-                    if (j.name === name) {
-                      j.defaultValue = selectItem.value;
-                    }
-                  });
-                  setDataSourceFormConfig(_dataSourceFormConfig);
-                  regEXFormatting({ [name]: e }, formDataRef.current, _dataSourceFormConfig);
-                }
-              });
-            }}
-          >
-            {t.selects?.map((selectItem: any) => (
-              <Option key={selectItem.value?.toString()} value={selectItem.value}>
-                <div className={styles.optionItem}>
-                  {selectItem?.color && (
-                    <div className={styles.envTag} style={{ background: selectItem?.color.toLocaleLowerCase() }} />
-                  )}
-                  {localizeConnectionFormText(selectItem.label, curLanguage)}
-                </div>
-              </Option>
-            ))}
-          </Select>
+          {selectControl}
         </Form.Item>
       ),
 
@@ -905,16 +1065,48 @@ function RenderForm(props: IRenderFormProps) {
           <Input.Password />
         </Form.Item>
       ),
+
+      [InputType.COLOR]: () => (
+        <Form.Item
+          label={label}
+          name={name}
+          style={{ '--form-label-width': labelWidth } as any}
+          labelAlign={labelAlign}
+        >
+          <DataSourceColorPicker disabled={props.disabled} placement="bottomLeft" showLabel={false} />
+        </Form.Item>
+      ),
+
+      [InputType.CHECKBOX]: () => (
+        <Form.Item
+          name={name}
+          valuePropName="checked"
+        >
+          <Checkbox aria-label={labelText}>{label}</Checkbox>
+        </Form.Item>
+      ),
     };
 
-    return (
-      <Fragment key={t.name}>
+    const identityItemClassName = classnames(styles.identitySettingsItem, {
+      [styles.identitySettingsEnvironment]: name === 'environmentId',
+      [styles.identitySettingsColor]: name === 'identityColor',
+      [styles.identitySettingsWatermark]: name === 'watermarkEnabled',
+      [styles.identitySettingsContent]: name === 'watermarkContent',
+    });
+
+    const renderedItem = (
+      <Fragment>
         <div
           key={t.name}
-          className={classnames({ [styles.labelTextAlign]: t.labelTextAlign })}
-          style={{ width: width }}
+          className={classnames(
+            { [styles.labelTextAlign]: t.labelTextAlign },
+            isIdentitySetting && identityItemClassName,
+          )}
+          style={width ? { width } : undefined}
         >
-          {FormItemTypes[t.inputType]()}
+          {isIdentitySetting && name !== 'environmentId'
+            ? renderIdentityFormControl()
+            : FormItemTypes[t.inputType]()}
         </div>
         {t.selects?.map((item) => {
           if (t.defaultValue === item.value) {
@@ -925,7 +1117,40 @@ function RenderForm(props: IRenderFormProps) {
         })}
       </Fragment>
     );
+
+    if (!t.visibleWhen) {
+      return <Fragment key={t.name}>{renderedItem}</Fragment>;
+    }
+
+    return (
+      <Form.Item
+        key={`${t.name}-visibility`}
+        noStyle
+        shouldUpdate={(previous, current) => previous[t.visibleWhen!.name] !== current[t.visibleWhen!.name]}
+      >
+        {({ getFieldValue }) =>
+          getFieldValue(t.visibleWhen!.name) === t.visibleWhen!.value ? (
+            renderedItem
+          ) : (
+            <div
+              aria-hidden="true"
+              className={classnames(
+                isIdentitySetting && identityItemClassName,
+                isIdentitySetting && styles.identitySettingsPlaceholder,
+              )}
+              style={width ? { width } : undefined}
+            />
+          )
+        }
+      </Form.Item>
+    );
   }
+
+  const portField = dataSourceFormConfig[tab]!.items.find((item) => item.name === 'port');
+  const portLabelWidth =
+    portField?.styles?.labelWidth?.[curLanguage] ||
+    portField?.styles?.labelWidth?.[LangType.EN_US] ||
+    defaultLabelWidth[curLanguage];
 
   return (
     <Form
@@ -938,8 +1163,23 @@ function RenderForm(props: IRenderFormProps) {
       labelAlign="left"
       onFieldsChange={onFieldsChange}
       disabled={props.disabled}
+      style={{ '--identity-port-label-width': portLabelWidth } as any}
     >
-      {dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))}
+      {dataSourceFormConfig[tab]!.items.reduce<React.ReactNode[]>((renderedItems, item, index, items) => {
+        if (item.layoutGroup !== 'dataSourceIdentity') {
+          renderedItems.push(renderFormItem(item));
+          return renderedItems;
+        }
+        if (index > 0 && items[index - 1].layoutGroup === item.layoutGroup) {
+          return renderedItems;
+        }
+        renderedItems.push(
+          <div className={styles.identitySettingsRow} key={item.layoutGroup}>
+            {items.filter((groupItem) => groupItem.layoutGroup === item.layoutGroup).map(renderFormItem)}
+          </div>,
+        );
+        return renderedItems;
+      }, [])}
     </Form>
   );
 }

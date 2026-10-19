@@ -5,18 +5,25 @@ import ai.chat2db.community.domain.api.model.request.db.DbDmlExecutionRequest;
 import ai.chat2db.community.domain.api.model.request.db.DbLargeValueTokensAttachRequest;
 import ai.chat2db.community.domain.api.model.request.db.DbSelectResultUpdateRequest;
 import ai.chat2db.community.domain.api.model.result.ExecuteResponse;
+import ai.chat2db.community.domain.api.model.result.ResultCell;
 import ai.chat2db.community.domain.api.model.result.ResultOperation;
 import ai.chat2db.community.domain.api.service.db.IDbDlTemplateService;
 import ai.chat2db.community.domain.api.service.db.IDbDmlExecutionService;
 import ai.chat2db.community.domain.api.service.db.IDbLargeValueTokenService;
 import ai.chat2db.community.domain.api.service.ops.IOpsSqlOperationLogService;
+import ai.chat2db.community.domain.api.service.result.IResultSnapshotStore;
+import ai.chat2db.community.tools.model.Context;
+import ai.chat2db.community.tools.model.LoginUser;
+import ai.chat2db.community.tools.util.ContextUtils;
 import ai.chat2db.community.tools.exception.BusinessException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class DbDmlExecutionServiceImpl implements IDbDmlExecutionService {
 
@@ -28,12 +35,16 @@ public class DbDmlExecutionServiceImpl implements IDbDmlExecutionService {
 
     private final IOpsSqlOperationLogService sqlOperationLogRecorder;
 
+    private final IResultSnapshotStore resultSnapshotStore;
+
     public DbDmlExecutionServiceImpl(IDbDlTemplateService dlTemplateService,
             IDbLargeValueTokenService largeValueTokenService,
-            IOpsSqlOperationLogService sqlOperationLogRecorder) {
+            IOpsSqlOperationLogService sqlOperationLogRecorder,
+            IResultSnapshotStore resultSnapshotStore) {
         this.dlTemplateService = dlTemplateService;
         this.largeValueTokenService = largeValueTokenService;
         this.sqlOperationLogRecorder = sqlOperationLogRecorder;
+        this.resultSnapshotStore = resultSnapshotStore;
     }
 
     @Override
@@ -126,20 +137,61 @@ public class DbDmlExecutionServiceImpl implements IDbDmlExecutionService {
             return;
         }
         for (ExecuteResponse executeResult : results) {
-            largeValueTokenService.attachTokens(largeValueTokensAttachRequest(executeRequest, executeResult));
+            DbLargeValueTokensAttachRequest attachRequest = largeValueTokensAttachRequest(executeRequest,
+                    executeResult);
+            // Register the complete values so later reads never touch the database again. Registering only takes a
+            // reference to the value the driver already produced: nothing is encoded or written here, so the response
+            // is not held up by the size of the result. A snapshot is only created when the result really carries a
+            // large value, so a plain page costs nothing.
+            if (containsLargeValue(executeResult.getDataList())) {
+                String snapshotId = null;
+                try {
+                    snapshotId = resultSnapshotStore.register()
+                            .getSnapshotId();
+                    attachRequest.setSnapshotId(snapshotId);
+                    largeValueTokenService.attachTokens(attachRequest);
+                    continue;
+                } catch (RuntimeException e) {
+                    // A snapshot that cannot be registered must not fail the statement: the large values stay
+                    // unreadable instead. attachTokens below then marks every one of them as unsupported, so one line
+                    // with the cause is enough here.
+                    log.error("Failed to register a result snapshot, every large value of this result set stays "
+                            + "unreadable: reason=largeCellValue.unsupportedNoSnapshot", e);
+                    attachRequest.setSnapshotId(null);
+                    if (snapshotId != null) {
+                        resultSnapshotStore.release(snapshotId);
+                    }
+                }
+            }
+            largeValueTokenService.attachTokens(attachRequest);
         }
+    }
+
+
+
+    private boolean containsLargeValue(List<List<ResultCell>> dataList) {
+        if (CollectionUtils.isEmpty(dataList)) {
+            return false;
+        }
+        for (List<ResultCell> row : dataList) {
+            if (row == null) {
+                continue;
+            }
+            for (ResultCell cell : row) {
+                if (cell != null && cell.isLargeValue()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private DbLargeValueTokensAttachRequest largeValueTokensAttachRequest(DbDlExecuteRequest executeRequest,
             ExecuteResponse executeResponse) {
         DbLargeValueTokensAttachRequest request = new DbLargeValueTokensAttachRequest();
-        request.setDataSourceId(executeRequest.getDataSourceId());
-        request.setDatabaseName(executeRequest.getDatabaseName());
-        request.setSchemaName(executeRequest.getSchemaName());
         request.setTableName(executeResponse.getTableName());
         request.setHeaders(executeResponse.getHeaderList());
         request.setDataList(executeResponse.getDataList());
-        request.setCanEdit(executeResponse.isCanEdit());
         return request;
     }
 

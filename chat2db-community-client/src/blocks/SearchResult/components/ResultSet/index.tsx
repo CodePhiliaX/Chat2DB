@@ -1,7 +1,13 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStyles } from './style';
-import ResultSetToolbar, { ResultSetToolbarRef, ToolbarOperationType } from '../ResultSetToolbar';
+import ResultSetToolbar, { ToolbarOperationType } from '../ResultSetToolbar';
+import {
+  buildResultPageExecuteParams,
+  resolveResultPaging,
+  ResultPaging,
+  runResultPagingRequest,
+} from './pagination';
 import ScreeningResult, { IScreeningResultRef } from '../ScreeningResult';
 import FESearch, { FESearchRef } from '../FESearch';
 import ResultSetTable, { IResultSetSelection, ResultSetTableRef } from '../ResultSetTable';
@@ -11,10 +17,9 @@ import SQLPreviewExecute, { SQLPreviewExecuteRef } from '../SQLPreviewExecute';
 import ViewData, { ViewDataRef } from '../ViewData';
 import RowDetail, { IChangeDataParams, IViewDataParams, RowDetailRef } from '../RowDetail';
 import SelectionAggregates from '../SelectionAggregates';
-import { IManageResultData } from '@/typings';
-import { Button, Spin, Tabs, Tooltip } from 'antd';
+import { IExecuteSqlParams, IManageResultData } from '@/typings';
+import { Button, Tabs, Tooltip } from 'antd';
 import i18n from '@/i18n';
-import { copyToClipboard } from '@/utils';
 import StatusBar, { StatusBarRef } from '../StatusBar';
 import { getBlankCreateCellValue, transformOperations } from '@/blocks/SearchResult/utils';
 import MonacoEditorErrorTips from '@/components/SQLEditor/components/MonacoEditorErrorTips';
@@ -23,6 +28,7 @@ import { ITableInstance } from '@/blocks/CanvasTable/typings';
 import {
   ShortcutAction,
   ShortcutOverrides,
+  ShortcutScope,
   getEffectiveShortcutConfigMap,
   isShortcutEventMatch,
 } from '@/constants/shortcut';
@@ -43,7 +49,7 @@ import {
   toggleResultInspectorMode,
   WORKSPACE_RESULT_INSPECTOR_PORTAL_ID,
 } from '@/store/workspace/utils/resultInspector';
-import { Modal, staticMessage } from '@chat2db/ui';
+import { Modal } from '@chat2db/ui';
 import { PanelRight, SquareSquare, X } from 'lucide-react';
 import {
   applyResultSearchVisibilityAction,
@@ -56,11 +62,16 @@ import {
 } from '../ResultSetTable/columnState';
 import { resolveResultInspectorActiveCell } from '../ResultSetTable/selectionState';
 import { areResultCellValuesEquivalent } from './inspectorState';
+import SqlExecutionLoading from '@/components/SqlExecutionLoading';
+import { hasPendingResultEdit, resolvePendingResultEditOperations } from './resultEditActions';
+import type { CopyRequestSignal, ResultCopyOperation } from '../ResultSetTable/copyValues';
+import { cancelResultCopy } from '../ResultSetTable/copyResultData';
 
 interface IProps {
   resultData: IManageResultData;
   active: boolean;
   viewTable?: boolean;
+  onResultPagingChange?: (resultData: IManageResultData, params: IExecuteSqlParams) => Promise<unknown> | void;
 }
 
 const RESULT_INSPECTOR_MODE_STORAGE_KEY = createResultInspectorModeStorageKey(
@@ -74,10 +85,14 @@ export default memo<IProps>(
     const { styles, cx } = useStyles();
     const { executeSQL, stopExecuteSQL, executing, canExecuteSQL } = useSqlExecutor();
     const [resultData, setResultData] = useState<IManageResultData>(props.resultData);
-    const resultSetToolbarRef = useRef<ResultSetToolbarRef>(null);
+    const executeRequestSequenceRef = useRef(0);
+    const baseQuerySqlRef = useRef(
+      props.resultData.originalSql || props.resultData.sql || props.resultData.executeSqlParams?.sql || '',
+    );
     const screenResultRef = useRef<IScreeningResultRef>(null);
     const resultSetTableRef = useRef<ResultSetTableRef>(null);
     const [hasOperationRecord, setHasOperationRecord] = useState(false);
+    const [hasActiveEditorChange, setHasActiveEditorChange] = useState(false);
     const sqlPreviewExecuteRef = useRef<SQLPreviewExecuteRef>(null);
     const sidebarViewDataRef = useRef<ViewDataRef>(null);
     const modalViewDataRef = useRef<ViewDataRef>(null);
@@ -110,6 +125,7 @@ export default memo<IProps>(
     const currentWorkspaceExtend = useWorkspaceStore((state) => state.currentWorkspaceExtend);
     const inspectorExtendCode = useMemo(() => getWorkspaceResultInspectorCode(searchAreaId), [searchAreaId]);
     const inspectorSidebarOpen = currentWorkspaceExtend === inspectorExtendCode;
+    const hasPendingChanges = hasPendingResultEdit(hasOperationRecord, hasActiveEditorChange);
     const inspectorOpen = inspectorSidebarOpen || inspectorModalOpen;
     const shortcutOverrides = useGlobalStore((s) => s.shortcutOverrides);
     const shortcutConfig = useMemo(
@@ -134,6 +150,7 @@ export default memo<IProps>(
 
     useEffect(() => {
       setResultData(props.resultData);
+      setHasActiveEditorChange(false);
     }, [props.resultData]);
 
     useEffect(() => {
@@ -227,26 +244,37 @@ export default memo<IProps>(
 
     // Only resultData changes here. Database metadata is stable, and the toolbar controls pagination.
     const handleExecuteSQL = useCallback(
-      ({ pageNo: _pageNo }: { pageNo?: number } = {}) => {
+      (pagingOverride?: Partial<ResultPaging>) => {
         if (!canExecuteSQL()) return;
+        const table = resultSetTableRef.current?.tableInstance;
+        if (table) cancelResultCopy(table);
         // Clear operation records
         resultSetTableRef.current?.operationRecordUtils?.clearOperationRecord?.();
-        // Do not execute before the result toolbar is mounted.
-        if (!resultSetToolbarRef.current) return;
         // If there is no executeSqlParams, the execution information is not known, and no execution is performed.
         if (!resultData.executeSqlParams) return;
-        // Get the current paging
-        const { pageNo, pageSize } = resultSetToolbarRef.current.getPagingParams();
-        const executeSqlParams = {
-          ...resultData.executeSqlParams,
-          pageSize,
-          pageNo: _pageNo || pageNo,
-        };
-        // Filter conditions when viewing tables
-        if (viewTable) {
-          executeSqlParams.sql = screenResultRef.current?.getJointSQL() || '';
+        const paging = resolveResultPaging(resultData.executeSqlParams, pagingOverride);
+        const executeSqlParams = buildResultPageExecuteParams(
+          resultData.executeSqlParams,
+          paging,
+          viewTable ? screenResultRef.current?.getJointSQL() || '' : undefined,
+        );
+        const onResultPagingChange = props.onResultPagingChange;
+        if (onResultPagingChange) {
+          void runResultPagingRequest(
+            () => onResultPagingChange(resultData, executeSqlParams),
+            {
+              onSuccess: () => setExecuteErrorMessage(null),
+              onError: (message) => {
+                setExecuteErrorMessage(message);
+                setResultData((current) => ({ ...current }));
+              },
+            },
+          );
+          return;
         }
+        const requestSequence = ++executeRequestSequenceRef.current;
         executeSQL(executeSqlParams).then((data) => {
+          if (requestSequence !== executeRequestSequenceRef.current) return;
           setExecuteErrorMessage(null);
           if (data.length) {
             const curResult = data.filter((item) => item.resultSetId === executeSqlParams.resultSetId)?.[0];
@@ -254,7 +282,7 @@ export default memo<IProps>(
               setResultData({
                 ...curResult,
                 executeSqlParams: {
-                  ...resultData.executeSqlParams,
+                  ...executeSqlParams,
                   sql: curResult.originalSql,
                 },
               });
@@ -264,7 +292,7 @@ export default memo<IProps>(
           }
         });
       },
-      [canExecuteSQL, executeSQL, resultData, viewTable],
+      [canExecuteSQL, executeSQL, props.onResultPagingChange, resultData, viewTable],
     );
 
     const handleSearch = useCallback(() => {
@@ -274,18 +302,29 @@ export default memo<IProps>(
     const completeActiveEditor = useCallback(async () => {
       await Promise.resolve(resultSetTableRef.current?.tableInstance?.completeEditCell?.());
       await new Promise((resolve) => setTimeout(resolve, 0));
+      setHasActiveEditorChange(false);
     }, []);
 
-    const handleUpdateSubmit = useCallback(() => {
-      completeActiveEditor().then(() => {
-        const operations = resultSetTableRef.current?.operationRecordUtils?.getOperationChangeDetail();
-        sqlPreviewExecuteRef.current?.handleExecuteSql({
-          operations: transformOperations(operations, resultData.headerList),
-          resultData,
-          callback: setSubmitLoading,
-        });
+    const getPendingEditOperations = useCallback(
+      () =>
+        resolvePendingResultEditOperations({
+          completeActiveEditor,
+          getOperations: () => resultSetTableRef.current?.operationRecordUtils?.getOperationChangeDetail(),
+        }),
+      [completeActiveEditor],
+    );
+
+    const handleUpdateSubmit = useCallback(async () => {
+      const operations = await getPendingEditOperations();
+      if (!operations.length) {
+        return;
+      }
+      sqlPreviewExecuteRef.current?.handleExecuteSql({
+        operations: transformOperations(operations, resultData.headerList),
+        resultData,
+        callback: setSubmitLoading,
       });
-    }, [completeActiveEditor, resultData]);
+    }, [getPendingEditOperations, resultData]);
 
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -314,7 +353,7 @@ export default memo<IProps>(
         }
         if (isShortcutEventMatch(e, shortcutConfig[ShortcutAction.ResultSubmit].binding)) {
           e.preventDefault();
-          if (hasOperationRecord) {
+          if (hasPendingChanges || resultSetTableRef.current?.tableInstance?.editorManager?.editingEditor) {
             handleUpdateSubmit();
           }
         }
@@ -328,7 +367,7 @@ export default memo<IProps>(
       return () => {
         resultSetContent?.removeEventListener('keydown', handleKeyDown);
       };
-    }, [hasOperationRecord, handleSearch, handleUpdateSubmit, shortcutConfig]);
+    }, [handleSearch, handleUpdateSubmit, hasPendingChanges, shortcutConfig]);
 
     // SQL execution successful
     const handleExecuteSuccess = useCallback(() => {
@@ -364,29 +403,31 @@ export default memo<IProps>(
       resultSetTableRef.current?.operationRecordUtils?.handleDeleteRow();
     }, []);
 
-    const handleRevocation = useCallback(() => {
+    const handleRevocation = useCallback(async () => {
+      await completeActiveEditor();
       resultSetTableRef.current?.operationRecordUtils?.handleRevocation();
-    }, []);
+    }, [completeActiveEditor]);
 
     const handleOperationChange = useCallback((_hasOperationRecord) => {
       setHasOperationRecord(_hasOperationRecord);
     }, []);
 
-    const handleViewSQl = () => {
-      completeActiveEditor().then(() => {
-        const operations = resultSetTableRef.current?.operationRecordUtils?.getOperationChangeDetail();
-        sqlPreviewExecuteRef.current?.handleViewSQL({
-          operations: transformOperations(operations, resultData.headerList),
-          resultData,
-        });
+    const handleViewSQl = async () => {
+      const operations = await getPendingEditOperations();
+      if (!operations.length) {
+        return;
+      }
+      sqlPreviewExecuteRef.current?.handleViewSQL({
+        operations: transformOperations(operations, resultData.headerList),
+        resultData,
       });
     };
 
-    const handleToolbarOperation = (type: ToolbarOperationType) => {
+    const handleToolbarOperation = (type: ToolbarOperationType, paging?: ResultPaging) => {
       switch (type) {
         // execute SQL
         case ToolbarOperationType.EXECUTE_SQL:
-          handleExecuteSQL();
+          handleExecuteSQL(paging);
           break;
         // Add blank line
         case ToolbarOperationType.ADD_BLANK_ROW:
@@ -490,33 +531,26 @@ export default memo<IProps>(
     const onTableOperationUtils = useMemo(() => {
       return {
         // Copy as insert or update or where statement
-        copyGenerateSQL: (operations: any) => {
-          executeSql
-            .getCopyUpdateDataSql({
+        generateCopySQL: (operations: ResultCopyOperation[], signal: CopyRequestSignal) =>
+          executeSql.getCopyUpdateDataSql(
+            {
               ...(resultData.executeSqlParams || {}),
               tableName: resultData.tableName,
               headerList: resultData.headerList,
               operations: transformOperations(operations, resultData.headerList),
-            })
-            .then((sql) => {
-              copyToClipboard(sql);
-            });
-        },
-        copyGenerateInValues: (operations: any) => {
-          executeSql
-            .getCopyInValuesSql({
-              ...(resultData.executeSqlParams || {}),
-              headerList: resultData.headerList,
-              sourceType: 'RESULT_SET',
-              operations: transformOperations(operations, resultData.headerList),
-            })
-            .then((sql) => {
-              if (copyToClipboard(sql)) {
-                staticMessage.success(i18n('common.button.copySuccessfully'));
-              } else {
-                staticMessage.warning(i18n('common.sqlInValues.copyFailed'));
-              }
-            });
+              errorLevel: false,
+            },
+            { signal },
+          ),
+        generateCopyInValues: (operations: ResultCopyOperation[], signal: CopyRequestSignal) => {
+          const request = {
+            ...(resultData.executeSqlParams || {}),
+            headerList: resultData.headerList,
+            sourceType: 'RESULT_SET' as const,
+            operations: transformOperations(operations, resultData.headerList),
+            errorLevel: false as const,
+          };
+          return executeSql.getCopyInValuesSql(request, { signal });
         },
         handleViewUpdateData: (params) => {
           openValueInspector(params);
@@ -794,22 +828,20 @@ export default memo<IProps>(
 
     return (
       <>
-        <div tabIndex={0} className={cx(styles.container)} ref={resultSetRef} id={searchAreaId}>
+        <div
+          tabIndex={0}
+          data-shortcut-scope={ShortcutScope.ResultSet}
+          className={cx(styles.container)}
+          ref={resultSetRef}
+          id={searchAreaId}
+        >
           {(executing || submitLoading) && (
-            <div className={styles.tableLoading}>
-              <Spin />
-              {executing && (
-                <div className={styles.stopExecuteSql} onClick={stopExecuteSQL}>
-                  {i18n('common.button.cancelRequest')}
-                </div>
-              )}
-            </div>
+            <SqlExecutionLoading onCancel={executing ? stopExecuteSQL : undefined} />
           )}
           <>
             <ResultSetToolbar
-              ref={resultSetToolbarRef}
               handleToolbarOperation={handleToolbarOperation}
-              hasOperationRecord={hasOperationRecord}
+              hasPendingChanges={hasPendingChanges}
               resultData={resultData}
               activeFilterCount={activeFilterCount}
               onClearAllFilters={handleClearAllFilters}
@@ -819,7 +851,7 @@ export default memo<IProps>(
               <ScreeningResult
                 ref={screenResultRef}
                 onSearch={handleSearch}
-                originalSql={props.resultData.originalSql}
+                originalSql={baseQuerySqlRef.current}
                 promptWord={resultData.headerList}
                 orderByText={orderByText}
                 databaseType={resultData.executeSqlParams?.databaseType}
@@ -842,6 +874,7 @@ export default memo<IProps>(
                   resultData={resultData}
                   setOrderByText={setOrderByText}
                   onOperationChange={handleOperationChange}
+                  onActiveEditChange={setHasActiveEditorChange}
                   onTableOperationUtils={onTableOperationUtils}
                   onFilterCountChange={setActiveFilterCount}
                   onSelectionChange={handleSelectionChange}

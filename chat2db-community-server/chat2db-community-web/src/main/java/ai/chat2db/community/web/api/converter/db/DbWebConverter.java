@@ -38,9 +38,11 @@ import ai.chat2db.community.domain.api.model.sql.SqlPreview;
 import ai.chat2db.community.domain.api.model.view.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +92,6 @@ public abstract class DbWebConverter {
             @Mapping(target = "pageSizeAll", ignore = true),
             @Mapping(target = "single", ignore = true),
             @Mapping(target = "resultSetId", ignore = true),
-            @Mapping(target = "errorContinue", ignore = true),
             @Mapping(target = "explain", ignore = true)
     })
     public abstract DbDlExecuteRequest request2param(DdlExecuteRequest request);
@@ -121,11 +122,6 @@ public abstract class DbWebConverter {
     }
 
 
-    public abstract DbTablePageQueryRequest tablePageRequest2param(DataExportRequest request);
-
-
-    public abstract DbTableQueryRequest tableRequest2param(DataExportRequest request);
-
     public abstract DbTableQueryRequest tableRequest2param(TableDeleteRequest request);
 
 
@@ -135,7 +131,11 @@ public abstract class DbWebConverter {
     public abstract DbObjectDropRequest tableDelete2dropParam(TableDeleteRequest request);
 
 
+    @Named("fullExecuteResult")
     public abstract ExecuteResultResponse dto2response(ExecuteResponse dto);
+
+    @Mapping(target = "dataList", ignore = true)
+    public abstract ExecuteResultResponse dto2completionResponse(ExecuteResponse dto);
 
     public abstract ExecuteResponse response2dto(ExecuteResultResponse vo);
 
@@ -146,6 +146,7 @@ public abstract class DbWebConverter {
     public abstract RoutineOperation request2param(RoutineMigrationRequest request);
 
 
+    @IterableMapping(qualifiedByName = "fullExecuteResult")
     public abstract List<ExecuteResultResponse> dto2response(List<ExecuteResponse> dtos);
 
 
@@ -234,25 +235,6 @@ public abstract class DbWebConverter {
         param.setExecuteRequest(request2param(request));
         param.setSource(SqlOperationLogSourceEnum.SQL_EDITOR_HTTP.name());
         return param;
-    }
-
-    public DbDmlExportRequest exportRequest2param(DataExportRequest request, String sql) {
-        if (request == null) {
-            return null;
-        }
-        DbDmlExportRequest param = new DbDmlExportRequest();
-        param.setSql(sql);
-        param.setExportType(request.getExportType());
-        param.setDatabaseName(request.getDatabaseName());
-        param.setSchemaName(request.getSchemaName());
-        param.setResultSetId(request.getResultSetId());
-        param.setExportSize(request.getExportSize());
-        param.setOriginalSql(request.getOriginalSql());
-        return param;
-    }
-
-    public DbDmlExportRequest exportRequest2param(DataExportRequest request) {
-        return exportRequest2param(request, request == null ? null : request.getSql());
     }
 
     public TableSelector tableSelector(boolean columnList, boolean indexList) {

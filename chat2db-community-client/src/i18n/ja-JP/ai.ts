@@ -25,9 +25,6 @@ export default {
   'ai.aiType.CURDGeneration.title': 'CRUD生成',
   'ai.aiType.CURDGeneration.desc': 'CRUDを生成する',
 
-  'ai.aiType.InsertData.title': 'テストデータ生成',
-  'ai.aiType.InsertData.desc': 'テストデータを挿入する',
-
   'ai.action.pin': 'エディタにコードを挿入する',
 
   'ai.common.think': 'AIが問題を解決中です... 🤔💭',
@@ -40,11 +37,9 @@ export default {
   'ai.syncDBTable.title': 'データベーステーブル構造の同期',
   'ai.syncDBTable.desc':
     '同期はバックグラウンドで実行され、通常数分かかります。同期後、AIはデータベーステーブル構造情報を自動的に識別できます',
-  'ai.select.databaseOrDataCollection': 'データベースまたはデータセットを選択してください',
+  'ai.select.database': 'データベースを選択してください',
   'ai.select.globalDatabaseScope': 'グローバル検索（データソース未選択）',
   'ai.select.model': 'モデルを選択してください',
-  'ai.insertData.title': '{1} のテストデータを生成する',
-  'ai.insertData.error.title': 'エラーを修正する {1}',
   'ai.sqlDebug.prefill':
     '次の SQL エラーの原因を診断し、実行可能な修正案を提示してください。\n\nSQL:\n{1}\n\nエラー情報:\n{2}',
 

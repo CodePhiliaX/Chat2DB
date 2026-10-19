@@ -1,5 +1,5 @@
 import { DatabaseTypeCode } from '@/constants';
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
+import { clientRuntime } from '@client-runtime';
 import { LangType } from '@/constants/settings';
 import { DataSourceStorageType } from '@/typings';
 import { AuthenticationType, InputType } from './enum';
@@ -214,7 +214,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
 };
 
 export const envItem = {
-  defaultValue: 2,
+  defaultValue: 1,
   inputType: InputType.SELECT,
   labelName: {
     [LangType.EN_US]: 'Env',
@@ -225,12 +225,16 @@ export const envItem = {
   required: true,
   selects: [
     {
-      label: 'RELEASE',
-      value: 1,
-    },
-    {
       label: 'TEST',
       value: 2,
+    },
+    {
+      label: 'DEV',
+      value: 3,
+    },
+    {
+      label: 'RELEASE',
+      value: 1,
     },
   ],
   styles: {
@@ -265,9 +269,8 @@ export const storageItem = {
       [LangType.ZH_CN]: '70px',
       [LangType.JA_JP]: '110px',
     },
-    labelAlign: 'right',
   },
-  hidden: runtimeEditionConfig.localPersistence,
+  hidden: clientRuntime.usesLocalPersistence,
 };
 
 export const portItem: any = {

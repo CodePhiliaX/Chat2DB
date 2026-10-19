@@ -7,6 +7,7 @@ import CustomTabs, { ITabItem } from '@/components/Tabs';
 import { IViewTableParams } from '@/typings';
 import { ConsoleStatus, WorkspaceTabType } from '@/constants';
 import { getDatabaseSupport } from '@/utils/database';
+import { buildWorkspaceObjectTabTitle } from '@/utils/workspaceObjectTabTitle';
 import { useStyles } from './style';
 
 interface IRightTab {
@@ -55,7 +56,12 @@ export default function StreamPage() {
         return;
       }
 
-      const label = tableName + (context.dataSourceName ? `[${context.dataSourceName}]` : '');
+      const label = buildWorkspaceObjectTabTitle({
+        dataSourceName: context.dataSourceName,
+        databaseName: context.databaseName,
+        schemaName: context.schemaName,
+        objectName: tableName,
+      });
       const tab: IRightTab = { key, label, type: 'table', tableParams: params };
       setRightTabs((prev) => [...prev, tab]);
       setActiveTabKey(key);
@@ -66,7 +72,18 @@ export default function StreamPage() {
   const pinIdRef = React.useRef(0);
 
   const handlePinSql = useCallback((sql: string, context: ITableClickContext) => {
-    const { dataSourceId, databaseName, schemaName, databaseType, dataSourceName } = context;
+    const {
+      dataSourceId,
+      databaseName,
+      schemaName,
+      databaseType,
+      dataSourceName,
+      environmentId,
+      environment,
+      identityColor,
+      watermarkEnabled,
+      watermarkContent,
+    } = context;
     if (!dataSourceId || !databaseType) return;
 
     const name = `${[databaseName || schemaName].filter(Boolean).join('-')}${
@@ -82,6 +99,11 @@ export default function StreamPage() {
       databaseType,
       databaseName,
       schemaName,
+      environmentId,
+      environment,
+      identityColor,
+      watermarkEnabled,
+      watermarkContent,
       status: ConsoleStatus.DRAFT,
       connectable: true,
       ...getDatabaseSupport(databaseType),

@@ -6,13 +6,13 @@ import ai.chat2db.plugin.dm.enums.type.DMColumnTypeEnum;
 import ai.chat2db.plugin.dm.enums.type.DMDefaultValueEnum;
 import ai.chat2db.plugin.dm.enums.type.DMIndexTypeEnum;
 import ai.chat2db.plugin.dm.value.DMValueProcessor;
+import ai.chat2db.spi.ICommandExecutor;
 import ai.chat2db.spi.IDbMetaData;
 import ai.chat2db.spi.ISQLIdentifierProcessor;
 import ai.chat2db.spi.ISqlBuilder;
 import ai.chat2db.spi.IValueProcessor;
 import ai.chat2db.spi.DefaultMetaService;
 import ai.chat2db.community.domain.api.model.account.*;
-import ai.chat2db.community.domain.api.model.async.*;
 import ai.chat2db.community.domain.api.config.*;
 import ai.chat2db.spi.model.datasource.*;
 import ai.chat2db.community.domain.api.model.form.*;
@@ -296,6 +296,11 @@ public class DMMetaData extends DefaultMetaService implements IDbMetaData {
     @Override
     public ISqlBuilder getSqlBuilder() {
         return new DMSqlBuilder();
+    }
+
+    @Override
+    public ICommandExecutor getCommandExecutor() {
+        return DMCommandExecutor.INSTANCE;
     }
 
     @Override

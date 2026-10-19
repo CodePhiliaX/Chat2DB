@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, Fragment, useState } from 'react';
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, Fragment, useRef, useState } from 'react';
 import styles from './index.less';
 import i18n from '@/i18n';
 import { Button, theme } from 'antd';
@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/core';
 
 // ----- constants -----
-import { ConsoleOpenedStatus, WorkspaceTabType, workspaceTabConfig } from '@/constants';
+import { ConsoleOpenedStatus, DatabaseCapability, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { DEFAULT_TERMINAL_SETTINGS } from '@/constants/terminal';
 import {
   IWorkspaceTab,
@@ -36,11 +36,11 @@ import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
 import SQLExecute from '../SQLExecute';
 import NewViewAllTable from '../NewViewAllTable';
 import WorkspaceRightEmpty from '../WorkspaceRightEmpty';
-import ChangeAiTableInfo from '@/components/ChangeAiTableInfo';
 import RedisAllData from '@/blocks/RedisAllData';
 import Iconfont from '@/components/Iconfont';
 import { useZoerStore } from '@/store/zoer';
 import AccountPrivilegePanel from '../AccountPrivilegePanel';
+import ActiveTransactionsContent from '@/blocks/NewTree/components/ActiveTransactionsContent';
 import ContentDiffTab from './ContentDiffTab';
 import FilePreviewTab from './FilePreviewTab';
 import TerminalTab from './TerminalTab';
@@ -48,6 +48,8 @@ import TerminalTab from './TerminalTab';
 // ---- store -----
 import { useWorkspaceStore } from '@/store/workspace';
 import { useGlobalStore } from '@/store/global';
+import { getPersistableActiveConsoleId } from '@/store/workspace/utils/workspaceTabPersistence';
+import { getRestoredLocalFileReadRequest } from '@/store/workspace/utils/localFileWorkspaceTab';
 import { isWorkspaceResultInspectorCode } from '@/store/workspace/utils/resultInspector';
 import { isConsoleTabNameCustomized } from '@/store/workspace/utils/consoleTabName';
 import { useTreeStore } from '@/store/tree';
@@ -58,6 +60,8 @@ import sqlService from '@/service/sql';
 import jcefApi from '@/jcef';
 
 import { copyToClipboard, getTemporaryId, isTemporaryId } from '@/utils';
+import { resolveDataSourceIdentityColor } from '@/utils/dataSourceIdentity';
+import { isDatabaseCapabilitySupported } from '@/utils/databaseJudgments';
 
 import { useIndexDBStore } from '@/store/indexDB';
 import { getDatabaseSupport } from '@/utils/database';
@@ -68,6 +72,7 @@ import {
   SQL_FILE_EXTENSION_NAME,
 } from '../../utils/localTextFile';
 import { confirmWorkspaceTabsClose } from '@/utils/editorCloseConfirmation';
+import { resolveEditorDataSourceConnectable, resolveEditorDataSourceState } from '@/utils/editorDataSourceLifecycle';
 import { EditorType } from '@/components/SQLEditor';
 import { ShortcutAction } from '@/constants/shortcut';
 import {
@@ -85,6 +90,7 @@ import {
 } from './terminalTabPlacement';
 import { getNextActiveWorkspaceTabIdAfterClose } from './workspaceTabSelection';
 import {
+  appendWorkspaceTabToPane,
   areWorkspaceTabSplitLayoutsEqual,
   collectWorkspaceTabPaneIds,
   createWorkspaceTabSplitNode,
@@ -93,11 +99,18 @@ import {
   replaceWorkspaceTabPaneNode,
   updateWorkspaceTabSplitNodeSize,
 } from './workspaceTabLayout';
+import {
+  areWorkspacePaneContentBoundsEqual,
+  resolveActiveWorkspaceTabPaneIds,
+  resolveWorkspacePaneContentBounds,
+  type WorkspacePaneContentBoundsMap,
+} from './workspaceTabContentLayout';
 
 const SplitPaneAny = SplitPane as any;
 const MAIN_WORKSPACE_TAB_PANE: WorkspaceTabPaneId = 'main';
 const SPLIT_WORKSPACE_TAB_PANE: WorkspaceTabPaneId = 'split';
 const WORKSPACE_TAB_PANE_DROPPABLE_PREFIX = 'workspace-tab-pane:';
+const WORKSPACE_TAB_HEADER_HEIGHT = 36;
 const WORKSPACE_TAB_WIDTH = 200;
 const WORKSPACE_TAB_HORIZONTAL_RESIZE_CLASS = 'WorkspaceTabHorizontalResizing';
 const WORKSPACE_TAB_VERTICAL_RESIZE_CLASS = 'WorkspaceTabVerticalResizing';
@@ -261,6 +274,22 @@ function rebuildSqlExecuteTabData(item: IWorkspaceTab) {
 
   if (uniqueData.loadSQL) {
     return uniqueData;
+  }
+
+  const localFileReadRequest = getRestoredLocalFileReadRequest(item);
+  if (localFileReadRequest) {
+    return {
+      ...uniqueData,
+      loadSQL: () =>
+        useWorkspaceStore
+          .getState()
+          .readFile(
+            localFileReadRequest.filePath,
+            localFileReadRequest.fileExtension,
+            localFileReadRequest.context,
+          )
+          .then((file) => file?.content || ''),
+    };
   }
 
   const { dataSourceId, databaseName, schemaName } = uniqueData;
@@ -746,6 +775,7 @@ const WorkspaceTabs = memo(() => {
 
   const {
     activeConsoleId,
+    workspaceTabScrollRequest,
     consoleList,
     workspaceTabList,
     workspaceTabSplitLayout: storedWorkspaceTabSplitLayout,
@@ -753,19 +783,18 @@ const WorkspaceTabs = memo(() => {
     editorList,
     getOpenConsoleList,
     setActiveConsoleId,
-    setWorkspaceTabList,
     createConsole,
   } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
       activeConsoleId: state.activeConsoleId,
+      workspaceTabScrollRequest: state.workspaceTabScrollRequest,
       workspaceTabList: state.workspaceTabList,
       workspaceTabSplitLayout: state.workspaceTabSplitLayout,
       recentlyClosedWorkspaceTabs: state.recentlyClosedWorkspaceTabs,
       editorList: state.editorList,
       getOpenConsoleList: state.getOpenConsoleList,
       setActiveConsoleId: state.setActiveConsoleId,
-      setWorkspaceTabList: state.setWorkspaceTabList,
       createConsole: state.createConsole,
     };
   });
@@ -781,6 +810,66 @@ const WorkspaceTabs = memo(() => {
     );
     return normalizeWorkspaceTabSplitLayout(preparedLayout, workspaceTabList || [], activeConsoleId);
   }, [storedWorkspaceTabSplitLayout, workspaceTabList, activeConsoleId, terminalOpenPosition]);
+  const splitTabBoxRef = useRef<HTMLDivElement>(null);
+  const paneContentMeasureFrameRef = useRef<number>();
+  const [paneContentBounds, setPaneContentBounds] = useState<WorkspacePaneContentBoundsMap>({});
+
+  const measurePaneContentBounds = useCallback(() => {
+    const container = splitTabBoxRef.current;
+    if (!container) {
+      return;
+    }
+    const containerRect = container.getBoundingClientRect();
+    const nextBounds: WorkspacePaneContentBoundsMap = {};
+    container.querySelectorAll<HTMLElement>('[data-workspace-pane-content]').forEach((paneSlot) => {
+      const paneId = paneSlot.dataset.workspacePaneContent;
+      if (paneId) {
+        nextBounds[paneId] = resolveWorkspacePaneContentBounds(containerRect, paneSlot.getBoundingClientRect());
+      }
+    });
+    setPaneContentBounds((currentBounds) =>
+      areWorkspacePaneContentBoundsEqual(currentBounds, nextBounds) ? currentBounds : nextBounds,
+    );
+  }, []);
+
+  const schedulePaneContentMeasurement = useCallback(() => {
+    if (paneContentMeasureFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(paneContentMeasureFrameRef.current);
+    }
+    paneContentMeasureFrameRef.current = window.requestAnimationFrame(() => {
+      paneContentMeasureFrameRef.current = undefined;
+      measurePaneContentBounds();
+    });
+  }, [measurePaneContentBounds]);
+
+  // The split box does not exist in an empty workspace. Re-run when the first
+  // tab mounts even if the normalized split layout remains null.
+  useLayoutEffect(() => {
+    if (!workspaceTabSplitLayout) {
+      return;
+    }
+    const container = splitTabBoxRef.current;
+    if (!container) {
+      return;
+    }
+    const paneSlots = Array.from(container.querySelectorAll<HTMLElement>('[data-workspace-pane-content]'));
+    measurePaneContentBounds();
+    const resizeObserver = new ResizeObserver(schedulePaneContentMeasurement);
+    resizeObserver.observe(container);
+    paneSlots.forEach((paneSlot) => resizeObserver.observe(paneSlot));
+    return () => {
+      resizeObserver.disconnect();
+      if (paneContentMeasureFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(paneContentMeasureFrameRef.current);
+        paneContentMeasureFrameRef.current = undefined;
+      }
+    };
+  }, [
+    measurePaneContentBounds,
+    schedulePaneContentMeasurement,
+    workspaceTabSplitLayout,
+    workspaceTabList?.length,
+  ]);
 
   // Get the currently selected data source.
   const { zoerBoundInfo } = useZoerStore((state) => {
@@ -789,10 +878,11 @@ const WorkspaceTabs = memo(() => {
     };
   });
 
-  const { currentTreeNode, dataSourceList } = useTreeStore((state) => {
+  const { currentTreeNode, dataSourceList, runtimeAvailabilityByDataSourceId } = useTreeStore((state) => {
     return {
       currentTreeNode: state.currentTreeNode,
       dataSourceList: state.dataSourceList,
+      runtimeAvailabilityByDataSourceId: state.runtimeAvailabilityByDataSourceId,
     };
   });
 
@@ -821,16 +911,26 @@ const WorkspaceTabs = memo(() => {
     tabs: IWorkspaceTab[],
     layout: IWorkspaceTabSplitLayout | null | undefined = useWorkspaceStore.getState().workspaceTabSplitLayout,
     nextActiveConsoleId: string | number | null | undefined = useWorkspaceStore.getState().activeConsoleId,
+    nextRecentlyClosedWorkspaceTabs?: IWorkspaceTab[],
   ) => {
     const orderedTabs = orderPinnedWorkspaceTabsFirst(tabs);
     const orderedLayout = orderSplitLayoutPaneIdsByPinned(layout || null, orderedTabs);
     const normalizedLayout = normalizeWorkspaceTabSplitLayout(orderedLayout, orderedTabs, nextActiveConsoleId);
-    setWorkspaceTabList(orderedTabs);
-    if (!areWorkspaceTabSplitLayoutsEqual(useWorkspaceStore.getState().workspaceTabSplitLayout, normalizedLayout)) {
-      useWorkspaceStore.setState({
-        workspaceTabSplitLayout: normalizedLayout,
-      });
+    const currentState = useWorkspaceStore.getState();
+    const nextState: Partial<typeof currentState> = {
+      workspaceTabList: orderedTabs,
+      activeConsoleId: getPersistableActiveConsoleId({
+        activeConsoleId: nextActiveConsoleId,
+        workspaceTabList: orderedTabs,
+      }),
+    };
+    if (!areWorkspaceTabSplitLayoutsEqual(currentState.workspaceTabSplitLayout, normalizedLayout)) {
+      nextState.workspaceTabSplitLayout = normalizedLayout;
     }
+    if (nextRecentlyClosedWorkspaceTabs !== undefined) {
+      nextState.recentlyClosedWorkspaceTabs = nextRecentlyClosedWorkspaceTabs;
+    }
+    useWorkspaceStore.setState(nextState);
   };
 
   const updateWorkspaceTabSplitLayout = (layout: IWorkspaceTabSplitLayout | null | undefined) => {
@@ -946,25 +1046,22 @@ const WorkspaceTabs = memo(() => {
     });
   };
 
-  const rememberClosedWorkspaceTabs = (tabs: IWorkspaceTab[]) => {
+  const createRecentlyClosedWorkspaceTabs = (tabs: IWorkspaceTab[]) => {
+    const currentRecentlyClosed = useWorkspaceStore.getState().recentlyClosedWorkspaceTabs || [];
     if (!tabs.length) {
-      return;
+      return currentRecentlyClosed;
     }
     const currentEditorList = useWorkspaceStore.getState().editorList || {};
     const snapshots = tabs
       .map((tab) => createPersistableWorkspaceTabSnapshot(tab, currentEditorList[tab.id]?.getValue?.()))
       .filter(Boolean) as IWorkspaceTab[];
     if (!snapshots.length) {
-      return;
+      return currentRecentlyClosed;
     }
-    const currentRecentlyClosed = useWorkspaceStore.getState().recentlyClosedWorkspaceTabs || [];
-    const nextRecentlyClosedWorkspaceTabs = [...snapshots, ...currentRecentlyClosed].slice(
+    return [...snapshots, ...currentRecentlyClosed].slice(
       0,
       RECENTLY_CLOSED_WORKSPACE_TAB_LIMIT,
     );
-    useWorkspaceStore.setState({
-      recentlyClosedWorkspaceTabs: nextRecentlyClosedWorkspaceTabs,
-    });
   };
 
   const closeWorkspaceTabs = (tabs: IWorkspaceTab[]) => {
@@ -981,8 +1078,13 @@ const WorkspaceTabs = memo(() => {
       layout: workspaceTabSplitLayout,
       orderedNextWorkspaceTabList,
     });
-    rememberClosedWorkspaceTabs(closableTabs);
-    setWorkspaceTabsState(orderedNextWorkspaceTabList, workspaceTabSplitLayout, nextActiveConsoleId);
+    const nextRecentlyClosedWorkspaceTabs = createRecentlyClosedWorkspaceTabs(closableTabs);
+    setWorkspaceTabsState(
+      orderedNextWorkspaceTabList,
+      workspaceTabSplitLayout,
+      nextActiveConsoleId,
+      nextRecentlyClosedWorkspaceTabs,
+    );
 
     if (closeTabIds.has(activeConsoleId as any)) {
       setActiveConsoleId(nextActiveConsoleId);
@@ -1021,26 +1123,18 @@ const WorkspaceTabs = memo(() => {
     }
   };
 
+  const appendNewConsoleToPane = (consoleId: string | number, targetPaneId?: WorkspaceTabPaneId) => {
+    const currentLayout = useWorkspaceStore.getState().workspaceTabSplitLayout;
+    if (!currentLayout) {
+      return;
+    }
+    const activePaneId = targetPaneId || currentLayout.activePane || MAIN_WORKSPACE_TAB_PANE;
+    updateWorkspaceTabSplitLayout(appendWorkspaceTabToPane(currentLayout, consoleId, activePaneId));
+  };
+
   const createNewConsole = (targetPaneId?: WorkspaceTabPaneId) => {
-    const appendNewConsoleToActivePane = (consoleId: string | number) => {
-      const currentLayout = useWorkspaceStore.getState().workspaceTabSplitLayout;
-      if (!currentLayout) {
-        return;
-      }
-      const activePaneId = targetPaneId || currentLayout.activePane || MAIN_WORKSPACE_TAB_PANE;
-      updateWorkspaceTabSplitLayout({
-        ...currentLayout,
-        activePane: activePaneId,
-        paneTabIds: {
-          ...currentLayout.paneTabIds,
-          [activePaneId]: [...(currentLayout.paneTabIds[activePaneId] || []), consoleId],
-        },
-        activeTabIds: {
-          ...currentLayout.activeTabIds,
-          [activePaneId]: consoleId,
-        },
-      });
-    };
+    const appendNewConsoleToActivePane = (consoleId: string | number) =>
+      appendNewConsoleToPane(consoleId, targetPaneId);
 
     if (zoerBoundInfo) {
       const param: any = zoerBoundInfo;
@@ -1051,6 +1145,8 @@ const WorkspaceTabs = memo(() => {
       const param = {
         dataSourceId: currentTreeNode.extraParams.dataSourceId,
         dataSourceName: currentTreeNode.extraParams.dataSourceName!,
+        environmentId: currentTreeNode.extraParams.environmentId,
+        environment: currentTreeNode.extraParams.environment,
         databaseType: currentTreeNode.extraParams.databaseType!,
         databaseName: currentTreeNode.extraParams.databaseName,
         schemaName: currentTreeNode.extraParams.schemaName,
@@ -1060,6 +1156,8 @@ const WorkspaceTabs = memo(() => {
       const param: any = {
         dataSourceId: dataSourceList[0].extraParams.dataSourceId,
         dataSourceName: dataSourceList[0].extraParams.dataSourceName,
+        environmentId: dataSourceList[0].extraParams.environmentId,
+        environment: dataSourceList[0].extraParams.environment,
         databaseType: dataSourceList[0].extraParams.databaseType,
       };
       createConsole(param).then(appendNewConsoleToActivePane);
@@ -1171,7 +1269,10 @@ const WorkspaceTabs = memo(() => {
         }
         return t;
       }) || [];
-    setWorkspaceTabsState(list, workspaceTabSplitLayout);
+    // This handler is captured by the memoized tab bodies, which are no longer
+    // rebuilt on a tab switch. Let setWorkspaceTabsState read the current layout
+    // from the store instead of writing back the layout of an earlier render.
+    setWorkspaceTabsState(list);
   };
 
   const togglePinWorkspaceTab = (tab: ITabItem) => {
@@ -1285,18 +1386,7 @@ const WorkspaceTabs = memo(() => {
     }
     const activePaneId = workspaceTabSplitLayout?.activePane || MAIN_WORKSPACE_TAB_PANE;
     const nextLayout = workspaceTabSplitLayout
-      ? {
-          ...workspaceTabSplitLayout,
-          activePane: activePaneId,
-          paneTabIds: {
-            ...workspaceTabSplitLayout.paneTabIds,
-            [activePaneId]: [...(workspaceTabSplitLayout.paneTabIds[activePaneId] || []), nextTab.id],
-          },
-          activeTabIds: {
-            ...workspaceTabSplitLayout.activeTabIds,
-            [activePaneId]: nextTab.id,
-          },
-        }
+      ? appendWorkspaceTabToPane(workspaceTabSplitLayout, nextTab.id, activePaneId)
       : workspaceTabSplitLayout;
     setWorkspaceTabsState([...(workspaceTabList || []), nextTab], nextLayout, nextTab.id);
     setActiveConsoleId(nextTab.id);
@@ -1600,15 +1690,40 @@ const WorkspaceTabs = memo(() => {
     } as IWorkspaceTabSplitLayout;
 
     setWorkspaceTabsState(nextWorkspaceTabList, nextLayout, nextTabId);
-    setActiveConsoleId(nextTabId);
   };
 
   // Render the SQL executor.
   const renderSQLExecute = (item: IWorkspaceTab) => {
-    const uniqueData = rebuildSqlExecuteTabData(item);
-    if (!uniqueData) {
+    const storedUniqueData = rebuildSqlExecuteTabData(item);
+    if (!storedUniqueData) {
       return;
     }
+    const currentDataSource = dataSourceList?.find(
+      (dataSource) => dataSource.extraParams.dataSourceId === storedUniqueData.dataSourceId,
+    )?.extraParams;
+    const dataSourceState = resolveEditorDataSourceState(
+      storedUniqueData.dataSourceId,
+      dataSourceList,
+      runtimeAvailabilityByDataSourceId,
+    );
+    const connectable = resolveEditorDataSourceConnectable(dataSourceState, storedUniqueData.connectable);
+    const uniqueData = currentDataSource
+      ? {
+          ...storedUniqueData,
+          dataSourceName: currentDataSource.dataSourceName ?? storedUniqueData.dataSourceName,
+          environmentId: currentDataSource.environmentId ?? currentDataSource.environment?.id ?? null,
+          environment: currentDataSource.environment ?? null,
+          identityColor: currentDataSource.identityColor ?? null,
+          watermarkEnabled: currentDataSource.watermarkEnabled ?? null,
+          watermarkContent: currentDataSource.watermarkContent ?? null,
+          connectable,
+        }
+      : {
+          ...storedUniqueData,
+          identityColor: dataSourceState === 'deleted' ? null : storedUniqueData.identityColor,
+          watermarkEnabled: dataSourceState === 'deleted' ? false : storedUniqueData.watermarkEnabled,
+          connectable,
+        };
 
     const { ddl = '', loadSQL } = uniqueData;
     const sqlActionEnabled =
@@ -1649,6 +1764,7 @@ const WorkspaceTabs = memo(() => {
         initDDL={ddl}
         loadSQL={loadSQL}
         sqlActionEnabled={sqlActionEnabled}
+        dataSourceState={dataSourceState}
       />
     );
   };
@@ -1712,14 +1828,6 @@ const WorkspaceTabs = memo(() => {
     return <ConsoleERModal uniqueData={uniqueData!} />;
   };
 
-  const renderAiDataCollection = (item: IWorkspaceTab) => {
-    const { uniqueData } = item;
-    if (!uniqueData) {
-      return;
-    }
-    return <ChangeAiTableInfo uniqueData={uniqueData as any} />;
-  };
-
   const renderRedisAllData = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
     if (!uniqueData) {
@@ -1734,6 +1842,41 @@ const WorkspaceTabs = memo(() => {
       return;
     }
     return <AccountPrivilegePanel uniqueData={uniqueData} />;
+  };
+
+  const renderActiveTransactions = (item: IWorkspaceTab) => {
+    const { uniqueData } = item;
+    if (
+      !uniqueData?.dataSourceId ||
+      !isDatabaseCapabilitySupported(
+        uniqueData.databaseType,
+        DatabaseCapability.ACTIVE_TRANSACTION_INSPECTION,
+      )
+    ) {
+      return;
+    }
+    return (
+      <div style={{ height: '100%', overflow: 'auto', padding: 12 }}>
+        <ActiveTransactionsContent
+          dataSourceId={uniqueData.dataSourceId}
+          databaseName={uniqueData.databaseName}
+          schemaName={uniqueData.schemaName}
+          onInspectConnection={({ connectionId, sql }) => {
+            createConsole({
+              name: i18n('workspace.ops.sessionThreadTitle', connectionId),
+              ddl: sql,
+              dataSourceId: uniqueData.dataSourceId!,
+              dataSourceName: uniqueData.dataSourceName!,
+              environmentId: uniqueData.environmentId,
+              environment: uniqueData.environment,
+              databaseType: uniqueData.databaseType!,
+              databaseName: uniqueData.databaseName,
+              schemaName: uniqueData.schemaName,
+            }).then((consoleId) => appendNewConsoleToPane(consoleId));
+          }}
+        />
+      </div>
+    );
   };
 
   const renderContentDiff = (item: IWorkspaceTab) => {
@@ -1780,12 +1923,12 @@ const WorkspaceTabs = memo(() => {
         return renderViewAllTable(item);
       case WorkspaceTabType.ViewERModal:
         return renderERModal(item);
-      case WorkspaceTabType.ChangeAiTableInfo:
-        return renderAiDataCollection(item);
       case WorkspaceTabType.RedisAllData:
         return renderRedisAllData(item);
       case WorkspaceTabType.AccountPrivileges:
         return renderAccountPrivileges(item);
+      case WorkspaceTabType.ActiveTransactions:
+        return renderActiveTransactions(item);
       case WorkspaceTabType.ContentDiff:
         return renderContentDiff(item);
       case WorkspaceTabType.Terminal:
@@ -1802,17 +1945,39 @@ const WorkspaceTabs = memo(() => {
           ? getLocalTextFileTabPresentation(item.uniqueData?.filePath, item.title)
           : undefined;
       const popoverContent = localFileTabPresentation?.popover || item.uniqueData?.popoverContent;
+      const workspaceTabIcon =
+        item.type === WorkspaceTabType.LocalSQLFile
+          ? getLocalTextFileIcon(item.uniqueData?.fileExtension)
+          : workspaceTabConfig[item.type]?.icon;
+      const dataSourceId = item.uniqueData?.dataSourceId;
+      const dataSourceIdentityColor = dataSourceId
+        ? resolveDataSourceIdentityColor(
+            dataSourceList?.find((dataSource) => dataSource.extraParams.dataSourceId === dataSourceId)?.extraParams,
+          )
+        : undefined;
       return {
-        prefixIcon:
-          item.type === WorkspaceTabType.LocalSQLFile
-            ? getLocalTextFileIcon(item.uniqueData?.fileExtension)
-            : workspaceTabConfig[item.type]?.icon,
+        prefixIcon: dataSourceId ? (
+          <span
+            className={styles.workspaceTabIdentityIcon}
+            aria-label={item.uniqueData?.dataSourceName}
+            title={item.uniqueData?.dataSourceName}
+          >
+            {typeof workspaceTabIcon === 'string' ? (
+              <IconfontSvg size={16} code={workspaceTabIcon} />
+            ) : (
+              workspaceTabIcon
+            )}
+          </span>
+        ) : (
+          workspaceTabIcon
+        ),
         label: localFileTabPresentation?.label ?? item.title,
         popover: popoverContent ? <div style={{ padding: '4px 6px' }}>{popoverContent}</div> : undefined,
         key: item.id,
         editableName:
           item.type === WorkspaceTabType.CONSOLE || item.type === WorkspaceTabType.Terminal,
         pinned: item.pinned,
+        accentColor: dataSourceId ? dataSourceIdentityColor : undefined,
         destroyOnHide: !!item.uniqueData?.filePreviewMimeType,
         styles: {
           width: WORKSPACE_TAB_WIDTH,
@@ -1826,9 +1991,23 @@ const WorkspaceTabs = memo(() => {
   };
 
   // Tab list.
+  // The active tab id must not be a dependency here: tab bodies stay mounted
+  // and own their own data loading, so rebuilding every body element on a tab
+  // switch re-renders (and previously re-requested) all open tabs.
   const workspaceTabItems = useMemo(() => {
     return getWorkspaceTabItems(workspaceTabList || []);
-  }, [workspaceTabList, activeConsoleId]);
+  }, [workspaceTabList, dataSourceList]);
+  const workspaceTabItemMap = useMemo(
+    () => new Map(workspaceTabItems.map((item) => [item.key, item])),
+    [workspaceTabItems],
+  );
+  const activeTabPaneIds = useMemo(() => {
+    return resolveActiveWorkspaceTabPaneIds({
+      activeConsoleId,
+      paneActiveTabIds: workspaceTabSplitLayout?.activeTabIds,
+      mainPaneId: MAIN_WORKSPACE_TAB_PANE,
+    });
+  }, [activeConsoleId, workspaceTabSplitLayout]);
 
   function renderCreateConsoleButton() {
     if (!canCreateConsole) {
@@ -1911,10 +2090,14 @@ const WorkspaceTabs = memo(() => {
     paneId: WorkspaceTabPaneId,
     className?: string,
   ) {
-    const items = getWorkspaceTabItems(getPaneWorkspaceTabs(paneId));
+    const items = getPaneWorkspaceTabs(paneId)
+      .map((tab) => workspaceTabItemMap.get(tab.id))
+      .filter(Boolean) as ITabItem[];
     const activeKey =
       workspaceTabSplitLayout?.activeTabIds[paneId] ??
       (paneId === MAIN_WORKSPACE_TAB_PANE ? activeConsoleId : null);
+    const activeTabScrollKey =
+      workspaceTabScrollRequest?.tabId === activeKey ? workspaceTabScrollRequest.requestId : undefined;
     const draggingTabId = draggingWorkspaceTabKey
       ? getWorkspaceTabIdFromDndId(draggingWorkspaceTabKey, workspaceTabList || [])
       : undefined;
@@ -1935,13 +2118,14 @@ const WorkspaceTabs = memo(() => {
         }}
       >
         <CustomTabs
-          height={36}
+          height={WORKSPACE_TAB_HEADER_HEIGHT}
           hideAdd={hideAdd}
-          className={styles.tabBox}
+          className={styles.tabHeaderBox}
           onChange={(key) => onPaneTabChange(paneId, key)}
           onEdit={(action, data) => handelTabsEdit(action, data || [], paneId)}
           beforeRemove={confirmWorkspaceTabItemsClose}
           activeKey={activeKey}
+          activeTabScrollKey={activeTabScrollKey}
           editableNameOnBlur={editableNameOnBlur}
           items={items}
           contextActions={commonWorkspaceTabContextActions}
@@ -1952,7 +2136,9 @@ const WorkspaceTabs = memo(() => {
           onDraggingTabKeyChange={setDraggingWorkspaceTabKey}
           tabPaneDroppableId={getWorkspaceTabPaneDroppableId(paneId)}
           closeShortcutAction={ShortcutAction.CloseCurrentConsole}
+          concealTabContent
         />
+        <div className={styles.splitPaneContentSlot} data-workspace-pane-content={paneId} />
         {draggingWorkspaceTabKey && canSplitDraggedTabHere && (
           <WorkspaceTabPaneDropOverlay
             paneId={paneId}
@@ -2009,6 +2195,50 @@ const WorkspaceTabs = memo(() => {
     );
   }
 
+  function renderWorkspaceTabContentLayer() {
+    // Keep tab bodies outside the recursive split tree so layout changes never remount editors or result views.
+    return (
+      <div key="workspace-tab-content-layer" className={styles.workspaceTabContentLayer}>
+        {workspaceTabItems.map((item) => {
+          const paneId = activeTabPaneIds.get(item.key);
+          const bounds = paneId ? paneContentBounds[paneId] : undefined;
+          const isActive = paneId !== undefined;
+          const fillsSinglePane = isActive && !workspaceTabSplitLayout;
+          const isVisible = fillsSinglePane || !!bounds;
+          if (item.destroyOnHide && !isActive) {
+            return null;
+          }
+          return (
+            <div
+              key={item.key}
+              aria-hidden={!isVisible}
+              className={`${styles.workspaceTabContentItem} ${isVisible ? styles.workspaceTabContentItemActive : ''}`}
+              style={
+                fillsSinglePane
+                  ? {
+                      top: WORKSPACE_TAB_HEADER_HEIGHT,
+                      right: 0,
+                      bottom: 0,
+                      left: 0,
+                    }
+                  : bounds
+                  ? {
+                      left: bounds.left,
+                      top: bounds.top,
+                      width: bounds.width,
+                      height: bounds.height,
+                    }
+                  : undefined
+              }
+            >
+              {item.children}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   const draggingWorkspaceTab = draggingWorkspaceTabKey
     ? workspaceTabItems.find((item) => String(item.key) === draggingWorkspaceTabKey)
     : undefined;
@@ -2025,7 +2255,7 @@ const WorkspaceTabs = memo(() => {
         setWorkspaceTabDropTarget(undefined);
       }}
     >
-      <div className={styles.splitTabBox}>
+      <div ref={splitTabBoxRef} className={styles.splitTabBox}>
         {workspaceTabSplitLayout ? (
           renderWorkspaceTabPaneNode(
             ensureWorkspaceTabSplitNodeIds(
@@ -2035,6 +2265,7 @@ const WorkspaceTabs = memo(() => {
         ) : (
           renderWorkspaceTabPane(MAIN_WORKSPACE_TAB_PANE, styles.splitPaneItem)
         )}
+        {renderWorkspaceTabContentLayer()}
       </div>
       <DragOverlay adjustScale={false}>
         {draggingWorkspaceTab && (

@@ -7,6 +7,7 @@ import ai.chat2db.community.tools.exception.BusinessException;
 import ai.chat2db.community.tools.wrapper.result.DataResult;
 import ai.chat2db.community.tools.util.ConfigUtils;
 import ai.chat2db.community.domain.api.model.ncx.NcxImportResponse;
+import ai.chat2db.community.domain.api.model.datasource.DataSourceIdentityColorUtils;
 import ai.chat2db.community.domain.api.service.task.ITaskNcxImportService;
 import ai.chat2db.community.domain.api.service.storage.IWorkspaceStorageFacade;
 import ai.chat2db.community.domain.api.model.storage.WorkspaceDataSource;
@@ -144,7 +145,10 @@ public class TaskNcxImportServiceImpl implements ITaskNcxImportService {
                             zipFile);
                     projects.add(projectName);
                     File json = new File(config + File.separator + ExportConstants.CONFIG_DATASOURCE_FILE);
-                    JSONObject jsonObject = JSON.parseObject(new FileInputStream(json));
+                    JSONObject jsonObject;
+                    try (FileInputStream fis = new FileInputStream(json)) {
+                        jsonObject = JSON.parseObject(fis);
+                    }
                     JSONObject connections = jsonObject.getJSONObject(ExportConstants.DIR_CONNECTIONS);
                     Set<String> keys = connections.keySet();
                     for (String key : keys) {
@@ -372,6 +376,7 @@ public class TaskNcxImportServiceImpl implements ITaskNcxImportService {
         if (request.getEnvironmentId() == null) {
             request.setEnvironmentId(1L);
         }
+        request.setIdentityColor(DataSourceIdentityColorUtils.normalize(request.getIdentityColor()));
         workspaceStorageFacade.createDataSource(request);
     }
 }

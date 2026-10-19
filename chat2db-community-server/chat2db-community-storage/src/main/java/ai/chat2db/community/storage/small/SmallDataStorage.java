@@ -26,15 +26,18 @@ public class SmallDataStorage<T> implements IWorkspaceLocalStorage<T> {
 
     protected static final String DB_STORAGE_PATH = ConfigUtils.getEnvBasePath() + File.separator + "storage";
 
-    protected Map<Long, T> dataMap = new ConcurrentSkipListMap<>();
+    protected volatile Map<Long, T> dataMap = new ConcurrentSkipListMap<>();
 
     protected String filePath;
+
+    private final Class<T> clazz;
 
     protected SmallDataStorage(String name, Class<T> clazz) {
         this(new File(DB_STORAGE_PATH + File.separator + name + File.separator + name + ".json"), clazz);
     }
 
     protected SmallDataStorage(File storageFile, Class<T> clazz) {
+        this.clazz = clazz;
         this.filePath = storageFile.getAbsolutePath();
         if (!FileUtil.exist(filePath)) {
             FileUtil.writeUtf8String("", filePath);
@@ -78,13 +81,10 @@ public class SmallDataStorage<T> implements IWorkspaceLocalStorage<T> {
         }
         try {
             Long id = LocalStorageConverter.ensureId(data, this::generateId);
-            if (dataMap.get(id) != null) {
-                dataMap.put(id, data);
-                saveDataList();
-            } else {
-                dataMap.put(id, data);
-                FileUtil.appendUtf8String(JSON.toJSONString(data) + "\n", filePath);
-            }
+            Map<Long, T> nextDataMap = new ConcurrentSkipListMap<>(dataMap);
+            nextDataMap.put(id, data);
+            saveDataList(Lists.newArrayList(nextDataMap.values()));
+            dataMap.put(id, data);
             return id;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -105,9 +105,11 @@ public class SmallDataStorage<T> implements IWorkspaceLocalStorage<T> {
             if (before == null) {
                 return;
             }
-            before = getAfterSave(before, data);
-            dataMap.put(id, before);
-            saveDataList();
+            T replacement = getAfterSave(copy(before), data);
+            Map<Long, T> nextDataMap = new ConcurrentSkipListMap<>(dataMap);
+            nextDataMap.put(id, replacement);
+            saveDataList(Lists.newArrayList(nextDataMap.values()));
+            dataMap.put(id, replacement);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -116,12 +118,17 @@ public class SmallDataStorage<T> implements IWorkspaceLocalStorage<T> {
 
     @Override
     public synchronized void delete(Long id) {
+        Map<Long, T> nextDataMap = new ConcurrentSkipListMap<>(dataMap);
+        nextDataMap.remove(id);
+        saveDataList(Lists.newArrayList(nextDataMap.values()));
         dataMap.remove(id);
-        saveDataList();
     }
 
     protected synchronized void saveDataList() {
-        List<T> dataList = getDataList();
+        saveDataList(getDataList());
+    }
+
+    protected synchronized void saveDataList(List<T> dataList) {
         StringBuilder content = new StringBuilder();
         for (T data : dataList) {
             content.append(JSON.toJSONString(data)).append('\n');
@@ -163,6 +170,10 @@ public class SmallDataStorage<T> implements IWorkspaceLocalStorage<T> {
 
     public Long generateId() {
         return IdUtil.generateId();
+    }
+
+    private T copy(T data) {
+        return JSON.parseObject(JSON.toJSONString(data), clazz);
     }
 
 }

@@ -30,6 +30,7 @@ import ai.chat2db.community.domain.api.service.db.ISqlExecutionCancellation;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionResultConsumer;
 import ai.chat2db.community.domain.api.service.db.ISqlExecutionStatementListener;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ResultCursorLeaseRegistry;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlUtils;
@@ -150,32 +151,88 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             Function<JDBCDataValue, String> valueFunction,
             boolean limitSize,
             Integer resultSetId) {
+        execute(connection, sql, headerConsumer, rowConsumer, valueFunction, limitSize, resultSetId, null, null);
+    }
+
+    public void execute(
+            Connection connection, String sql,
+            Consumer<List<Header>> headerConsumer,
+            Consumer<List<String>> rowConsumer,
+            Function<JDBCDataValue, String> valueFunction,
+            boolean limitSize,
+            Integer resultSetId,
+            Integer maxRows) {
+        execute(connection, sql, headerConsumer, rowConsumer, valueFunction, limitSize, resultSetId,
+                null, null, maxRows);
+    }
+
+    public void execute(
+            Connection connection, String sql,
+            Consumer<List<Header>> headerConsumer,
+            Consumer<List<String>> rowConsumer,
+            Function<JDBCDataValue, String> valueFunction,
+            boolean limitSize,
+            Integer resultSetId,
+            ISqlExecutionStatementListener statementListener,
+            Runnable cancellationChecker) {
+        execute(connection, sql, headerConsumer, rowConsumer, valueFunction, limitSize, resultSetId,
+                statementListener, cancellationChecker, null);
+    }
+
+    public void execute(
+            Connection connection, String sql,
+            Consumer<List<Header>> headerConsumer,
+            Consumer<List<String>> rowConsumer,
+            Function<JDBCDataValue, String> valueFunction,
+            boolean limitSize,
+            Integer resultSetId,
+            ISqlExecutionStatementListener statementListener,
+            Runnable cancellationChecker,
+            Integer maxRows) {
         Assert.notNull(sql, "SQL must not be null");
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            boolean query = stmt.execute();
-            int resultCount = 0;
-            while (true) {
-                if (query) {
-                    resultCount++;
-                    if (resultSetId == null || resultCount == resultSetId) {
-                        writeExportResultSet(stmt, headerConsumer, rowConsumer, valueFunction, limitSize);
+        checkTaskCancellation(cancellationChecker);
+        PreparedStatement stmt = null;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            stmt = preparedStatement;
+            notifyStatementCreated(statementListener, preparedStatement);
+            try (preparedStatement) {
+                checkTaskCancellation(cancellationChecker);
+                if (maxRows != null && maxRows > 0) {
+                    preparedStatement.setMaxRows(maxRows);
+                }
+                boolean query = preparedStatement.execute();
+                int resultCount = 0;
+                while (true) {
+                    checkTaskCancellation(cancellationChecker);
+                    if (query) {
+                        resultCount++;
+                        if (resultSetId == null || resultCount == resultSetId) {
+                            writeExportResultSet(preparedStatement, headerConsumer, rowConsumer, valueFunction,
+                                    limitSize, cancellationChecker, maxRows);
+                            return;
+                        }
+                    } else if (preparedStatement.getUpdateCount() == -1) {
                         return;
                     }
-                } else if (stmt.getUpdateCount() == -1) {
-                    return;
+                    query = preparedStatement.getMoreResults();
                 }
-                query = stmt.getMoreResults();
             }
         } catch (SQLException e) {
+            checkTaskCancellation(cancellationChecker);
             log.error("execute:{}", sql, e);
             throw new RuntimeException(e);
+        } finally {
+            notifyStatementClosed(statementListener, stmt);
         }
     }
 
     private void writeExportResultSet(Statement stmt, Consumer<List<Header>> headerConsumer,
                                       Consumer<List<String>> rowConsumer,
                                       Function<JDBCDataValue, String> valueFunction,
-                                      boolean limitSize) throws SQLException {
+                                      boolean limitSize,
+                                      Runnable cancellationChecker,
+                                      Integer maxRows) throws SQLException {
         ResultSet rs = null;
         try {
             rs = stmt.getResultSet();
@@ -190,7 +247,9 @@ public class DefaultSQLExecutor implements ICommandExecutor {
 
             headerConsumer.accept(headerList);
 
-            while (rs.next()) {
+            int exportedRows = 0;
+            while ((maxRows == null || maxRows < 1 || exportedRows < maxRows) && rs.next()) {
+                checkTaskCancellation(cancellationChecker);
                 List<String> row = new ArrayList<>();
                 for (int i = 1; i <= col; i++) {
                     if (chat2dbAutoRowIdIndex == i) {
@@ -200,6 +259,7 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                     row.add(valueFunction.apply(jdbcDataValue));
                 }
                 rowConsumer.accept(row);
+                exportedRows++;
             }
         } finally {
             JdbcUtils.closeResultSet(rs);
@@ -245,15 +305,17 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         ExecuteResponse executeResult = ExecuteResponse.builder().sql(sql).success(Boolean.TRUE).build();
         checkTaskCancellation(cancellationChecker);
         PreparedStatement statementToNotify = null;
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(sql);
             statementToNotify = stmt;
             notifyStatementCreated(statementListener, stmt);
             try {
                 checkTaskCancellation(cancellationChecker);
-                stmt.setFetchSize(IEasyToolsConstant.MAX_PAGE_SIZE);
+                stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
                 if (sql.toLowerCase().startsWith("select")) {
                     if (offset != null && count != null) {
-                        stmt.setMaxRows(offset + count);
+                        setMaxRows(stmt, offset, count);
                     }
                 }
                 long startedAtEpochMs = System.currentTimeMillis();
@@ -282,7 +344,11 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                 throw e;
             }
         } finally {
-            notifyStatementClosed(statementListener, statementToNotify);
+            try {
+                closeStatementUnlessCursorAnnounced(stmt);
+            } finally {
+                notifyStatementClosed(statementListener, statementToNotify);
+            }
         }
         return executeResult;
     }
@@ -310,6 +376,7 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                                                      Integer count) throws SQLException {
         ExecuteResponse executeResult = ExecuteResponse.builder().success(Boolean.TRUE).build();
         executeResult.setDescription(I18nUtils.getMessage("sqlResult.success"));
+        boolean cursorAnnounced = false;
         ResultSet rs = null;
         try {
             rs = stmt.getResultSet();
@@ -321,13 +388,55 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             int chat2dbAutoRowIdIndex = getChat2dbAutoRowIdIndex(headerList);
             List<List<ResultCell>> dataList = generateDataList(rs, col, chat2dbAutoRowIdIndex, limitRowSize,
                     offset, count);
+            cursorAnnounced = announceCursor(stmt, dataList);
 
             executeResult.setHeaderList(headerList);
             executeResult.setDataList(dataList);
         } finally {
-            JdbcUtils.closeResultSet(rs);
+            if (!cursorAnnounced) {
+                JdbcUtils.closeResultSet(rs);
+            }
         }
         return executeResult;
+    }
+
+    /**
+     * Announces the cursor of this execution when the response carries a value the driver handed over as a handle
+     * instead of transferring its content. Such a value is read from that cursor after the query, so the cursor stays
+     * open until the connection context of this execution closes it or a lease takes it over.
+     *
+     * @return {@code true} when this execution must leave its cursor open
+     */
+    private boolean announceCursor(Statement stmt, List<List<ResultCell>> dataList) {
+        if (!carriesHandedOverHandle(dataList)) {
+            return false;
+        }
+        ResultCursorLeaseRegistry.begin(Chat2DBContext.getConnectInfo(), stmt);
+        return true;
+    }
+
+    private boolean carriesHandedOverHandle(List<List<ResultCell>> dataList) {
+        for (List<ResultCell> row : dataList) {
+            if (row == null) {
+                continue;
+            }
+            for (ResultCell cell : row) {
+                if (cell != null && cell.isLargeValue() && cell.carriesHandle()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Closes the statement of a finished execution unless it announced its cursor, which a reader may still lease a
+     * large value from: that cursor is closed with the connection context of this execution instead.
+     */
+    protected void closeStatementUnlessCursorAnnounced(Statement stmt) throws SQLException {
+        if (stmt != null && !ResultCursorLeaseRegistry.isCursorAnnounced(stmt)) {
+            stmt.close();
+        }
     }
 
     private List<List<ResultCell>> generateDataList(ResultSet rs, int col, int chat2dbAutoRowIdIndex,
@@ -1005,14 +1114,24 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         return executeResults;
     }
 
+    private static void setMaxRows(Statement statement, Integer offset, Integer count) throws SQLException {
+        if (offset == null || count == null || offset < 0 || count < 1) {
+            return;
+        }
+        long maxRows = (long) offset + count;
+        if (maxRows <= Integer.MAX_VALUE) {
+            statement.setMaxRows((int) maxRows);
+        }
+    }
+
     static PageBounds normalizePageBounds(Integer requestedPageNo, Integer requestedPageSize) {
         int pageNo = Optional.ofNullable(requestedPageNo).orElse(1);
-        int pageSize = Optional.ofNullable(requestedPageSize).orElse(IEasyToolsConstant.MAX_PAGE_SIZE);
+        int pageSize = Optional.ofNullable(requestedPageSize).orElse(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
         if (pageNo < 1) {
             pageNo = 1;
         }
-        if (pageSize < 1 || pageSize > IEasyToolsConstant.MAX_PAGE_SIZE) {
-            pageSize = IEasyToolsConstant.MAX_PAGE_SIZE;
+        if (pageSize < 1) {
+            pageSize = IEasyToolsConstant.DEFAULT_PAGE_SIZE;
         }
 
         long maxPageNo = (long) Integer.MAX_VALUE / pageSize + 1L;
@@ -1040,13 +1159,14 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         String type = simpleSqlStatement.getSqlType();
         Assert.notNull(sql, "SQL must not be null");
         ArrayList<ExecuteResponse> executeResults = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        try {
             clearWarnings(stmt, connection);
-            stmt.setFetchSize(IEasyToolsConstant.MAX_PAGE_SIZE);
+            stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
             if (sql.toLowerCase().startsWith("select")) {
                 if (type == null || !StringUtils.equals(type, ai.chat2db.community.domain.api.enums.parser.SqlTypeEnum.SELECT_INTO.name())) {
                     if (offset != null && count != null) {
-                        stmt.setMaxRows(offset + count);
+                        setMaxRows(stmt, offset, count);
                     }
                 }
             }
@@ -1088,6 +1208,8 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             }
             attachMessages(executeResults, collectMessages(stmt, connection));
             clearWarnings(stmt, connection);
+        } finally {
+            closeStatementUnlessCursorAnnounced(stmt);
         }
         return executeResults;
     }
@@ -1120,13 +1242,16 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         ArrayList<ExecuteResponse> executeResults = new ArrayList<>();
         PreparedStatement stmt = connection.prepareStatement(sql);
         statementListener.onStatementCreated(stmt);
-        try (stmt) {
+        // A leased large value keeps reading from this cursor after the query is done, so the cursor is announced here
+        // and closed by the lease instead of the try-with-resources block below
+        ResultCursorLeaseRegistry.begin(Chat2DBContext.getConnectInfo(), stmt);
+        try {
             clearWarnings(stmt, connection);
-            stmt.setFetchSize(IEasyToolsConstant.MAX_PAGE_SIZE);
+            stmt.setFetchSize(IEasyToolsConstant.DEFAULT_PAGE_SIZE);
             if (sql.toLowerCase().startsWith("select")) {
                 if (type == null || !StringUtils.equals(type, ai.chat2db.community.domain.api.enums.parser.SqlTypeEnum.SELECT_INTO.name())) {
                     if (offset != null && count != null) {
-                        stmt.setMaxRows(offset + count);
+                        setMaxRows(stmt, offset, count);
                     }
                 }
             }
@@ -1190,7 +1315,15 @@ public class DefaultSQLExecutor implements ICommandExecutor {
             attachMessages(executeResults, collectMessages(stmt, connection));
             clearWarnings(stmt, connection);
         } finally {
-            statementListener.onStatementClosed(stmt);
+            boolean cursorLeased = ResultCursorLeaseRegistry.isPinned();
+            ResultCursorLeaseRegistry.end();
+            try {
+                if (!cursorLeased) {
+                    stmt.close();
+                }
+            } finally {
+                statementListener.onStatementClosed(stmt);
+            }
         }
         return executeResults;
     }
@@ -1245,6 +1378,31 @@ public class DefaultSQLExecutor implements ICommandExecutor {
                 executionMetrics, executeDurationNanos, fetchDurationNanos,
                 CollectionUtils.size(executeResult.getDataList())));
         return executeResult;
+    }
+
+    /**
+     * Publishes an already-materialized query result on the streaming path.
+     * Sends an empty {@code dataList} with {@code resultStarted}, then the real
+     * rows via {@code rows}, matching {@link #streamQueryExecuteResponse}.
+     * The caller ({@link #executeStreaming}) remains responsible for a single
+     * {@code resultFinished}.
+     */
+    protected void publishMaterializedQueryResult(ExecuteResponse response,
+                                                  ISqlExecutionResultConsumer consumer,
+                                                  AtomicInteger streamResultSequence,
+                                                  int statementSequence,
+                                                  int pageNo,
+                                                  int pageSize) {
+        response.setStatementSequence(statementSequence);
+        setStreamResultId(response, streamResultSequence.incrementAndGet());
+        addRowNumber(response, pageNo, pageSize);
+        List<List<ResultCell>> numberedRows = response.getDataList() == null
+                ? new ArrayList<>()
+                : new ArrayList<>(response.getDataList());
+        response.setDataList(new ArrayList<>());
+        consumer.resultStarted(response);
+        consumer.rows(response, numberedRows);
+        response.setDataList(numberedRows);
     }
 
     private void setStreamResultId(ExecuteResponse executeResult, int streamResultId) {
@@ -1715,6 +1873,35 @@ public class DefaultSQLExecutor implements ICommandExecutor {
         try (ResultSet resultSet = connection.getMetaData().getPrimaryKeys(databaseName, schemaName, tableName)) {
             return ResultSetUtils.toObjectList(resultSet, PrimaryKey.class);
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** Executes a JDBC batch using the connection's existing transaction settings. */
+    public void executeJdbcBatchInsert(Connection connection, List<String> sqls,
+                                      ISqlExecutionStatementListener statementListener,
+                                      Runnable cancellationChecker) {
+        if (sqls == null || sqls.isEmpty()) {
+            return;
+        }
+        checkTaskCancellation(cancellationChecker);
+        try {
+            Statement statement = connection.createStatement();
+            try {
+                try (statement) {
+                    notifyStatementCreated(statementListener, statement);
+                    checkTaskCancellation(cancellationChecker);
+                    for (String sql : sqls) {
+                        statement.addBatch(sql);
+                    }
+                    statement.executeBatch();
+                    checkTaskCancellation(cancellationChecker);
+                }
+            } finally {
+                notifyStatementClosed(statementListener, statement);
+            }
+        } catch (SQLException e) {
+            checkTaskCancellation(cancellationChecker);
             throw new RuntimeException(e);
         }
     }

@@ -2,9 +2,12 @@ import createJcefApi from './base';
 import {
   IUpdateDetail,
   IUpdatePreferences,
-  IUpdateRecoveryStatus,
+  UpdateCheckTrigger,
   McpRestartResult,
   McpStatus,
+  SqlxDatasourceState,
+  SqlxImportSummary,
+  SqlxStatus,
 } from '@/typings/settings';
 import { LangType } from '@/constants/settings';
 import type { LocalFileReadResult } from '@/utils/localFileEncoding';
@@ -139,19 +142,32 @@ const jcefApi = {
   },
   // Double-click the AppBar
   handleDoubleClickAppBar: () => {
-    return createJcefApi('double-click-app-bar');
+    return createJcefApi<boolean>('double-click-app-bar');
   },
   // close window
   closeWindow: () => {
     return createJcefApi('close-window');
   },
+  acknowledgeApplicationExit: (data: { operationId: string }) => {
+    return createJcefApi<boolean>('acknowledge-application-exit', data);
+  },
+  confirmCloseWindow: (data: { operationId: string }) => {
+    return createJcefApi<boolean>('confirm-close-window', data);
+  },
+  cancelApplicationExit: (data: { operationId: string }) => {
+    return createJcefApi<boolean>('cancel-application-exit', data);
+  },
   // Is it maximizing
   isWindowMaximized: () => {
-    return createJcefApi('is-window-maximized');
+    return createJcefApi<boolean>('is-window-maximized');
+  },
+  // Is the macOS window in native full screen mode?
+  isWindowFullScreen: () => {
+    return createJcefApi<boolean>('is-window-full-screen');
   },
   // Check for updates
-  appCheckUpdate: () => {
-    return createJcefApi<IUpdateDetail>('app-check-update');
+  appCheckUpdate: (data?: { trigger?: UpdateCheckTrigger; offlineActivation?: boolean }) => {
+    return createJcefApi<IUpdateDetail>('app-check-update', data);
   },
   // Start downloading hot updates
   triggerDownload: () => {
@@ -163,12 +179,6 @@ const jcefApi = {
   },
   updatePreferences: (data?: { receiveBeta: boolean }) => {
     return createJcefApi<IUpdatePreferences>('update-preferences', data);
-  },
-  getUpdateRecoveryStatus: () => {
-    return createJcefApi<IUpdateRecoveryStatus>('update-recovery-status');
-  },
-  openUpdateRecoveryLog: () => {
-    return createJcefApi<boolean>('open-update-recovery-log');
   },
   // Restart app
   restartApp: (data?: { operationId?: string }) => {
@@ -226,6 +236,31 @@ const jcefApi = {
   },
   setMcpEnabled: (data: { operationId: string; enabled: boolean }) => {
     return createJcefApi<McpStatus>('set-mcp-enabled', data);
+  },
+  // SQLX command line integration
+  getSqlxStatus: (data?: { operationId?: string }) => {
+    return createJcefApi<SqlxStatus>('get-sqlx-status', data);
+  },
+  installSqlx: (data: { operationId: string; version?: string }) => {
+    return createJcefApi<SqlxStatus>('install-sqlx', data);
+  },
+  updateSqlx: (data: { operationId: string }) => {
+    return createJcefApi<SqlxStatus>('update-sqlx', data);
+  },
+  checkSqlxUpdate: (data: { operationId: string }) => {
+    return createJcefApi<SqlxStatus>('check-sqlx-update', data);
+  },
+  cancelSqlxOperation: (data: { operationId: string }) => {
+    return createJcefApi<SqlxStatus>('cancel-sqlx-operation', data);
+  },
+  setSqlxBinary: (data: { path: string }) => {
+    return createJcefApi<SqlxStatus>('set-sqlx-binary', data);
+  },
+  importSqlxDatasources: (data: { ids: number[] }) => {
+    return createJcefApi<SqlxImportSummary>('import-sqlx-datasources', data);
+  },
+  getSqlxDatasourceStates: (data: { ids: number[] }) => {
+    return createJcefApi<SqlxDatasourceState[]>('get-sqlx-datasource-states', data);
   },
 };
 

@@ -1,4 +1,6 @@
 export default {
+  'dashboard.list.loadFailed': 'No se pudieron cargar los paneles',
+  'dashboard.list.retry': 'Reintentar',
   'dashboard.title': 'Panel',
   'dashboard.edit': 'Editar',
   'dashboard.modal.editTitle': 'Editar panel',
@@ -66,7 +68,6 @@ export default {
   'dashboard.chart.pinToDashboardSuccess': 'Se fijó correctamente en el panel',
   'import.community.dataSource': 'Importar conexión de Community Edition',
   'dashboard.createName.placeholder': 'Introduzca el nombre del panel (obligatorio)',
-  'dashboard.select.aiDataCollection': 'Seleccione el conjunto de instrucciones del gráfico con IA (obligatorio)',
   'dashboard.createDescription.placeholder': 'Introduzca la descripción del panel (opcional)',
   'dashboard.delete.confirm': '¿Confirma que desea eliminar este panel?',
   'dashboard.delete.chart.confirm': '¿Confirma que desea eliminar este gráfico?',

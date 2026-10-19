@@ -16,7 +16,10 @@ Targets:
 Environment:
   SKIP_BACKEND=true             Skip Maven backend build.
   SKIP_FRONTEND=true            Skip frontend build.
-  COMMUNITY_UPDATE_BASE_URL     Metadata base URL.
+  COMMUNITY_SOURCE_DIR          Source checkout (defaults to this repository).
+  COMMUNITY_RELEASE_EPOCH       Release sequence (positive for published updates).
+  COMMUNITY_UPDATE_KEY_ID       Update signing public key identifier.
+  COMMUNITY_UPDATE_PUBLIC_KEY_B64  Ed25519 public key.
   MAC_SIGNING_IDENTITY          macOS Developer ID Application identity.
 
 Examples:
@@ -34,7 +37,7 @@ VERSION="$1"
 TARGET="${2:-prepare}"
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-ROOT_DIR=$(cd "${SCRIPT_DIR}/../.." && pwd)
+ROOT_DIR=$(cd "${COMMUNITY_SOURCE_DIR:-${SCRIPT_DIR}/../..}" && pwd)
 SERVER_DIR="${ROOT_DIR}/chat2db-community-server"
 CLIENT_DIR="${ROOT_DIR}/chat2db-community-client"
 JPACKAGE_INPUT_DIR="${ROOT_DIR}/jpackage/input"
@@ -42,7 +45,23 @@ SOURCE_FILE_DIR="${JPACKAGE_INPUT_DIR}/sourceFile"
 COMMUNITY_JAR="${SERVER_DIR}/chat2db-community-start/target/chat2db-community.jar"
 COMMUNITY_LIB_DIR="${SERVER_DIR}/chat2db-community-start/target/lib"
 COMMUNITY_LIB_ZIP="${SERVER_DIR}/chat2db-community-start/target/lib.zip"
-UPDATE_BASE_URL="${COMMUNITY_UPDATE_BASE_URL:-https://cdn.chat2db-ai.com/community/updates}"
+RELEASE_EPOCH="${COMMUNITY_RELEASE_EPOCH:-0}"
+UPDATE_KEY_ID="${COMMUNITY_UPDATE_KEY_ID:-}"
+UPDATE_PUBLIC_KEY="${COMMUNITY_UPDATE_PUBLIC_KEY_B64:-}"
+if { [ -n "${UPDATE_KEY_ID}" ] && [ -z "${UPDATE_PUBLIC_KEY}" ]; } || \
+   { [ -z "${UPDATE_KEY_ID}" ] && [ -n "${UPDATE_PUBLIC_KEY}" ]; }; then
+  echo "[error] COMMUNITY_UPDATE_KEY_ID and COMMUNITY_UPDATE_PUBLIC_KEY_B64 must be set together" >&2
+  exit 1
+fi
+# The desktop reads the key from its launcher configuration, so the platform
+# scripts receive it as jpackage java options.
+export CHAT2DB_UPDATE_KEY_ID="${UPDATE_KEY_ID}"
+export CHAT2DB_UPDATE_PUBLIC_KEY_B64="${UPDATE_PUBLIC_KEY}"
+UPDATE_HELPER=""
+if [[ ! "${RELEASE_EPOCH}" =~ ^[0-9]+$ ]]; then
+  echo "[error] COMMUNITY_RELEASE_EPOCH must be a non-negative integer" >&2
+  exit 1
+fi
 JBR_BASE_URL="https://cache-redirector.jetbrains.com/intellij-jbr"
 JBR_WORK_DIR=""
 JBR_EXTRACT_DIR=""
@@ -271,19 +290,6 @@ verify_flatlaf_runtime_dependency() {
   echo "[check] FlatLaf runtime dependency present: $(basename "${flatlaf_jar}")"
 }
 
-copy_dist() {
-  local platform="$1"
-  local target_dir="${JPACKAGE_INPUT_DIR}/${platform}"
-
-  mkdir -p "${target_dir}"
-  rm -rf "${target_dir}/dist" "${target_dir}/lib"
-  rm -f "${target_dir}/chat2db-community.jar"
-  cp -R "${CLIENT_DIR}/dist" "${target_dir}/dist"
-  cp -R "${COMMUNITY_LIB_DIR}" "${target_dir}/lib"
-  cp "${COMMUNITY_JAR}" "${target_dir}/chat2db-community.jar"
-  cp "${SOURCE_FILE_DIR}/local_version.json" "${target_dir}/local_version.json"
-}
-
 zip_frontend_dist() {
   rm -f "${CLIENT_DIR}/dist.zip"
   if command -v zip >/dev/null 2>&1; then
@@ -307,6 +313,13 @@ stage_community_input() {
       -f "${SERVER_DIR}/pom.xml"
   fi
   require_file "${COMMUNITY_JAR}"
+  local update_helpers=("${SERVER_DIR}"/chat2db-community-updater/target/chat2db-community-updater-*-helper.jar)
+  if [ "${#update_helpers[@]}" -ne 1 ]; then
+    echo "[error] expected one standalone update helper" >&2
+    exit 1
+  fi
+  UPDATE_HELPER="${update_helpers[0]}"
+  require_file "${UPDATE_HELPER}"
   require_dir "${COMMUNITY_LIB_DIR}"
   require_file "${COMMUNITY_LIB_ZIP}"
   verify_jcef_i18n_resources
@@ -340,15 +353,13 @@ stage_community_input() {
   cp "${COMMUNITY_JAR}" "${SOURCE_FILE_DIR}/chat2db-community.jar"
   cp "${COMMUNITY_LIB_ZIP}" "${SOURCE_FILE_DIR}/lib.zip"
   cp "${CLIENT_DIR}/dist.zip" "${SOURCE_FILE_DIR}/dist.zip"
-  bash "${SCRIPT_DIR}/generate_metadata.sh" \
-    "${VERSION}" \
-    "${SOURCE_FILE_DIR}" \
-    "${UPDATE_BASE_URL}"
-  cp "${SOURCE_FILE_DIR}/version.json" "${SOURCE_FILE_DIR}/local_version.json"
+  jq -n --arg version "${VERSION}" --argjson releaseEpoch "${RELEASE_EPOCH}" \
+    --arg buildSha "$(git -C "${ROOT_DIR}" rev-parse HEAD)" \
+    '{version: $version, releaseEpoch: $releaseEpoch, buildSha: $buildSha}' \
+    > "${SOURCE_FILE_DIR}/version.json"
 
-  copy_dist mac
-  copy_dist win
-  copy_dist linux
+  bash "${SCRIPT_DIR}/prepare_desktop_layout.sh" "${VERSION}" "${CLIENT_DIR}/dist" \
+    "${RELEASE_EPOCH}" "$(git -C "${ROOT_DIR}" rev-parse HEAD)" "${ROOT_DIR}"
 }
 
 stage_community_input

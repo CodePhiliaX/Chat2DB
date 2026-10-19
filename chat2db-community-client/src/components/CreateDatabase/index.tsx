@@ -5,9 +5,9 @@ import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseCapability, DatabaseTypeCode } from '@/constants';
 import { useWorkspaceStore } from '@/store/workspace';
-import { canSetCreateDatabaseCharset, canSetCreateDatabaseCollation } from '@/utils/databaseJudgments';
+import { isDatabaseCapabilitySupported } from '@/utils/databaseJudgments';
 import type { ICharset, ICollation } from '@/typings';
 import { buildCharsetOptions, buildCollationOptions } from './options';
 import { useStyles } from './style';
@@ -36,9 +36,6 @@ export interface ICreateDatabase {
   collation?: string;
 }
 
-// Databases that do not support comments during creation.
-const noCommentDatabase = [DatabaseTypeCode.MYSQL];
-
 const CreateDatabase = () => {
   const { styles } = useStyles();
   const [form] = Form.useForm<ICreateDatabase>();
@@ -62,8 +59,18 @@ const CreateDatabase = () => {
   const [previewReady, setPreviewReady] = useState(false);
   const screens = Grid.useBreakpoint();
 
-  const supportsCharset = canSetCreateDatabaseCharset(relyOnParams?.databaseType);
-  const supportsCollation = canSetCreateDatabaseCollation(relyOnParams?.databaseType);
+  const supportsComment = isDatabaseCapabilitySupported(
+    relyOnParams?.databaseType,
+    createType === 'database' ? DatabaseCapability.DATABASE_CREATE_COMMENT : DatabaseCapability.SCHEMA_CREATE_COMMENT,
+  );
+  const supportsCharset = isDatabaseCapabilitySupported(
+    relyOnParams?.databaseType,
+    DatabaseCapability.DATABASE_CREATE_CHARSET,
+  );
+  const supportsCollation = isDatabaseCapabilitySupported(
+    relyOnParams?.databaseType,
+    DatabaseCapability.DATABASE_CREATE_COLLATION,
+  );
 
   const charsetOptions = useMemo(() => buildCharsetOptions(charsets), [charsets]);
   const collationOptions = useMemo(
@@ -72,19 +79,26 @@ const CreateDatabase = () => {
   );
 
   useEffect(() => {
-    if (!open) {
-      previewRequestIdRef.current += 1;
-      setErrorMessage(null);
-      setSelectedCharset(undefined);
-      setPreviewReady(false);
-      form.resetFields();
-      monacoEditorRef.current?.setValue('', 'cover');
-    } else {
+    if (open) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 0);
     }
   }, [open]);
+
+  const resetModalState = () => {
+    previewRequestIdRef.current += 1;
+    setErrorMessage(null);
+    setSelectedCharset(undefined);
+    setPreviewReady(false);
+    form.resetFields();
+    monacoEditorRef.current?.setValue('', 'cover');
+  };
+
+  const closeModal = () => {
+    resetModalState();
+    setOpen(false);
+  };
 
   useEffect(() => {
     if (!open || createType !== 'database' || !relyOnParams || (!supportsCharset && !supportsCollation)) {
@@ -207,6 +221,7 @@ const CreateDatabase = () => {
       dataSourceId: relyOnParams.dataSourceId,
       databaseName: relyOnParams.databaseName,
       sql,
+      errorContinue: false,
     };
     setConfirmLoading(true);
     setErrorMessage(null);
@@ -214,7 +229,7 @@ const CreateDatabase = () => {
       .executeDDL(params)
       .then((res) => {
         if (res.success) {
-          setOpen(false);
+          closeModal();
           executedCallbackRef.current?.();
         } else {
           setErrorMessage(res);
@@ -253,7 +268,7 @@ const CreateDatabase = () => {
     !!relyOnParams && (
       <Modal
         onCancel={() => {
-          setOpen(false);
+          closeModal();
         }}
         maskClosable={false}
         title={config.title}
@@ -275,7 +290,7 @@ const CreateDatabase = () => {
             <Form.Item label={i18n('common.label.name')} name={config.formName}>
               <Input ref={inputRef} autoComplete="off" />
             </Form.Item>
-            {noCommentDatabase.includes(relyOnParams.databaseType) ? null : (
+            {supportsComment && (
               <Form.Item label={i18n('common.label.comment')} name="comment">
                 <Input autoComplete="off" />
               </Form.Item>

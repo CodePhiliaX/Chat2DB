@@ -22,11 +22,8 @@ public interface IDesktopUpdater {
         return false;
     }
 
-    default DesktopUpdateRecoveryStatus recoveryStatus() {
-        return DesktopUpdateRecoveryStatus.none();
-    }
-
-    default boolean openRecoveryLog() {
-        return false;
+    /** Installed version from the update layout ({@code <app>/version.json}); empty when unknown. */
+    default String installedVersion() {
+        return "";
     }
 }

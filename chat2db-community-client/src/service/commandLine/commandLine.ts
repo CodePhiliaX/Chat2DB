@@ -2,9 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { useGlobalStore } from '@/store/global';
 import { ServiceStatus } from '@/constants/common';
 import { ErrorCodesWithoutToast } from '@/constants/request';
-import interceptorsResponse from '../interceptorsResponse';
+import interceptorsResponse from '@/service/interceptorsResponse';
 import { IErrorLevel, PermissionError } from '@/service/base';
 import { staticMessage } from '@chat2db/ui';
+import { redactForLog } from './redactForLog';
+// The backend reports large-value failures as i18n keys, so the raw toast would show the key itself.
+import { getLargeCellDisplayMessage } from '@/blocks/SearchResult/components/ViewData/largeCellValueMessage';
 
 export interface ICommandLineRequest {
   requestUrl: string;
@@ -74,7 +77,7 @@ export const commandLineRequest = <R>(data: ICommandLineRequest, options: IOptio
       }),
     );
     if (__PRINT_LOGS__ || window._PRINT_LOGS) {
-      console.log('%cCHAT2DB_IPC_REQUEST', 'color: #00008B', JSON.stringify(res));
+      console.log('%cCHAT2DB_IPC_REQUEST', 'color: #00008B', redactForLog(res));
     }
     // Prepare for a cancellation request
     options?.restParams?.signal?.({ id, reject });
@@ -122,7 +125,7 @@ export const commandLineRequest = <R>(data: ICommandLineRequest, options: IOptio
 export const pushMessageFlow = (_data) => {
   const data = JSON.parse(_data);
   if (__PRINT_LOGS__ || window._PRINT_LOGS) {
-    console.log('%cCHAT2DB_IPC_RESPONSE', 'color: #B8860B', new Date().toISOString(), data);
+    console.log('%cCHAT2DB_IPC_RESPONSE', 'color: #B8860B', new Date().toISOString(), redactForLog(data));
   }
   const { setServiceStatus, commandLineRequestList, removeCommandLineRequestListItem } = useGlobalStore.getState();
 
@@ -161,7 +164,7 @@ export const pushMessageFlow = (_data) => {
       }
       switch (options.errorLevel) {
         case 'toast':
-          staticMessage.error(errorMessage);
+          staticMessage.error(getLargeCellDisplayMessage(errorMessage));
           break;
         case 'notification':
           useGlobalStore?.getState()?.systemErrorMessageApi?.({

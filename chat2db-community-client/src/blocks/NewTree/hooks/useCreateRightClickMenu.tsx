@@ -1,16 +1,23 @@
 import i18n from '@/i18n';
 import { Form } from 'antd';
+import { Copy, SquarePen } from 'lucide-react';
+import { type ReactNode, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
 
-import { ConsoleOpenedStatus, OperationColumn, TreeNodeType, WorkspaceTabType, databaseTypeList } from '@/constants';
+import {
+  ConsoleOpenedStatus,
+  DatabaseCapability,
+  OperationColumn,
+  TreeNodeType,
+  WorkspaceTabType,
+  databaseTypeList,
+} from '@/constants';
 import { ImportExportType } from '@/constants/importExport';
-import { OrgNavType } from '@/constants/organization';
 import { ShortcutAction } from '@/constants/shortcut';
 import { TreeNodeData } from '@/typings';
 import { canImportExport } from '@/utils/env';
 
 // ----- store -----
-import { useAIStore } from '@/store/ai';
 import { useGlobalStore } from '@/store/global';
 import { useImportExportStore } from '@/store/importExport';
 import { useTreeStore } from '@/store/tree';
@@ -24,9 +31,8 @@ import sqlService from '@/service/sql';
 // ---- functions -----
 import { copyToClipboard, getParentNode } from '@/utils';
 import { staticMessage, staticModal } from '@chat2db/ui';
-import { syncAiDataCollection } from '../functions/ai';
-import { openCreateAiDataCollectionModal } from '../functions/createAiDataCollection';
 import { deleteTable } from '../functions/deleteTable';
+import { openCopyTableModal } from '../functions/copyTable';
 import { generateJavaClass } from '../functions/generateJavaClass';
 import { neatenMoveToGroup } from '../functions/moveToGroup';
 import { editView, openFunction, openProcedure, openTrigger, openView } from '../functions/openAsyncSql';
@@ -36,37 +42,46 @@ import { viewDDL } from '../functions/viewDDL';
 
 // ----- utils -----
 import { compatibleDataBaseName, getDatabaseSupport } from '@/utils/database';
-import {
-  canDeleteDatabase,
-  canDeleteSchema,
-  canExportData,
-  canExportSqlFile,
-  canGenerateJavaClass,
-  canImportData,
-  canRunSqlFile,
-} from '@/utils/databaseJudgments';
+import { isDatabaseCapabilitySupported } from '@/utils/databaseJudgments';
 import { dropMenuConfig } from '../menuConfig';
 
 import { handleExportSqlFile } from '@/blocks/ImportAndExport/functions/exportSqlFile';
-import { useOrgStore } from '@/store/organization';
+import { useOrgStore } from '@/store/workspaceContext';
 import { ILoadDataOptions, treeConfig } from '../treeConfig';
 
-import { DataCollectionElementType } from '@/constants/aiDataCollection';
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
+import { clientRuntime } from '@client-runtime';
 import { resolveDataSourceAuthorization } from '@/utils/dataSourceAuthorization';
 import accountAdminService, { AccountActionType, formatAccountExecuteMessage } from '@/service/accountAdmin';
 import CreateAccountContent, { CreateAccountValues } from '../components/CreateAccountContent';
 import DeleteDatabaseSchemaConfirmContent from '../components/DeleteDatabaseSchemaConfirmContent';
-import { emitSavedConsoleUpdated } from '@/utils/savedConsoleEvents';
+import { buildWorkspaceObjectTabTitle } from '@/utils/workspaceObjectTabTitle';
+import { allowsResourceOperations } from '@/client-extension/resourceOperationCapabilities';
+import type { ResourceOperation, ResourceOperationCapabilities } from '@/client-extension/types';
+import clientExtension from '@client-extension';
+import { DataSourceIdentityColorRequestRegistry } from '../dataSourceIdentityColorRequest';
+import DataSourceColorMenuItem from '../components/DataSourceColorMenuItem';
+import { withDataSourceColorMenuOption } from '../dataSourceColorMenu';
+import { isDangerousTreeOperation } from '../treeMenuDanger';
+import { createActiveTransactionsWorkspaceTabId } from '../monitorTree';
+
+export interface MenuLabelRenderContext {
+  closeMenu: () => void;
+  setInteractionOpen: (open: boolean) => void;
+  registerFocusTarget: (focus: () => void) => () => void;
+}
 
 // Some operations are not supported by the database and need to be excluded.
 interface IOperationColumnConfigItem {
   text: string;
-  icon?: string;
+  icon?: string | ReactNode;
   shortcutAction?: ShortcutAction;
   doubleClickTrigger?: boolean;
   handle?: () => void;
   discard?: boolean;
+  requiredOperations?: readonly ResourceOperation[];
+  keepOpen?: boolean;
+  danger?: boolean;
+  renderLabel?: (context: MenuLabelRenderContext) => ReactNode;
   children?: IOperationColumnConfigItem[];
 }
 
@@ -76,9 +91,12 @@ interface IRightClickMenu {
   type: OperationColumn;
   shortcutAction?: ShortcutAction;
   doubleClickTrigger?: boolean;
+  keepOpen?: boolean;
+  danger?: boolean;
   labelProps: {
-    icon?: string;
+    icon?: string | ReactNode;
     label: string;
+    renderLabel?: (context: MenuLabelRenderContext) => ReactNode;
   };
   children?: IRightClickMenu[];
 }
@@ -86,6 +104,7 @@ interface IRightClickMenu {
 type CreateRightClickMenu = (
   treeNodeData: TreeNodeData,
   handleLoadData: (node: TreeNodeData, options?: ILoadDataOptions) => void,
+  operationCapabilities?: ResourceOperationCapabilities,
 ) => IRightClickMenu[];
 
 /**
@@ -93,7 +112,8 @@ type CreateRightClickMenu = (
  */
 function handleMenuOptions(treeNodeType, databaseType) {
   const databaseDropMenuConfig = dropMenuConfig[databaseType] || dropMenuConfig['DEFAULT'];
-  return databaseDropMenuConfig[treeNodeType] || dropMenuConfig['DEFAULT'][treeNodeType] || [];
+  const menuOptions = databaseDropMenuConfig[treeNodeType] || dropMenuConfig['DEFAULT'][treeNodeType] || [];
+  return withDataSourceColorMenuOption(menuOptions, treeNodeType);
 }
 
 // Node that can be double-clicked
@@ -104,28 +124,15 @@ export const canBeDoubleClicked = [
   TreeNodeType.PROCEDURE,
   TreeNodeType.FUNCTION,
   TreeNodeType.TRIGGER,
-  TreeNodeType.AI_DATA_COLLECTION_TABLE,
-  TreeNodeType.AI_DATA_COLLECTION_VIEW,
   TreeNodeType.ALL_DATA,
   TreeNodeType.DATABASE_ACCOUNT,
+  TreeNodeType.ACTIVE_TRANSACTIONS,
   TreeNodeType.SAVE_CONSOLE,
 ];
 
-const aiDataCollectionOperations = new Set<OperationColumn>([
-  OperationColumn.CreateAiDataCollection,
-  OperationColumn.ChangeAiTableInfo,
-  OperationColumn.ChangeAiTableInfoNodataCollection,
-  OperationColumn.RemoveAiDataCollection,
-  OperationColumn.SyncAiDataCollection,
-  OperationColumn.AddAiDataCollectionTable,
-  OperationColumn.AddAiDataCollectionView,
-  OperationColumn.RenameAiDataCollection,
-  OperationColumn.CopyAiDataCollectionId,
-  OperationColumn.RemoveAiDataCollectionElement,
-]);
-
 export const useCreateRightClickMenu = () => {
   const [createAccountForm] = Form.useForm<CreateAccountValues>();
+  const identityColorRequestRegistryRef = useRef(new DataSourceIdentityColorRequestRegistry());
   // Read only store actions here; dynamic data must be fetched again for each operation.
   const {
     setEditingTreeNode,
@@ -134,10 +141,8 @@ export const useCreateRightClickMenu = () => {
     deleteGroup,
     setIsModalVisible,
     setConnectionDetail,
-    setCurrentTreeNode,
     deleteDataSource,
-    deleteAiDataCollection,
-    deleteAiDataCollectionElement,
+    updateDataSourceIdentity,
     closeConnection,
   } = useTreeStore((state) => {
     return {
@@ -147,10 +152,8 @@ export const useCreateRightClickMenu = () => {
       deleteGroup: state.deleteGroup,
       setIsModalVisible: state.setIsModalVisible,
       setConnectionDetail: state.setConnectionDetail,
-      setCurrentTreeNode: state.setCurrentTreeNode,
       deleteDataSource: state.deleteDataSource,
-      deleteAiDataCollection: state.deleteAiDataCollection,
-      deleteAiDataCollectionElement: state.deleteAiDataCollectionElement,
+      updateDataSourceIdentity: state.updateDataSourceIdentity,
       closeConnection: state.closeConnection,
     };
   });
@@ -164,31 +167,28 @@ export const useCreateRightClickMenu = () => {
     };
   });
 
-  const { setImportExportDataBoundInfo, setRunSqlBoundInfo, getTaskList, openLogModal, setShowExportToolbar } =
-    useImportExportStore((state) => {
+  const { setImportExportDataBoundInfo, setRunSqlBoundInfo, getTaskList, openLogModal } = useImportExportStore(
+    (state) => {
       return {
         setImportExportDataBoundInfo: state.setImportExportDataBoundInfo,
         setRunSqlBoundInfo: state.setRunSqlBoundInfo,
         getTaskList: state.getTaskList,
         openLogModal: state.openLogModal,
-        setShowExportToolbar: state.setShowExportToolbar,
       };
-    });
+    },
+  );
 
-  const { openUnifiedConfirmationModal, setMainPageActiveTab } = useGlobalStore((state) => {
+  const { openUnifiedConfirmationModal } = useGlobalStore((state) => {
     return {
       openUnifiedConfirmationModal: state.openUnifiedConfirmationModal,
-      setMainPageActiveTab: state.setMainPageActiveTab,
     };
   });
 
-  const { isAdmin, setApplyProps, setOrgNav } = useOrgStore((state) => ({
+  const { isAdmin } = useOrgStore((state) => ({
     isAdmin: state.isAdmin,
-    setApplyProps: state.setApplyProps,
-    setOrgNav: state.setOrgNav,
   }));
 
-  const createRightClickMenu: CreateRightClickMenu = (treeNodeData, handleLoadData) => {
+  const createRightClickMenu: CreateRightClickMenu = (treeNodeData, handleLoadData, operationCapabilities) => {
     const treeData = useTreeStore.getState().treeData;
 
     if (!treeNodeData) return [];
@@ -200,14 +200,47 @@ export const useCreateRightClickMenu = () => {
       databaseName,
       schemaName,
       tableName,
-      dataCollectionElementType,
+      environmentId,
+      environment,
+      identityColor,
     } = extraParams;
-    const { hasPermission } = resolveDataSourceAuthorization(extraParams, runtimeEditionConfig.usesFixedIdentity);
+    const { hasPermission, isAdmin: isDataSourceAdmin } = resolveDataSourceAuthorization(
+      extraParams,
+      clientRuntime.usesFixedIdentity,
+    );
+
+    const persistIdentityColor = (nextIdentityColor: string | null) => {
+      const targetDataSourceId = dataSourceId!;
+      const requestRegistry = identityColorRequestRegistryRef.current;
+      const requestToken = requestRegistry.begin(targetDataSourceId, identityColor ?? null);
+      updateDataSourceIdentity({ id: targetDataSourceId, identityColor: nextIdentityColor });
+      return requestRegistry
+        .enqueue(targetDataSourceId, () =>
+          connectionService.updateIdentityColor({ id: targetDataSourceId, identityColor: nextIdentityColor }),
+        )
+        .then((response) => {
+          requestRegistry.confirm(targetDataSourceId, response.identityColor);
+          if (!requestRegistry.isLatest(requestToken)) {
+            return response;
+          }
+          updateDataSourceIdentity(response);
+          staticMessage.success(i18n('workspace.identityColor.saveSuccess'));
+          return response;
+        })
+        .catch((error) => {
+          if (!requestRegistry.isLatest(requestToken)) {
+            return Promise.reject(error);
+          }
+          updateDataSourceIdentity({
+            id: targetDataSourceId,
+            identityColor: requestRegistry.getConfirmedColor(targetDataSourceId),
+          });
+          staticMessage.error(i18n('workspace.identityColor.saveFailed'));
+          return Promise.reject(error);
+        });
+    };
 
     const { supportSchema, supportDatabase } = getDatabaseSupport(databaseType);
-    // Set the current node
-    setCurrentTreeNode(treeNodeData);
-
     const handelOpenCreateDatabaseModal = (type: 'database' | 'schema') => {
       const relyOnParams = {
         databaseType: treeNodeData.extraParams.databaseType!,
@@ -237,6 +270,16 @@ export const useCreateRightClickMenu = () => {
       handleLoadData(treeNodeData, {
         refresh: true,
       });
+    };
+
+    const handleCopyTable = (copyData: boolean) => {
+      void openCopyTableModal(
+        { dataSourceId: dataSourceId!, databaseName: databaseName!, schemaName, tableName: tableName!, copyData },
+        () => {
+          const parentNode = getParentNode(treeNodeData.key, treeData);
+          if (parentNode) handleLoadData(parentNode, { refresh: true });
+        },
+      ).catch(() => {});
     };
 
     const renderDeleteInputConfirmLabel = (labelKey: string, confirmName: string) => {
@@ -323,7 +366,11 @@ export const useCreateRightClickMenu = () => {
       // copyName
       [OperationColumn.CopyName]: {
         text: i18n('common.button.copyName'),
-        icon: 'icon-copy',
+        icon: (
+          <span style={{ alignItems: 'center', display: 'inline-flex', height: 20, justifyContent: 'center', width: 20 }}>
+            <Copy size={18} strokeWidth={1.75} />
+          </span>
+        ),
         handle: () => {
           copyToClipboard(treeNodeData.originalTitle);
         },
@@ -331,21 +378,19 @@ export const useCreateRightClickMenu = () => {
 
       // applies for permission
       [OperationColumn.ApplyPermission]: {
-        text: i18n('team.permission.modal.OkText'),
+        text: i18n('common.button.confirm'),
         icon: 'icon-key1',
         handle: () => {
           const props = {
-            applyType: 'data',
-            dataSourceId,
+            applyType: 'data' as const,
+            dataSourceId: dataSourceId!,
             databaseName,
             dataSourceName,
             schemaName,
           };
-          setMainPageActiveTab({ page: 'team' });
-          setApplyProps(props);
-          setOrgNav(OrgNavType.ApplyList);
+          clientExtension.openPermissionApplication?.(props);
         },
-        discard: hasPermission,
+        discard: hasPermission || !clientExtension.openPermissionApplication,
       },
 
       [OperationColumn.CloseConnection]: {
@@ -374,6 +419,26 @@ export const useCreateRightClickMenu = () => {
             },
           });
         },
+      },
+
+      [OperationColumn.ActiveTransactions]: {
+        text: i18n('workspace.ops.activeTransactions'),
+        icon: 'icon-file-text',
+        doubleClickTrigger: true,
+        handle: () => {
+          addWorkspaceTab({
+            id: createActiveTransactionsWorkspaceTabId(dataSourceId),
+            type: WorkspaceTabType.ActiveTransactions,
+            title: i18n('workspace.ops.activeTransactions'),
+            uniqueData: {
+              ...extraParams,
+            },
+          });
+        },
+        discard:
+          !hasPermission ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.ACTIVE_TRANSACTION_INSPECTION),
+        requiredOperations: ['SELECT'],
       },
 
       [OperationColumn.CreateAccount]: {
@@ -457,55 +522,7 @@ export const useCreateRightClickMenu = () => {
           moveToGroup,
           treeNodeData,
         }),
-      },
-
-      // Create an AI data collection.
-      [OperationColumn.CreateAiDataCollection]: {
-        text: i18n('workspace.menu.createAiDataCollection'),
-        icon: 'icon-folder',
-        handle: () => {
-          openCreateAiDataCollectionModal(treeNodeData, handleLoadData);
-        },
-      },
-
-      // Modify the AI table schema.
-      [OperationColumn.ChangeAiTableInfo]: {
-        text: i18n('workspace.menu.annotationDatabaseTable'),
-        icon: 'icon-annotation-database-table',
-        doubleClickTrigger: true,
-        handle: () => {
-          addWorkspaceTab({
-            id: uuid(),
-            title: `${treeNodeData.originalTitle}`,
-            type: WorkspaceTabType.ChangeAiTableInfo,
-            uniqueData: {
-              ...extraParams,
-              id: treeNodeData.id,
-              tableName: treeNodeData.originalTitle,
-              dataCollectionElementType,
-            },
-          });
-        },
-      },
-
-      // The annotation is outside a data collection.
-      [OperationColumn.ChangeAiTableInfoNodataCollection]: {
-        text: i18n('workspace.menu.annotationDatabaseTable'),
-        icon: 'icon-annotation-database-table',
-        handle: () => {
-          addWorkspaceTab({
-            id: uuid(),
-            title: `${treeNodeData.originalTitle}`,
-            type: WorkspaceTabType.ChangeAiTableInfo,
-            uniqueData: {
-              ...extraParams,
-              id: treeNodeData.id,
-              tableName: treeNodeData.originalTitle,
-              dataCollectionElementType:
-                treeNodeType === TreeNodeType.VIEW ? DataCollectionElementType.VIEW : DataCollectionElementType.TABLE,
-            },
-          });
-        },
+        discard: treeNodeType === TreeNodeType.DATA_SOURCE && !isDataSourceAdmin,
       },
 
       // Delete the group.
@@ -520,104 +537,6 @@ export const useCreateRightClickMenu = () => {
           });
         },
         discard: !isAdmin,
-      },
-
-      // Delete the AI data collection.
-      [OperationColumn.RemoveAiDataCollection]: {
-        text: i18n('workspace.menu.removeAiDataCollection'),
-        icon: 'icon-trash',
-        handle: () => {
-          openUnifiedConfirmationModal({
-            title: i18n('common.text.removeConfirm'),
-            content: i18n('workspace.text.removeAiDataCollection.tip', treeNodeData.originalTitle),
-            onOk: () => deleteAiDataCollection(treeNodeData, handleLoadData),
-          });
-        },
-      },
-
-      // Resynchronize the AI data collection.
-      [OperationColumn.SyncAiDataCollection]: {
-        text: i18n('workspace.menu.syncAiDataCollection'),
-        icon: 'icon-sparkles',
-        handle: () => {
-          staticModal.confirm({
-            title: i18n('ai.syncDBTable.title'),
-            content: i18n('ai.syncDBTable.desc'),
-            width: 700,
-            okText: i18n('common.button.sync'),
-            cancelText: i18n('common.button.cancel'),
-            onOk: () => {
-              syncAiDataCollection({ treeNodeData });
-            },
-          });
-        },
-      },
-
-      // Add a table to the AI data collection.
-      [OperationColumn.AddAiDataCollectionTable]: {
-        text: i18n('workspace.aiDataCollection.addTable'),
-        icon: 'icon-table-add',
-        handle: () => {
-          addWorkspaceTab({
-            id: uuid(),
-            title: `${extraParams.dataSourceName}-tables`,
-            type: WorkspaceTabType.ViewAllTable,
-            uniqueData: {
-              ...extraParams,
-              aiDataCollectionName: treeNodeData.originalTitle,
-              dataCollectionElementType: DataCollectionElementType.TABLE,
-            },
-          });
-        },
-      },
-
-      // Add a view to the AI data collection.
-      [OperationColumn.AddAiDataCollectionView]: {
-        text: i18n('workspace.aiDataCollection.addView'),
-        icon: 'icon-table-add',
-        handle: () => {
-          addWorkspaceTab({
-            id: uuid(),
-            title: `${extraParams.dataSourceName}-views`,
-            type: WorkspaceTabType.ViewAllView,
-            uniqueData: {
-              ...extraParams,
-              aiDataCollectionName: treeNodeData.originalTitle,
-              dataCollectionElementType: DataCollectionElementType.VIEW,
-            },
-          });
-        },
-      },
-
-      // Rename the AI data collection.
-      [OperationColumn.RenameAiDataCollection]: {
-        text: i18n('workspace.menu.renameGroup'),
-        icon: 'icon-edit',
-        handle: () => {
-          setEditingTreeNode(treeNodeData);
-        },
-      },
-
-      // Copy the AI data collection ID.
-      [OperationColumn.CopyAiDataCollectionId]: {
-        text: i18n('workspace.menu.copyAiDataCollectionId'),
-        icon: 'icon-copy',
-        handle: () => {
-          copyToClipboard(treeNodeData.id || '');
-        },
-      },
-
-      // Remove a table from the AI data collection.
-      [OperationColumn.RemoveAiDataCollectionElement]: {
-        text: i18n('workspace.menu.removeAiDataCollectionElement'),
-        icon: 'icon-sort-ascending',
-        handle: () => {
-          openUnifiedConfirmationModal({
-            title: i18n('common.text.removeConfirm'),
-            content: i18n('workspace.text.removeAiDataCollectionElement.tip', treeNodeData.originalTitle),
-            onOk: () => deleteAiDataCollectionElement(treeNodeData, handleLoadData),
-          });
-        },
       },
 
       [OperationColumn.SchemaSync]: {
@@ -657,12 +576,12 @@ export const useCreateRightClickMenu = () => {
             onOk: () => deleteDataSource(treeNodeData),
           });
         },
-        discard: !hasPermission,
+        discard: !isDataSourceAdmin,
       },
 
       [OperationColumn.EditSource]: {
         text: i18n('workspace.menu.editSource'),
-        icon: 'icon-edit',
+        icon: <SquarePen size={20} />,
         handle: () => {
           connectionService.getDetails({ id: dataSourceId! }).then((res) => {
             if (res) {
@@ -671,7 +590,34 @@ export const useCreateRightClickMenu = () => {
             }
           });
         },
+        discard: !isDataSourceAdmin,
+      },
+
+      [OperationColumn.SetDataSourceColor]: {
+        text: i18n('workspace.identityColor.label'),
         discard: !hasPermission,
+        keepOpen: true,
+        renderLabel: ({ closeMenu, setInteractionOpen, registerFocusTarget }) => {
+          const finishSelection = (nextIdentityColor: string | null) => {
+            setInteractionOpen(false);
+            void persistIdentityColor(nextIdentityColor).catch(() => undefined);
+            closeMenu();
+          };
+          return (
+            <DataSourceColorMenuItem
+              identityColor={identityColor}
+              onSelect={finishSelection}
+              onEscape={closeMenu}
+              registerFocusTarget={registerFocusTarget}
+              onPickerOpenChange={(open) => {
+                setInteractionOpen(open);
+                if (!open) {
+                  closeMenu();
+                }
+              }}
+            />
+          );
+        },
       },
 
       // Copy the data source.
@@ -686,6 +632,7 @@ export const useCreateRightClickMenu = () => {
                 ...res,
                 id: undefined,
                 alias: `${res.alias}_copy`,
+                identityColor: null,
                 password: '', // Clear the password.
                 ConsoleOpenedStatus: 'n' as const,
               };
@@ -696,7 +643,7 @@ export const useCreateRightClickMenu = () => {
             }
           });
         },
-        discard: !hasPermission,
+        discard: !isDataSourceAdmin,
       },
 
       // Refresh.
@@ -720,6 +667,8 @@ export const useCreateRightClickMenu = () => {
           createConsole({
             dataSourceId: dataSourceId!,
             dataSourceName: dataSourceName!,
+            environmentId,
+            environment,
             databaseType: databaseType!,
             databaseName,
             schemaName,
@@ -741,7 +690,7 @@ export const useCreateRightClickMenu = () => {
             title,
             uniqueData: {
               ...extraParams,
-              dataCollectionElementType: DataCollectionElementType.TABLE,
+              objectType: 'TABLE',
             },
           });
         },
@@ -759,7 +708,7 @@ export const useCreateRightClickMenu = () => {
             title,
             uniqueData: {
               ...extraParams,
-              dataCollectionElementType: DataCollectionElementType.VIEW,
+              objectType: 'VIEW',
             },
           });
         },
@@ -803,6 +752,7 @@ export const useCreateRightClickMenu = () => {
           });
         },
         discard: treeNodeType === TreeNodeType.DATABASE && supportSchema,
+        requiredOperations: ['CREATE'],
       },
 
       // Delete the table.
@@ -819,6 +769,7 @@ export const useCreateRightClickMenu = () => {
             }
           });
         },
+        requiredOperations: ['DROP'],
       },
 
       [OperationColumn.DeleteDatabase]: {
@@ -829,7 +780,8 @@ export const useCreateRightClickMenu = () => {
           treeNodeType !== TreeNodeType.DATABASE ||
           !hasPermission ||
           !supportDatabase ||
-          !canDeleteDatabase(databaseType),
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.DATABASE_DELETE),
+        requiredOperations: ['DROP'],
       },
 
       [OperationColumn.DeleteSchema]: {
@@ -837,7 +789,11 @@ export const useCreateRightClickMenu = () => {
         icon: 'icon-trash',
         handle: openDeleteSchemaModal,
         discard:
-          treeNodeType !== TreeNodeType.SCHEMA || !hasPermission || !supportSchema || !canDeleteSchema(databaseType),
+          treeNodeType !== TreeNodeType.SCHEMA ||
+          !hasPermission ||
+          !supportSchema ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.SCHEMA_DELETE),
+        requiredOperations: ['DROP'],
       },
 
       // View the DDL.
@@ -856,33 +812,9 @@ export const useCreateRightClickMenu = () => {
         handle: () => {},
       },
 
-      // Generate test data.
-      [OperationColumn.GenerateTestData]: {
-        text: i18n('workspace.menu.GenerateTestData'),
-        icon: 'icon-sparkles',
-        handle: () => {
-          // Set the database context first so the AI panel uses the current data source.
-          const page = useGlobalStore.getState().mainPageActiveTab as 'workspace' | 'dashboard' | 'chat' | 'stream';
-          useAIStore.getState().setCascaderData(page, {
-            dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-            databaseName: treeNodeData.extraParams!.databaseName,
-            schemaName: treeNodeData.extraParams?.schemaName,
-          });
-          useAIStore.getState().setShowPanel(true);
-          // Trigger the new AI system to send a message through an event.
-          setTimeout(() => {
-            window.dispatchEvent(
-              new CustomEvent('stream:sendMessage', {
-                detail: {
-                  input: i18n('ai.insertData.title', treeNodeData.originalTitle),
-                  dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-                  databaseName: treeNodeData.extraParams!.databaseName,
-                  schemaName: treeNodeData.extraParams?.schemaName,
-                },
-              }),
-            );
-          }, 100);
-        },
+      [OperationColumn.ChangeAiTableInfoNodataCollection]: {
+        text: i18n('workspace.menu.GenerateCRUD'),
+        discard: true,
       },
 
       // Pin to the top.
@@ -909,9 +841,12 @@ export const useCreateRightClickMenu = () => {
         icon: 'icon-table-edit',
         shortcutAction: ShortcutAction.DatabaseTreeEditTable,
         handle: () => {
-          const title = [tableName].filter(Boolean).join('.') + `[${dataSourceName}]`;
-          const popoverContent =
-            [databaseName, schemaName, tableName].filter(Boolean).join('.') + `[${dataSourceName}]`;
+          const title = buildWorkspaceObjectTabTitle({
+            dataSourceName,
+            databaseName,
+            schemaName,
+            objectName: tableName!,
+          });
 
           const id =
             treeConfig?.[TreeNodeType.TABLE]?.createTreeNodeKey?.({
@@ -934,10 +869,11 @@ export const useCreateRightClickMenu = () => {
                   });
                 }
               },
-              popoverContent,
+              popoverContent: title,
             },
           });
         },
+        requiredOperations: ['ALTER'],
       },
 
       // Open all data.
@@ -965,9 +901,12 @@ export const useCreateRightClickMenu = () => {
         doubleClickTrigger: true,
         handle: () => {
           const _tableName = compatibleDataBaseName(tableName!, databaseType!);
-          const title = [tableName].filter(Boolean).join('.') + `[${dataSourceName}]`;
-          const popoverContent =
-            [databaseName, schemaName, tableName].filter(Boolean).join('.') + `[${dataSourceName}]`;
+          const title = buildWorkspaceObjectTabTitle({
+            dataSourceName,
+            databaseName,
+            schemaName,
+            objectName: tableName!,
+          });
 
           const id =
             treeConfig?.[TreeNodeType.TABLE]?.createTreeNodeKey?.({
@@ -983,7 +922,7 @@ export const useCreateRightClickMenu = () => {
             uniqueData: {
               ...extraParams,
               sql: 'select * from ' + _tableName,
-              popoverContent,
+              popoverContent: title,
             },
           });
         },
@@ -1045,6 +984,7 @@ export const useCreateRightClickMenu = () => {
           handelOpenCreateDatabaseModal('database');
         },
         discard: !supportDatabase || !hasPermission,
+        requiredOperations: ['CREATE'],
       },
 
       // Create a schema.
@@ -1055,6 +995,7 @@ export const useCreateRightClickMenu = () => {
           handelOpenCreateDatabaseModal('schema');
         },
         discard: (treeNodeType === TreeNodeType.DATA_SOURCE && supportDatabase) || !supportSchema,
+        requiredOperations: ['CREATE'],
       },
 
       // Open a console.
@@ -1086,8 +1027,13 @@ export const useCreateRightClickMenu = () => {
         text: i18n('workspace.menu.removeConsole'),
         icon: 'icon-trash',
         handle: () => {
-          removeSavedConsole(treeNodeData.id!).then(() => {
-            emitSavedConsoleUpdated(extraParams);
+          openUnifiedConfirmationModal({
+            title: i18n('common.text.deleteConfirmTitle'),
+            content: i18n('common.text.deleteConfirmTip', treeNodeData.originalTitle),
+            onOk: async () => {
+              await removeSavedConsole(treeNodeData.id!);
+              await refreshAfterDelete();
+            },
           });
         },
       },
@@ -1104,7 +1050,10 @@ export const useCreateRightClickMenu = () => {
             schemaName,
           });
         },
-        discard: !canImportExport || !canRunSqlFile(databaseType) || !hasPermission,
+        discard:
+          !canImportExport ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.IMPORT_EXPORT) ||
+          !hasPermission,
       },
 
       [OperationColumn.CopyMcpConfig]: {
@@ -1146,7 +1095,6 @@ export const useCreateRightClickMenu = () => {
                 scope: 'SCHEMA',
                 getTaskList,
                 openLogModal,
-                setShowExportToolbar,
               });
             },
           },
@@ -1161,7 +1109,6 @@ export const useCreateRightClickMenu = () => {
                 scope: 'TABLE',
                 getTaskList,
                 openLogModal,
-                setShowExportToolbar,
               });
             },
           },
@@ -1176,7 +1123,6 @@ export const useCreateRightClickMenu = () => {
                 scope: 'ALL',
                 getTaskList,
                 openLogModal,
-                setShowExportToolbar,
               });
             },
           },
@@ -1184,7 +1130,7 @@ export const useCreateRightClickMenu = () => {
         discard:
           (treeNodeType === TreeNodeType.DATABASE && supportSchema) ||
           !canImportExport ||
-          !canExportSqlFile(databaseType),
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.IMPORT_EXPORT),
       },
 
       // Export data.
@@ -1202,7 +1148,9 @@ export const useCreateRightClickMenu = () => {
           });
         },
         discard:
-          (treeNodeType === TreeNodeType.DATABASE && supportSchema) || !canImportExport || !canExportData(databaseType),
+          (treeNodeType === TreeNodeType.DATABASE && supportSchema) ||
+          !canImportExport ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.IMPORT_EXPORT),
       },
 
       // Import data.
@@ -1220,7 +1168,10 @@ export const useCreateRightClickMenu = () => {
           });
         },
         discard:
-          (treeNodeType === TreeNodeType.DATABASE && supportSchema) || !canImportExport || !canImportData(databaseType),
+          (treeNodeType === TreeNodeType.DATABASE && supportSchema) ||
+          !canImportExport ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.IMPORT_EXPORT),
+        requiredOperations: ['INSERT'],
       },
 
       [OperationColumn.GenerateJavaClass]: {
@@ -1235,7 +1186,9 @@ export const useCreateRightClickMenu = () => {
             tableName: tableName!,
           });
         },
-        discard: !canImportExport || !canGenerateJavaClass(databaseType),
+        discard:
+          !canImportExport ||
+          !isDatabaseCapabilitySupported(databaseType, DatabaseCapability.JAVA_CLASS_GENERATION),
       },
 
       // Truncate the table.
@@ -1258,6 +1211,7 @@ export const useCreateRightClickMenu = () => {
             },
           });
         },
+        requiredOperations: ['TRUNCATE'],
       },
 
       // Copy the table.
@@ -1267,47 +1221,16 @@ export const useCreateRightClickMenu = () => {
         children: [
           {
             text: i18n('workspace.menu.copyStructure'),
-            handle: () => {
-              sqlService
-                .copyTable({
-                  dataSourceId: dataSourceId!,
-                  databaseName: databaseName!,
-                  schemaName,
-                  tableName: tableName!,
-                  copyData: false,
-                })
-                .then(() => {
-                  const parentNode = getParentNode(treeNodeData.key, treeData);
-                  if (parentNode) {
-                    handleLoadData(parentNode, {
-                      refresh: true,
-                    });
-                  }
-                });
-            },
+            requiredOperations: ['CREATE'],
+            handle: () => handleCopyTable(false),
           },
           {
             text: i18n('workspace.menu.copyStructureData'),
-            handle: () => {
-              sqlService
-                .copyTable({
-                  dataSourceId: dataSourceId!,
-                  databaseName: databaseName!,
-                  schemaName,
-                  tableName: tableName!,
-                  copyData: true,
-                })
-                .then(() => {
-                  const parentNode = getParentNode(treeNodeData.key, treeData);
-                  if (parentNode) {
-                    handleLoadData(parentNode, {
-                      refresh: true,
-                    });
-                  }
-                });
-            },
+            requiredOperations: ['CREATE', 'SELECT', 'INSERT'],
+            handle: () => handleCopyTable(true),
           },
         ],
+        requiredOperations: ['CREATE'],
       },
     };
 
@@ -1315,15 +1238,18 @@ export const useCreateRightClickMenu = () => {
       if (!children.length) return undefined;
       const finalList: IRightClickMenu[] = [];
       children?.forEach((t, i) => {
-        if (!t.discard && (runtimeEditionConfig.aiDataCollection || !aiDataCollectionOperations.has(type))) {
+        if (!t.discard && allowsResourceOperations(operationCapabilities, t.requiredOperations)) {
           finalList.push({
             key: `${lastKey}-${i}`,
             onClick: t.handle,
             type,
             shortcutAction: t.shortcutAction,
+            keepOpen: t.keepOpen,
+            danger: t.danger,
             labelProps: {
               icon: t.icon,
               label: t.text,
+              renderLabel: t.renderLabel,
             },
             children: generateChildren(t.children || [], type, `${lastKey}-${i}`),
           });
@@ -1349,22 +1275,25 @@ export const useCreateRightClickMenu = () => {
         return;
       }
 
-      if (!runtimeEditionConfig.aiDataCollection && aiDataCollectionOperations.has(t)) {
-        return;
-      }
-
       const concrete = operationColumnConfig[t];
 
-      if (!concrete.discard) {
+      if (
+        concrete &&
+        !concrete.discard &&
+        allowsResourceOperations(operationCapabilities, concrete.requiredOperations)
+      ) {
         finalList.push({
           key: i,
           onClick: concrete?.handle,
           type: t,
           shortcutAction: concrete.shortcutAction,
           doubleClickTrigger: concrete.doubleClickTrigger,
+          keepOpen: concrete.keepOpen,
+          danger: concrete.danger || isDangerousTreeOperation(t),
           labelProps: {
             icon: concrete?.icon,
             label: concrete?.text,
+            renderLabel: concrete?.renderLabel,
           },
           children: generateChildren(concrete?.children || [], t, i),
         });

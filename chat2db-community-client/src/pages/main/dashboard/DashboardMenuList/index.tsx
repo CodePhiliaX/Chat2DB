@@ -5,24 +5,23 @@ import i18n from '@/i18n';
 import { SquarePlus, Trash2 } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard/store';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Skeleton } from 'antd';
 import { useGlobalStore } from '@/store/global';
-
-const scrollId = 'chartMenuListDiv';
+import DashboardListFeedback from '../DashboardListFeedback';
 
 interface DashboardMenuListProps {
-  setOpenAddDashboard?: () => void;
   dashboardId?: number;
+  onSelect?: () => void;
 }
 
 const DashboardMenuList: FC<DashboardMenuListProps> = (props) => {
-  const { dashboardId } = props;
+  const { dashboardId, onSelect } = props;
   const { styles, cx } = useStyles();
 
   const {
     currentDashboard,
     dashboardList,
     dashboardListParams,
+    dashboardListStatus,
     deleteDashboard,
     queryDashboardList,
     setSettingDashboard,
@@ -32,6 +31,7 @@ const DashboardMenuList: FC<DashboardMenuListProps> = (props) => {
       currentDashboard: state.currentDashboard,
       dashboardList: state.dashboardList,
       dashboardListParams: state.dashboardListParams,
+      dashboardListStatus: state.dashboardListStatus,
       deleteDashboard: state.deleteDashboard,
       queryDashboardList: state.queryDashboardList,
       setSettingDashboard: state.setSettingDashboard,
@@ -47,11 +47,10 @@ const DashboardMenuList: FC<DashboardMenuListProps> = (props) => {
 
   // Optimistically highlight the item immediately without waiting for the API.
   const [selectedId, setSelectedId] = useState<number | undefined>(currentDashboard?.id);
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (currentDashboard?.id !== undefined) {
-      setSelectedId(currentDashboard.id);
-    }
+    setSelectedId(currentDashboard?.id);
   }, [currentDashboard?.id]);
 
   useEffect(() => {
@@ -62,6 +61,7 @@ const DashboardMenuList: FC<DashboardMenuListProps> = (props) => {
 
   const handleCreateNewDashboard = () => {
     setSettingDashboard({});
+    onSelect?.();
   };
 
   return (
@@ -78,59 +78,55 @@ const DashboardMenuList: FC<DashboardMenuListProps> = (props) => {
         />
       </div>
       {dashboardList.length ? (
-        <div className={styles.flowWrapper} id={scrollId}>
-          <InfiniteScroll
-            scrollableTarget={scrollId}
-            dataLength={dashboardList.length}
-            next={queryDashboardList}
-            hasMore={!!dashboardListParams.hasNextPage}
-            scrollThreshold={'50px'}
-            loader={
-              <Skeleton
-                active
-                paragraph={{ width: '80px', rows: 3 }}
-                style={{ paddingLeft: '12px', paddingTop: '8px' }}
-              />
-            }
-          >
-            {(dashboardList || []).map((t) => {
-              return (
-                <div
-                  key={t.id}
-                  className={cx(
-                    styles.dashboardItem,
-                    t.id === selectedId && styles.dashboardItemActive,
-                  )}
-                  onClick={() => {
-                    if (t.id != null && t.id !== selectedId) {
-                      setSelectedId(t.id);
-                      getDashboardById(t.id);
-                    }
-                  }}
-                >
-                  <div className={styles.dashboardItemTitle}>{t.name}</div>
+        <div className={styles.flowWrapper} ref={setScrollContainer}>
+          {scrollContainer && (
+            <InfiniteScroll
+              scrollableTarget={scrollContainer}
+              dataLength={dashboardList.length}
+              next={queryDashboardList}
+              hasMore={!!dashboardListParams.hasNextPage}
+              scrollThreshold={'50px'}
+              loader={<DashboardListFeedback />}
+            >
+              {(dashboardList || []).map((t) => {
+                return (
                   <div
-                    className={cx(styles.dashboardItemDelete, 'dashboard-item-delete')}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openUnifiedConfirmationModal({
-                        title: i18n('common.text.deleteConfirmTitle'),
-                        content: i18n('dashboard.delete.confirm'),
-                        onOk: () => {
-                          return deleteDashboard(t.id!);
-                        },
-                      });
+                    key={t.id}
+                    className={cx(styles.dashboardItem, t.id === selectedId && styles.dashboardItemActive)}
+                    onClick={() => {
+                      if (t.id != null && t.id !== selectedId) {
+                        setSelectedId(t.id);
+                        getDashboardById(t.id);
+                      }
+                      onSelect?.();
                     }}
                   >
-                    <Trash2 size={14} />
+                    <div className={styles.dashboardItemTitle}>{t.name}</div>
+                    <div
+                      className={cx(styles.dashboardItemDelete, 'dashboard-item-delete')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openUnifiedConfirmationModal({
+                          title: i18n('common.text.deleteConfirmTitle'),
+                          content: i18n('dashboard.delete.confirm'),
+                          onOk: () => {
+                            return deleteDashboard(t.id!);
+                          },
+                        });
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </InfiniteScroll>
+                );
+              })}
+            </InfiniteScroll>
+          )}
         </div>
-      ) : (
+      ) : dashboardListStatus === 'success' ? (
         <Empty className={styles.empty} image={EmptyImage.ChartList} title={'暂无数据'} />
+      ) : (
+        <DashboardListFeedback />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { memo, useState, ForwardedRef, forwardRef, useImperativeHandle, useRef, useMemo } from 'react';
+import { memo, useState, useRef, useMemo } from 'react';
 import Pagination from '@/components/Pagination';
 import i18n from '@/i18n';
 import { IconButton } from '@chat2db/ui';
@@ -13,7 +13,8 @@ import EditorChartModal, { EditChartModalRef } from '@/blocks/BI/ChartCardBox/Ed
 import DingChartModal, { DingChartModalRef } from '@/blocks/BI/ChartCardBox/DingChartModal';
 import ChartNoAxesCombined from '@/components/LucideIcons/ChartNoAxesCombined';
 import { useZoerStore } from '@/store/zoer';
-import { Columns3Cog } from 'lucide-react';
+import { Columns3Cog, RotateCw } from 'lucide-react';
+import type { ResultPaging } from '../ResultSet/pagination';
 
 export enum ToolbarOperationType {
   ADD_BLANK_ROW = 'addBlankRow',
@@ -24,23 +25,26 @@ export enum ToolbarOperationType {
   EXECUTE_SQL = 'executeSql',
 }
 
+const RESULT_TOOLBAR_BUTTON_SIZE = {
+  boxSize: 24,
+  iconSize: 16,
+  borderRadius: 4,
+  strokeWidth: 2,
+} as const;
+
 interface IProps {
   resultData: IManageResultData;
-  handleToolbarOperation: (type: ToolbarOperationType) => void;
-  hasOperationRecord: boolean;
+  handleToolbarOperation: (type: ToolbarOperationType, paging?: ResultPaging) => void;
+  hasPendingChanges: boolean;
   activeFilterCount?: number;
   onClearAllFilters?: () => void;
   onManageColumns: () => void;
 }
 
-export interface ResultSetToolbarRef {
-  getPagingParams: () => { pageNo: number; pageSize: number };
-}
-
-const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetToolbarRef>) => {
+const ResultSetToolbar = (props: IProps) => {
   const {
     resultData,
-    hasOperationRecord,
+    hasPendingChanges,
     handleToolbarOperation,
     activeFilterCount = 0,
     onClearAllFilters,
@@ -79,24 +83,22 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
   }, [resultData]);
 
   const onPageNoChange = (pageNo: number) => {
+    const nextPaging = { pageNo, pageSize: paginationConfig.pageSize };
     setPaginationConfig({
       ...paginationConfig,
       pageNo,
     });
-    setTimeout(() => {
-      handleToolbarOperation(ToolbarOperationType.EXECUTE_SQL);
-    }, 0);
+    handleToolbarOperation(ToolbarOperationType.EXECUTE_SQL, nextPaging);
   };
 
   const onPageSizeChange = (pageSize: number) => {
+    const nextPaging = { pageNo: 1, pageSize };
     setPaginationConfig({
       ...paginationConfig,
       pageNo: 1,
       pageSize,
     });
-    setTimeout(() => {
-      handleToolbarOperation(ToolbarOperationType.EXECUTE_SQL);
-    }, 0);
+    handleToolbarOperation(ToolbarOperationType.EXECUTE_SQL, nextPaging);
   };
 
   const onClickTotalBtn = (): Promise<number> => {
@@ -120,15 +122,6 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
     });
   };
 
-  useImperativeHandle(ref, () => ({
-    getPagingParams: () => {
-      return {
-        pageNo: paginationConfig.pageNo,
-        pageSize: paginationConfig.pageSize,
-      };
-    },
-  }));
-
   return (
     <div className={styles.toolBar}>
       <div className={styles.toolBarItem}>
@@ -141,18 +134,20 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
       </div>
       <div className={cx(styles.toolBarItem)}>
         <IconButton
+          className={styles.toolbarAction}
           title={i18n('common.button.refresh') + `${keyboardKey.command} + R`}
           onClick={handleRefresh}
-          size="sm"
-          code="icon-refresh"
+          size={RESULT_TOOLBAR_BUTTON_SIZE}
+          icon={RotateCw}
         />
       </div>
       {activeFilterCount >= 2 && onClearAllFilters && (
         <div className={cx(styles.toolBarItem)}>
           <IconButton
+            className={styles.toolbarAction}
             title={i18n('workspace.text.clearAllFilters', activeFilterCount)}
             onClick={onClearAllFilters}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-data-filter"
           />
         </div>
@@ -161,50 +156,55 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
         <div className={cx(styles.toolBarItem, styles.editTableDataBar)}>
           {/* Add a row. */}
           <IconButton
+            className={styles.toolbarAction}
             title={i18n('editTableData.tips.addRow')}
             onClick={() => {
               handleToolbarOperation(ToolbarOperationType.ADD_BLANK_ROW);
             }}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-add"
           />
           {/* Delete a row. */}
           <IconButton
+            className={styles.toolbarAction}
             title={i18n('editTableData.tips.deleteRow')}
             onClick={() => {
               handleToolbarOperation(ToolbarOperationType.DELETE_ROW);
             }}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-minus"
           />
           {/* Undo. */}
           <IconButton
-            // disabled={revokeDisableBarState}
+            className={cx(styles.toolbarAction, hasPendingChanges && styles.pendingAction)}
+            disabled={!hasPendingChanges}
             title={i18n('editTableData.tips.revert')}
             onClick={() => {
               handleToolbarOperation(ToolbarOperationType.REVOKE);
             }}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-revert-edit"
           />
           {/* View SQL. */}
           <IconButton
-            disabled={!hasOperationRecord}
+            className={cx(styles.toolbarAction, hasPendingChanges && styles.pendingAction)}
+            disabled={!hasPendingChanges}
             title={i18n('editTableData.tips.previewPendingChanges')}
             onClick={() => {
               handleToolbarOperation(ToolbarOperationType.VIEW_SQL);
             }}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-view-sql"
           />
           {/* Submit for execution. */}
           <IconButton
-            disabled={!hasOperationRecord}
+            className={cx(styles.toolbarAction, hasPendingChanges && styles.pendingAction)}
+            disabled={!hasPendingChanges}
             title={i18n('editTableData.tips.submit') + `${keyboardKey.command} + S`}
             onClick={() => {
               handleToolbarOperation(ToolbarOperationType.UPDATE_SUBMIT);
             }}
-            size="sm"
+            size={RESULT_TOOLBAR_BUTTON_SIZE}
             code="icon-submit-edit"
           />
         </div>
@@ -218,8 +218,8 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
               onClick={() => {
                 createChart();
               }}
-              size="sm"
-              className={styles.createChartIcon}
+              size={RESULT_TOOLBAR_BUTTON_SIZE}
+              className={styles.toolbarAction}
               icon={ChartNoAxesCombined}
             />
             <EditorChartModal
@@ -235,8 +235,8 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
         <IconButton
           title={i18n('common.text.showHideColumns')}
           onClick={onManageColumns}
-          size="sm"
-          className={styles.createChartIcon}
+          size={RESULT_TOOLBAR_BUTTON_SIZE}
+          className={styles.toolbarAction}
           icon={Columns3Cog}
         />
       </div>
@@ -245,12 +245,12 @@ const ResultSetToolbar = forwardRef((props: IProps, ref: ForwardedRef<ResultSetT
       </div>
     </div>
   );
-});
+};
 
 export default memo(ResultSetToolbar, (prevProps, nextProps) => {
   return isEqualMemo(
     [prevProps.resultData, nextProps.resultData],
-    [prevProps.hasOperationRecord, nextProps.hasOperationRecord],
+    [prevProps.hasPendingChanges, nextProps.hasPendingChanges],
     [prevProps.handleToolbarOperation, nextProps.handleToolbarOperation],
     [prevProps.activeFilterCount, nextProps.activeFilterCount],
     [prevProps.onClearAllFilters, nextProps.onClearAllFilters],

@@ -2,10 +2,16 @@ package ai.chat2db.community.domain.core.impl.task.imports.sql;
 
 import ai.chat2db.spi.DefaultSqlSyntaxHandler;
 import ai.chat2db.community.domain.api.enums.parser.DatabaseTypeEnum;
-import ai.chat2db.community.domain.api.model.task.ImportAsyncContext;
+import ai.chat2db.community.domain.api.model.task.ImportTaskSpec;
+import ai.chat2db.community.domain.api.model.task.SqlImportOptions;
+import ai.chat2db.community.domain.api.model.task.TaskCancelledException;
+import ai.chat2db.community.domain.api.model.task.TaskEventCode;
+import ai.chat2db.community.domain.api.model.task.TaskExecutionException;
+import ai.chat2db.community.domain.api.model.task.TaskStage;
+import ai.chat2db.community.domain.api.service.task.TaskExecutionContext;
 import ai.chat2db.community.tools.util.EasyStringUtils;
 import ai.chat2db.community.domain.core.impl.task.imports.*;
-import ai.chat2db.community.domain.api.model.metadata.TableColumn;
+import ai.chat2db.community.domain.core.impl.task.imports.reader.ImportTextFile;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.model.datasource.ConnectInfo;
 import ai.chat2db.spi.util.JdbcUtils;
@@ -19,78 +25,109 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
+import java.nio.file.Path;
 
 
 @Slf4j
-public class SQLImporter extends BaseImporter implements IImportStrategy {
+public class SQLImporter implements IImportStrategy {
 
     @Override
-    protected void doImportData(ImportAsyncContext context, List<TableColumn> columns) {
-        context.checkCancelled();
-        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
-        String databaseType = connectInfo.getDbType();
-        if (StringUtils.equalsAnyIgnoreCase(databaseType, DatabaseTypeEnum.MYSQL.name(), DatabaseTypeEnum.ORACLE.name(), DatabaseTypeEnum.OSCAR.name(), DatabaseTypeEnum.SQLSERVER.name(), DatabaseTypeEnum.POSTGRESQL.name())) {
-            ConsoleTaskProgressListener consoleProgressListener = new ConsoleTaskProgressListener(context);
-            SyncSqlBatchHandler syncSqlBatchHandler = new SyncSqlBatchHandler(context);
-            int statementCount = DefaultSqlSyntaxHandler.parserSqlScript(context.getFile(), databaseType, consoleProgressListener, syncSqlBatchHandler);
+    public void run(ImportTaskSpec spec, TaskExecutionContext context) {
+        try {
             context.checkCancelled();
-            log.info(" parsed {} statements", statementCount);
-        } else {
-
-            StringBuilder sb = new StringBuilder();
-            List<String> sqls = new ArrayList<>();
-            DbType dbType = JdbcUtils.parse2DruidDbType(databaseType);
-            long totalBytes = context.getFile().length();
-            AtomicLong bytesRead = new AtomicLong();
-            StringBuilder processStr = new StringBuilder("");
-            long s1 = System.currentTimeMillis();
-            AtomicInteger n = new AtomicInteger();
-            FileUtil.readLines(context.getFile(), Charset.forName("UTF-8"), (LineHandler) line -> {
-                context.checkCancelled();
-                bytesRead.addAndGet(line.getBytes().length + System.lineSeparator().getBytes().length);
-                setProgress(context, bytesRead.get(), totalBytes, processStr);
-                sb.append(line + "\n");
-                String s = line == null ? "" : line.trim();
-
-                if (s.endsWith(";")) {
-                    List<String> list = SqlUtils.parse(sb.toString(), dbType, false);
-                    if (CollectionUtils.isNotEmpty(list)) {
-                        for (int i = 0; i < list.size() - 1; i++) {
-                            String sql = list.get(i);
-                            if (StringUtils.isNotBlank(sql) && !sql.trim().equals(";")) {
-                                sqls.add(EasyStringUtils.sqlEscape(sql));
-                            }
-                        }
-                        sb.setLength(0);
-                        String last = list.get(list.size() - 1);
-                        sb.append(last);
-                        if (!last.trim().endsWith(";")) {
-                            sb.append(";");
-                        }
-                        sb.append("\n");
-                    }
-                }
-                if (sqls.size() >= 100) {
-                    context.execute(sqls);
-                    sqls.clear();
-                }
-            });
-            String endStr = sb.toString();
-            if (StringUtils.isNotBlank(endStr) && !endStr.trim().equals(";")) {
-                sqls.add(EasyStringUtils.sqlEscape(endStr));
+            File sourceFile = new File(spec.getSourceFile());
+            if (spec.getSqlImportOptions() != null) {
+                importConfiguredFile(spec, context, sourceFile);
+                return;
             }
-            log.info("parse sql cost:{}", System.currentTimeMillis() - s1);
-            context.execute(sqls);
+            ImportSqlExecutor sqlExecutor = new ImportSqlExecutor(context);
+            ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+            String databaseType = connectInfo.getDbType();
+            context.logInfo(TaskEventCode.FILE_READ_STARTED.name(), "Reading SQL import file");
+            if (StringUtils.equalsAnyIgnoreCase(databaseType, DatabaseTypeEnum.MYSQL.name(),
+                    DatabaseTypeEnum.ORACLE.name(), DatabaseTypeEnum.OSCAR.name(),
+                    DatabaseTypeEnum.SQLSERVER.name(), DatabaseTypeEnum.POSTGRESQL.name())) {
+                ConsoleTaskProgressListener consoleProgressListener =
+                        new ConsoleTaskProgressListener(context, sourceFile);
+                SyncSqlBatchHandler syncSqlBatchHandler = new SyncSqlBatchHandler(context, sqlExecutor);
+                int statementCount = DefaultSqlSyntaxHandler.parserSqlScript(
+                        sourceFile, databaseType, consoleProgressListener, syncSqlBatchHandler);
+                context.checkCancelled();
+                context.logInfo(TaskEventCode.FILE_READ_COMPLETED.name(), "SQL file parsed",
+                        Map.of("statementCount", statementCount));
+            } else {
+                StringBuilder sb = new StringBuilder();
+                List<String> sqls = new ArrayList<>();
+                DbType dbType = JdbcUtils.parse2DruidDbType(databaseType);
+                long totalBytes = sourceFile.length();
+                AtomicLong bytesRead = new AtomicLong();
+                StringBuilder processStr = new StringBuilder();
+                long startedAt = System.currentTimeMillis();
+                FileUtil.readLines(sourceFile, Charset.forName("UTF-8"), (LineHandler) line -> {
+                    context.checkCancelled();
+                    bytesRead.addAndGet(line.getBytes().length + System.lineSeparator().getBytes().length);
+                    setProgress(context, bytesRead.get(), totalBytes, processStr);
+                    sb.append(line).append('\n');
+                    String trimmed = line == null ? "" : line.trim();
+
+                    if (trimmed.endsWith(";")) {
+                        List<String> list = SqlUtils.parse(sb.toString(), dbType, false);
+                        if (CollectionUtils.isNotEmpty(list)) {
+                            for (int i = 0; i < list.size() - 1; i++) {
+                                String sql = list.get(i);
+                                if (StringUtils.isNotBlank(sql) && !sql.trim().equals(";")) {
+                                    sqls.add(EasyStringUtils.sqlEscape(sql));
+                                }
+                            }
+                            sb.setLength(0);
+                            String last = list.get(list.size() - 1);
+                            sb.append(last);
+                            if (!last.trim().endsWith(";")) {
+                                sb.append(";");
+                            }
+                            sb.append('\n');
+                        }
+                    }
+                    if (sqls.size() >= 100) {
+                        sqlExecutor.executeBatch(sqls);
+                        sqls.clear();
+                    }
+                });
+                String endStr = sb.toString();
+                if (StringUtils.isNotBlank(endStr) && !endStr.trim().equals(";")) {
+                    sqls.add(EasyStringUtils.sqlEscape(endStr));
+                }
+                log.info("parse sql cost:{}", System.currentTimeMillis() - startedAt);
+                sqlExecutor.executeBatch(sqls);
+                context.logInfo(TaskEventCode.FILE_READ_COMPLETED.name(), "SQL file parsed");
+            }
+        } catch (TaskCancelledException | TaskExecutionException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Could not import SQL file", e);
+            throw ImportTaskErrors.from(e, "import.sql.parseFailed");
         }
     }
 
-    private void setProgress(ImportAsyncContext context, long i, long size, StringBuilder processStr) {
-        long progress = i * 100 / size;
+    private void importConfiguredFile(ImportTaskSpec spec, TaskExecutionContext context, File sourceFile) throws Exception {
+        SqlImportOptions options = spec.getSqlImportOptions().validate();
+        Path decoded = ImportTextFile.utf8Copy(sourceFile, options.getEncoding(), context::checkCancelled);
+        try {
+            run(ImportTaskSpec.builder().sourceFile(decoded.toString()).build(), context);
+        } finally {
+            Files.deleteIfExists(decoded);
+        }
+    }
+
+    private void setProgress(TaskExecutionContext context, long i, long size, StringBuilder processStr) {
+        long progress = size <= 0 ? 99 : i * 100 / size;
         Integer p = Integer.valueOf(progress + "");
         if (p >= 100) {
             p = 99;
@@ -98,8 +135,9 @@ public class SQLImporter extends BaseImporter implements IImportStrategy {
         if (!processStr.toString().equals(p.toString())) {
             processStr.setLength(0);
             processStr.append(p);
-            context.setProgress(p);
-            context.info(DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss") + " all bytes:" + size + ",current bytes:" + i + ",progress:" + progress + "%");
+            context.reportProgress(p, TaskStage.IMPORTING.name(),
+                    DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss") + " all bytes:" + size
+                            + ",current bytes:" + i + ",progress:" + progress + "%");
         }
 
     }

@@ -51,6 +51,11 @@ export function getSettingSearchItems(menuCode: string): SettingSearchItem[] {
           'unsaved changes',
           'confirmation',
         ]),
+        settingItem('editor.defaultPageSize', 'monaco.defaultPageSize', [
+          'default page size',
+          'query rows',
+          'row limit',
+        ]),
         settingItem('editor.errorContinue', 'monaco.errorContinue', ['continue on error', 'execution']),
       ];
     case 'terminal':
@@ -84,6 +89,32 @@ export function getSettingSearchItems(menuCode: string): SettingSearchItem[] {
           keywords: ['mcp token', 'authentication', 'reset token'],
         },
       ];
+    case 'cli':
+      return [
+        {
+          targetId: 'sqlx.install',
+          title: i18n('setting.title.sqlxCli'),
+          keywords: [
+            i18n('setting.sqlx.button.install'),
+            i18n('setting.sqlx.button.checkUpdate'),
+            i18n('setting.sqlx.button.redetect'),
+            'sqlx',
+            'cli',
+            'command line',
+            'install',
+          ],
+        },
+        {
+          targetId: 'sqlx.datasource',
+          title: i18n('setting.sqlx.section.datasource'),
+          keywords: ['sqlx', 'datasource', 'import', 'agent'],
+        },
+        {
+          targetId: 'sqlx.agent',
+          title: i18n('setting.sqlx.section.agent'),
+          keywords: ['sqlx', 'skill', 'agent', 'plugin', 'marketplace', 'claude', 'codex', 'dsh', 'pi'],
+        },
+      ];
     case 'networkProxy':
       return [
         {
@@ -102,39 +133,6 @@ export function getSettingSearchItems(menuCode: string): SettingSearchItem[] {
         settingItem('personal.profile', 'setting.nav.personalInformation', ['profile', 'avatar', 'display name']),
         settingItem('personal.email', 'setting.nav.resetEmail', ['email', 'mailbox', 'account']),
         settingItem('personal.password', 'setting.nav.resetPassword', ['password', 'credential', 'security']),
-      ];
-    case 'invite':
-      return [
-        settingItem('invite.code', 'invite.setting.inviteCode', [
-          'invitation code',
-          'invite friends',
-          'share',
-          'rules',
-        ]),
-        settingItem('invite.balance', 'invite.setting.totalAssets', [
-          'withdraw',
-          'withdrawal',
-          'reward',
-          'balance',
-        ]),
-        settingItem('invite.list', 'invite.setting.inviteList', ['invited user', 'invitation history', 'reward status']),
-      ];
-    case 'purchase':
-      return [
-        settingItem('purchase.orders', 'setting.purchaseDetails.title', [
-          'order',
-          'subscription',
-          'product',
-          'activation code',
-          'invoice',
-        ]),
-      ];
-    case 'deviceCer':
-      return [
-        settingItem('deviceCer.license', 'license.selectOrder', ['license', 'order', 'permanent version']),
-        settingItem('deviceCer.name', 'license.deviceNameLabel', ['device name', 'computer name']),
-        settingItem('deviceCer.os', 'license.osLabel', ['operating system', 'windows', 'linux', 'macos']),
-        settingItem('deviceCer.id', 'license.deviceId', ['device id', 'machine id', 'offline activation']),
       ];
     default:
       return [];

@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,7 +48,7 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
 
     AiChatHistoryServiceImpl(ObjectMapper objectMapper, Path baseDir) {
         this.objectMapper = objectMapper;
-        this.baseDir = baseDir;
+        this.baseDir = Objects.requireNonNull(baseDir, "baseDir").toAbsolutePath().normalize();
     }
 
     @Override
@@ -71,6 +73,11 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
     @Override
     public List<AiChatSession> listSessions(Long userId) {
         return listSessionsLocal(userId);
+    }
+
+    @Override
+    public void renameSession(String sessionId, Long userId, String title) {
+        renameSessionLocal(sessionId, userId, title);
     }
 
 
@@ -117,6 +124,7 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
     private synchronized AiChatMessage addMessageLocal(String sessionId, Long userId, String role, String content,
                                                        String reasoningContent,
                                                        List<ChatAttachment> attachments) {
+        sessionId = canonicalSessionId(sessionId);
         if (!ownsSession(userId, sessionId)) {
             throw new BusinessException("ai.chat.history.sessionNotOwned", new Object[]{sessionId});
         }
@@ -145,10 +153,22 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
                 .collect(Collectors.toList());
     }
 
+    private synchronized void renameSessionLocal(String sessionId, Long userId, String title) {
+        List<AiChatSession> sessions = loadSessions(userId);
+        AiChatSession session = sessions.stream()
+                .filter(item -> Objects.equals(item.getId(), sessionId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(
+                        "ai.chat.history.sessionNotOwned", new Object[]{sessionId}));
+        session.setTitle(title.trim());
+        persistSessions(userId, sessions);
+    }
+
     private synchronized List<AiChatMessage> getMessagesLocal(String sessionId, Long userId) {
         if (!ownsSession(userId, sessionId)) {
             return new ArrayList<>();
         }
+        sessionId = canonicalSessionId(sessionId);
         return loadMessages(sessionId);
     }
 
@@ -166,29 +186,64 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
     }
 
     private synchronized void deleteSessionLocal(String sessionId, Long userId) {
+        if (!ownsSession(userId, sessionId)) {
+            return;
+        }
+        canonicalSessionId(sessionId);
         List<AiChatSession> sessions = loadSessions(userId);
         // Only delete the message file when the session was actually owned by
         // this user; otherwise a caller could delete another user's file by id.
-        boolean removed = sessions.removeIf(s -> Objects.equals(s.getId(), sessionId));
-        persistSessions(userId, sessions);
+        List<AiChatSession> remainingSessions = new ArrayList<>(sessions);
+        boolean removed = remainingSessions.removeIf(s -> Objects.equals(s.getId(), sessionId));
         if (!removed) {
             return;
         }
+        persistSessions(userId, remainingSessions);
 
         Path msgFile = messagesPath(sessionId);
         try {
             Files.deleteIfExists(msgFile);
         } catch (IOException e) {
-            throw new BusinessException("ai.chat.history.deleteMessagesFailed", new Object[]{msgFile, e.getMessage()}, e);
+            BusinessException failure = new BusinessException("ai.chat.history.deleteMessagesFailed",
+                    new Object[]{msgFile, e.getMessage()}, e);
+            try {
+                persistSessions(userId, sessions);
+            } catch (RuntimeException rollbackFailure) {
+                failure.addSuppressed(rollbackFailure);
+            }
+            throw failure;
         }
     }
 
     private Path sessionsPath(Long userId) {
-        return baseDir.resolve("sessions-" + userId + ".json");
+        return resolveHistoryFile("sessions-" + userId + ".json");
     }
 
     private Path messagesPath(String sessionId) {
-        return baseDir.resolve(sessionId + ".json");
+        return resolveHistoryFile(canonicalSessionId(sessionId) + ".json");
+    }
+
+    private Path resolveHistoryFile(String fileName) {
+        Path target = baseDir.resolve(fileName).normalize();
+        if (!baseDir.equals(target.getParent())) {
+            throw new IllegalArgumentException("AI chat history file must stay inside its storage directory");
+        }
+        return target;
+    }
+
+    private String canonicalSessionId(String sessionId) {
+        if (StringUtils.isBlank(sessionId)) {
+            throw new BusinessException("ai.chat.history.sessionNotOwned", new Object[]{sessionId});
+        }
+        try {
+            String canonical = UUID.fromString(sessionId).toString();
+            if (!canonical.equals(sessionId)) {
+                throw new IllegalArgumentException("Session id is not canonical");
+            }
+            return canonical;
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("ai.chat.history.sessionNotOwned", new Object[]{sessionId}, e);
+        }
     }
 
     private List<AiChatSession> loadSessions(Long userId) {
@@ -207,10 +262,9 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
     private void persistSessions(Long userId, List<AiChatSession> sessions) {
         Path path = sessionsPath(userId);
         try {
-            Files.createDirectories(path.getParent());
             SessionsFile file = new SessionsFile();
             file.setSessions(sessions);
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), file);
+            writeAtomically(path, file);
         } catch (IOException e) {
             throw new BusinessException("ai.chat.history.persistSessionsFailed", new Object[]{path, e.getMessage()}, e);
         }
@@ -232,10 +286,9 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
     private void persistMessages(String sessionId, List<AiChatMessage> messages) {
         Path path = messagesPath(sessionId);
         try {
-            Files.createDirectories(path.getParent());
             MessagesFile file = new MessagesFile();
             file.setMessages(messages);
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), file);
+            writeAtomically(path, file);
         } catch (IOException e) {
             throw new BusinessException("ai.chat.history.persistMessagesFailed", new Object[]{path, e.getMessage()}, e);
         }
@@ -248,6 +301,26 @@ public class AiChatHistoryServiceImpl implements IAiChatHistoryService {
                 .findFirst()
                 .ifPresent(s -> s.setGmtModified(LocalDateTime.now()));
         persistSessions(userId, sessions);
+    }
+
+    private void writeAtomically(Path target, Object value) throws IOException {
+        Path absoluteTarget = target.toAbsolutePath().normalize();
+        if (!baseDir.equals(absoluteTarget.getParent())) {
+            throw new IOException("AI chat history target must stay inside its storage directory");
+        }
+        Files.createDirectories(baseDir);
+        Path temporary = Files.createTempFile(baseDir, ".chat-history-", ".tmp");
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(), value);
+            try {
+                Files.move(temporary, absoluteTarget, StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temporary, absoluteTarget, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
     }
 
     @Data

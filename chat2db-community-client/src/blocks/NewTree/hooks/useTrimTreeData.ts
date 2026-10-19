@@ -1,7 +1,6 @@
 import { useTreeStore } from '@/store/tree';
 import { TreeNodeData } from '@/typings';
 import { filterTreeNodesForDisplay } from '@/utils/filterTreeNodes';
-import { runtimeEditionConfig } from '@/constants/runtimeEdition';
 import { useMemo } from 'react';
 import { applyDatabaseObjectTreeSorting } from '../utils/sortTreeNodes';
 
@@ -32,7 +31,6 @@ export default function useTrimTreeData(props?: {
       hiddenNoPermission,
       excludeNodes,
       leafNodes,
-      aiDataCollectionEnabled: runtimeEditionConfig.aiDataCollection,
     });
 
     return applyDatabaseObjectTreeSorting(filteredDatabaseAndSchema, userConfigTree.sortDatabaseObjects === true);

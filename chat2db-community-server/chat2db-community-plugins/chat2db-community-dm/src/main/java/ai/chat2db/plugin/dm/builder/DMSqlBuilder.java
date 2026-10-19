@@ -1,5 +1,7 @@
 package ai.chat2db.plugin.dm.builder;
 
+import ai.chat2db.plugin.dm.parser.DMExecutableSql;
+import ai.chat2db.plugin.dm.parser.DMSqlParser;
 import ai.chat2db.spi.constant.SQLConstants;
 
 import ai.chat2db.plugin.dm.identifier.DMIdentifierProcessor;
@@ -11,7 +13,6 @@ import ai.chat2db.spi.DefaultSqlBuilder;
 import ai.chat2db.spi.model.request.PageLimitRequest;
 import ai.chat2db.spi.model.request.UpdateSqlRequest;
 import ai.chat2db.community.domain.api.model.account.*;
-import ai.chat2db.community.domain.api.model.async.*;
 import ai.chat2db.community.domain.api.config.*;
 import ai.chat2db.spi.model.datasource.*;
 import ai.chat2db.community.domain.api.model.form.*;
@@ -32,6 +33,8 @@ import java.util.stream.Collectors;
 
 import static ai.chat2db.plugin.dm.constant.DMSqlBuilderConstants.*;
 public class DMSqlBuilder  extends DefaultSqlBuilder {
+
+    private final DMSqlParser parser = new DMSqlParser();
 
     @Override
     public String quoteIdentifier(String identifier) {
@@ -291,6 +294,12 @@ public class DMSqlBuilder  extends DefaultSqlBuilder {
         }
 
         return sqlBuilder.toString();
+    }
+
+    @Override
+    public String buildExplain(String sql) {
+        DMExecutableSql executableSql = parser.parseExecutableSql(sql);
+        return executableSql.isExplain() ? sql : SQLConstants.EXPLAIN_SQL_PREFIX + sql;
     }
 
     private static String quoteStringLiteral(String value) {

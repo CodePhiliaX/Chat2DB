@@ -5,6 +5,7 @@ import i18n from '@/i18n';
 import { resolveResultSetEditor } from './editorType';
 import type { HeaderMetadataVisibility } from '../headerMetadata';
 import { createResultHeaderCustomRender } from '../headerRender';
+import { getCollapsedResultCellPreview, isResultTableRowExpanded } from '../rowHeight';
 
 const handleDataDisplay = (params: {
   data: ITableHeaderItem;
@@ -29,7 +30,14 @@ const handleDataDisplay = (params: {
     field,
     hide: hiddenFields?.has(field) ?? false,
     title: '',
-    headerCustomRender,
+    headerCustomRender: (args: { rect?: { width?: number } }) =>
+      createResultHeaderCustomRender({
+        data,
+        theme,
+        fontSize: customFontSize,
+        visibility,
+        availableWidth: args.rect?.width,
+      }),
     headerStyle: {
       padding: [
         8,
@@ -39,7 +47,10 @@ const handleDataDisplay = (params: {
       ],
     },
     showSort: false,
-    editor: canEdit && !readOnlyFields?.has(field) ? resolveResultSetEditor(data.editorType) : undefined,
+    editor:
+      canEdit && !readOnlyFields?.has(field)
+        ? resolveResultSetEditor(data.editorType, data.editorOptions, theme)
+        : undefined,
     headerIcon: ['filter', 'sort'],
     sort: (a, b, _order): 0 | 1 | -1 => {
       if (a === null || a === undefined) return _order === 'asc' ? -1 : 1;
@@ -134,6 +145,32 @@ const handleDataDisplay = (params: {
           ],
           expectedHeight: 28,
           expectedWidth: 90,
+        };
+      }
+      const collapsedPreview = getCollapsedResultCellPreview(
+        args.dataValue,
+        isResultTableRowExpanded(args.table, args.row),
+      );
+      if (collapsedPreview !== undefined) {
+        return {
+          elements: [
+            {
+              type: 'text',
+              fill: theme.colorText,
+              fontSize: customFontSize,
+              fontFamily: theme.fontFamily,
+              fontWeight: 400,
+              text: collapsedPreview,
+              x: 6,
+              y: 19,
+              maxLineWidth: Math.max(0, (args.rect?.width ?? 160) - 12),
+              heightLimit: 20,
+              lineClamp: 1,
+              ellipsis: true,
+            },
+          ],
+          expectedHeight: 28,
+          expectedWidth: 160,
         };
       }
       return {
