@@ -9,6 +9,15 @@ export const MINIMAX_BASE_URL_PRESETS: Array<{ label: string; value: string }> =
 
 export const DEFAULT_MINIMAX_BASE_URL = MINIMAX_BASE_URL_PRESETS[0].value;
 
+export const MINIMAX_MODEL_PRESETS = ['MiniMax-M3.1-Flash', 'MiniMax-M3'].map((value) => ({ value }));
+
+export const resolveProviderModel = (provider: AIProvider, model?: string): string => {
+  if (provider === 'MINIMAX' && !model?.trim()) {
+    return MINIMAX_MODEL_PRESETS[0].value;
+  }
+  return model || '';
+};
+
 const MINIMAX_BASE_URLS = new Set(MINIMAX_BASE_URL_PRESETS.map(({ value }) => value));
 
 export const resolveProviderBaseUrl = (provider: AIProvider, baseUrl?: string): string => {
