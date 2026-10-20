@@ -71,6 +71,7 @@ import {
   getLocalTextFileTabPresentation,
   SQL_FILE_EXTENSION_NAME,
 } from '../../utils/localTextFile';
+import { createSavedConsoleLoadSQL } from '../../utils/savedConsoleRestore';
 import { confirmWorkspaceTabsClose } from '@/utils/editorCloseConfirmation';
 import { resolveEditorDataSourceConnectable, resolveEditorDataSourceState } from '@/utils/editorDataSourceLifecycle';
 import { EditorType } from '@/components/SQLEditor';
@@ -380,6 +381,19 @@ function rebuildSqlExecuteTabData(item: IWorkspaceTab) {
           } as any)
           .then((res) => res.triggerBody);
       },
+    };
+  }
+
+  const savedConsoleLoadSQL = createSavedConsoleLoadSQL({
+    tabId: item.id,
+    tabType: item.type,
+    uniqueData,
+    readSavedConsole: historyService.getSavedConsole,
+  });
+  if (savedConsoleLoadSQL) {
+    return {
+      ...uniqueData,
+      loadSQL: savedConsoleLoadSQL,
     };
   }
 
